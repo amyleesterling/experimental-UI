@@ -306,6 +306,44 @@
   .grouphead { padding-top: 3.2rem; }
   .grouphead h2 { font-size: 1.5rem; font-weight: 300; }
   .grouphead .note { margin-bottom: 0; }
+
+  /* concept panes: the model itself, live, under each element */
+  .concept {
+    margin-top: 1.05rem;
+    padding-left: 1rem;
+    border-left: 2px solid rgb(var(--holo-warm) / .3);
+  }
+  .concept-title {
+    margin: 0 0 .45rem;
+    font-size: .68rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgb(var(--holo-warm) / .9);
+  }
+  .cstage {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
+    aspect-ratio: 16 / 9;
+  }
+  .cstage.tall { aspect-ratio: 4 / 3; }
+  .cstage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .cstage.grabby { cursor: crosshair; touch-action: none; }
+  .cread {
+    position: absolute;
+    left: .7rem;
+    bottom: .55rem;
+    font-size: .68rem;
+    letter-spacing: .05em;
+    color: rgb(var(--holo-dim) / .95);
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .cread b { color: rgb(var(--holo-beam) / .95); font-weight: 600; }
+  .mrow label { display: flex; align-items: center; gap: .5rem; }
+  .mrow input[type="range"] { width: 130px; accent-color: rgb(var(--holo-beam)); }
 </style>
 </head>
 <body>
@@ -531,6 +569,30 @@
         <span class="quiet" id="ring-count" role="status"></span>
       </div>
     </div>
+  
+    <div class="concept">
+      <p class="concept-title">The concept, live: Phyllotaxis, the golden angle</p>
+      <p class="note">
+      Every dot is placed by one rule: turn by the divergence angle, step
+      outward. At exactly <b>137.51 degrees</b> the packing is even with no
+      clumping and no ray seams, and a fraction of a degree either side it
+      collapses into spokes and spirals. Nudge the slider and feel how narrow
+      the good angle is. That fragility is the demonstration.
+    </p>
+      <div class="panel">
+      <div class="cstage tall"><canvas id="phy-cv" role="img"></canvas>
+        <p class="cread" id="phy-read"></p></div>
+      <div class="mrow">
+        <label>Angle
+          <input id="phy-angle" type="range" min="128" max="146" step="0.02" value="137.51" aria-label="Divergence angle in degrees">
+        </label>
+        <label>Seeds
+          <input id="phy-count" type="range" min="80" max="650" step="10" value="420" aria-label="Number of seeds">
+        </label>
+        <button class="mbtn" id="phy-golden" type="button" data-holo-tap>Snap to golden</button>
+      </div>
+    </div>
+    </div>
   </section>
 
 <section id="poisson">
@@ -556,6 +618,30 @@
         <button class="mbtn" data-seed="random" type="button" data-holo-tap aria-pressed="false">Random seeding</button>
       </div>
     </div>
+  
+    <div class="concept">
+      <p class="concept-title">The concept, live: Poisson disc sampling</p>
+      <p class="note">
+      Three ways to place the same number of points. <b>Random</b> clumps and
+      leaves holes, which reads as a mistake. <b>Grid</b> reads as a grid.
+      <b>Poisson</b> is random but never closer than a set distance, which is
+      the texture eyes accept as natural. The points arrive in generation
+      order, so the Poisson set visibly grows from its first seed.
+    </p>
+      <div class="panel">
+      <div class="cstage"><canvas id="poi-cv" role="img"></canvas>
+        <p class="cread" id="poi-read"></p></div>
+      <div class="mrow" role="group" aria-label="Scatter mode">
+        <button class="mbtn" data-mode="poisson" type="button" data-holo-tap aria-pressed="true">Poisson</button>
+        <button class="mbtn" data-mode="random" type="button" data-holo-tap aria-pressed="false">Random</button>
+        <button class="mbtn" data-mode="grid" type="button" data-holo-tap aria-pressed="false">Grid</button>
+        <label>Spacing
+          <input id="poi-r" type="range" min="12" max="30" step="1" value="19" aria-label="Minimum spacing for the Poisson set">
+        </label>
+        <button class="mbtn" id="poi-again" type="button" data-holo-tap>Rescatter</button>
+      </div>
+    </div>
+    </div>
   </section>
 
 <section id="flow">
@@ -576,6 +662,25 @@
           <button class="mbtn" id="empty-cta" type="button" data-holo-tap>Claim your first cell</button>
         </div>
       </div>
+    </div>
+  
+    <div class="concept">
+      <p class="concept-title">The concept, live: Flow fields from gradient noise</p>
+      <p class="note">
+      Particles follow a smooth vector field instead of a random walk, so the
+      drift has direction and structure that persists. One noise function
+      steers every particle. This is the one genuinely ambient sketch on the
+      page: it runs while it is on screen and stops when it is not.
+    </p>
+      <div class="panel">
+      <div class="cstage"><canvas id="flo-cv" role="img" aria-label="Particles drifting along a smooth noise field"></canvas></div>
+      <div class="mrow">
+        <label>Swirl
+          <input id="flo-scale" type="range" min="1.5" max="6" step="0.1" value="3" aria-label="Field frequency">
+        </label>
+        <button class="mbtn" id="flo-seed" type="button" data-holo-tap>New field</button>
+      </div>
+    </div>
     </div>
   </section>
 
@@ -598,6 +703,27 @@
         <button class="mbtn" id="fou-again" type="button" data-holo-tap>Reload</button>
       </div>
     </div>
+  
+    <div class="concept">
+      <p class="concept-title">The concept, live: Fourier series, drawn as epicycles</p>
+      <p class="note">
+      Any closed path is a sum of rotating circles. Here a heart is rebuilt
+      from its coefficients: each circle spins at its own frequency and the
+      tip of the chain traces the outline. Drop the term count and the heart
+      degrades gracefully into a wobbling oval, which is the trade this
+      representation lets you make.
+    </p>
+      <div class="panel">
+      <div class="cstage tall"><canvas id="fsr-cv" role="img"></canvas>
+        <p class="cread" id="fsr-read"></p></div>
+      <div class="mrow">
+        <label>Terms
+          <input id="fsr-terms" type="range" min="2" max="48" step="1" value="24" aria-label="Number of Fourier terms">
+        </label>
+        <button class="mbtn" id="fsr-trace" type="button" data-holo-tap>Trace once</button>
+      </div>
+    </div>
+    </div>
   </section>
 
 <section id="reaction">
@@ -615,6 +741,26 @@
         <button class="mbtn" id="avatars-again" type="button" data-holo-tap>New set</button>
         <span class="quiet">Same names, same patterns, every visit</span>
       </div>
+    </div>
+  
+    <div class="concept">
+      <p class="concept-title">The concept, live: Reaction diffusion</p>
+      <p class="note">
+      Two chemicals, one spreading faster than the other, settle into spots,
+      worms or a maze depending on two numbers. Nothing draws the pattern: it
+      grows out of the arithmetic, never repeats, and never needs a texture
+      file. It is genuinely slow, which is why it belongs on a background
+      rather than a control.
+    </p>
+      <div class="panel">
+      <div class="cstage"><canvas id="rd-cv" role="img" aria-label="A reaction diffusion pattern growing"></canvas></div>
+      <div class="mrow" role="group" aria-label="Pattern preset">
+        <button class="mbtn" data-rd="spots" type="button" data-holo-tap aria-pressed="false">Spots</button>
+        <button class="mbtn" data-rd="worms" type="button" data-holo-tap aria-pressed="true">Worms</button>
+        <button class="mbtn" data-rd="maze" type="button" data-holo-tap aria-pressed="false">Maze</button>
+        <button class="mbtn" id="rd-seed" type="button" data-holo-tap>Reseed</button>
+      </div>
+    </div>
     </div>
   </section>
 
@@ -638,6 +784,25 @@
         <button class="mbtn" id="proc-go" type="button" data-holo-tap>Process</button>
       </div>
     </div>
+  
+    <div class="concept">
+      <p class="concept-title">The concept, live: Diffusion limited aggregation</p>
+      <p class="note">
+      Particles wander at random until they touch the structure and stick.
+      The dendrite is nobody's drawing: it is the shape of the randomness
+      itself, and it is different every run. As a progress indicator it
+      encodes how much work is done in <b>how much structure exists</b>,
+      rather than in a length.
+    </p>
+      <div class="panel">
+      <div class="cstage tall"><canvas id="dla-cv" role="img"></canvas>
+        <p class="cread" id="dla-read"></p></div>
+      <div class="mrow">
+        <button class="mbtn" id="dla-grow" type="button" data-holo-tap>Grow</button>
+        <button class="mbtn" id="dla-reset" type="button" data-holo-tap>Reset</button>
+      </div>
+    </div>
+    </div>
   </section>
 
 <section id="voronoi">
@@ -654,6 +819,23 @@
         <canvas id="cov-cv" role="img" aria-label="A territory map of teammates, with your marker draggable"></canvas>
       </div>
       <div class="cov-legend" id="cov-legend" aria-label="Coverage by teammate"></div>
+    </div>
+  
+    <div class="concept">
+      <p class="concept-title">The concept, live: Voronoi cells</p>
+      <p class="note">
+      Space divided by nearest seed: no gaps, no overlaps, and every boundary
+      is exactly the set of points that cannot decide. One seed is yours.
+      Drag across the stage and watch the whole partition renegotiate around
+      you, then let go and your seed drifts home on the decay from sketch
+      nine.
+    </p>
+      <div class="panel">
+      <div class="cstage grabby"><canvas id="vor-cv" role="img" aria-label="A Voronoi partition with one seed following the pointer"></canvas></div>
+      <div class="mrow">
+        <button class="mbtn" id="vor-again" type="button" data-holo-tap>Rescatter seeds</button>
+      </div>
+    </div>
     </div>
   </section>
 
@@ -675,6 +857,25 @@
       <div class="mrow">
         <button class="mbtn" id="col-go" type="button" data-holo-tap>Add all to library</button>
       </div>
+    </div>
+  
+    <div class="concept">
+      <p class="concept-title">The concept, live: Flocking, three local rules</p>
+      <p class="note">
+      Every bird sees only its neighbours, and three rules make a flock:
+      keep apart, point the same way, drift together. The toggles take one
+      rule away at a time, which is the honest demo: kill separation and
+      they collapse into knots, kill alignment and the shoal loses its grain,
+      kill cohesion and it evaporates.
+    </p>
+      <div class="panel">
+      <div class="cstage"><canvas id="boi-cv" role="img" aria-label="A flock of boids"></canvas></div>
+      <div class="mrow" role="group" aria-label="Flocking rules">
+        <button class="mbtn" data-rule="sep" type="button" data-holo-tap aria-pressed="true">Separation</button>
+        <button class="mbtn" data-rule="ali" type="button" data-holo-tap aria-pressed="true">Alignment</button>
+        <button class="mbtn" data-rule="coh" type="button" data-holo-tap aria-pressed="true">Cohesion</button>
+      </div>
+    </div>
     </div>
   </section>
 
@@ -699,6 +900,27 @@
         <button class="mbtn" id="score-50" type="button" data-holo-tap>+50</button>
         <button class="mbtn" id="score-250" type="button" data-holo-tap>+250</button>
       </div>
+    </div>
+  
+    <div class="concept">
+      <p class="concept-title">The concept, live: Exponential decay</p>
+      <p class="note">
+      The humblest model and the most reusable. Both dots chase your pointer.
+      The <b>warm</b> one is a fixed duration tween, and every time you move
+      mid flight it has to restart. The <b>cool</b> one moves a fraction of
+      the remaining distance each frame, so interruption is not even a case:
+      there is no duration to restart. Drag in circles and feel the
+      difference.
+    </p>
+      <div class="panel">
+      <div class="cstage grabby"><canvas id="dec-cv" role="img" aria-label="Two dots chasing the pointer, a tween and an exponential decay"></canvas>
+        <p class="cread"><b>Cool</b> decay chaser, <span style="color:rgb(var(--holo-warm) / .9)">warm</span> fixed tween</p></div>
+      <div class="mrow">
+        <label>Decay rate
+          <input id="dec-k" type="range" min="3" max="18" step="0.5" value="8" aria-label="Decay rate of the chaser">
+        </label>
+      </div>
+    </div>
     </div>
   </section>
 
@@ -2207,6 +2429,833 @@
       apply();
     });
     apply();
+  })();
+
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var TAU = Math.PI * 2;
+  var MINT = "178,216,248", WARM = "232,169,58", GLOW = "74,150,224";
+
+  function fit(cv) {
+    var dpr = Math.min(devicePixelRatio || 1, 2);
+    var r = cv.getBoundingClientRect();
+    var w = Math.max(1, Math.round(r.width * dpr));
+    var h = Math.max(1, Math.round(r.height * dpr));
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    return dpr;
+  }
+  function rng(seed) {
+    return function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+  }
+  /* ambient loops run only in view, per the rule; each carries its own state */
+  function ambient(el, frame) {
+    var raf = 0, last = 0;
+    function loop(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      frame(dt);
+      raf = requestAnimationFrame(loop);
+    }
+    var io = new IntersectionObserver(function (en) {
+      var vis = en[en.length - 1].isIntersecting;
+      if (vis && !raf) { last = 0; raf = requestAnimationFrame(loop); }
+      else if (!vis && raf) { cancelAnimationFrame(raf); raf = 0; }
+    });
+    io.observe(el);
+  }
+  /* one shot loops settle and carry a backstop that lands the truth */
+  function oneshot(step, land, ms) {
+    var raf = 0, last = 0;
+    var backstop = setTimeout(function () {
+      if (raf) cancelAnimationFrame(raf);
+      land();
+    }, ms || 8000);
+    function loop(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      if (step(dt)) raf = requestAnimationFrame(loop);
+      else { clearTimeout(backstop); land(); }
+    }
+    raf = requestAnimationFrame(loop);
+    return function cancel() { if (raf) cancelAnimationFrame(raf); clearTimeout(backstop); };
+  }
+
+  /* ================================================== 1. phyllotaxis */
+  (function () {
+    var cv = document.getElementById("phy-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("phy-read");
+    var aEl = document.getElementById("phy-angle"), nEl = document.getElementById("phy-count");
+    var GOLDEN = 137.50776;
+    var target = 137.51, disp = target, N = 420;
+    var raf = 0, last = 0;
+
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var cx = W / 2, cy = H / 2;
+      var c = Math.min(W, H) / (2.15 * Math.sqrt(N));
+      var ang = disp * Math.PI / 180;
+      for (var i = 0; i < N; i++) {
+        var r = c * Math.sqrt(i), th = i * ang;
+        var x = cx + Math.cos(th) * r, y = cy + Math.sin(th) * r;
+        var u = i / N;
+        var sz = (1.1 + u * 2.1) * dpr;
+        ctx.fillStyle = "rgba(" + MINT + "," + (0.35 + u * 0.55).toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(x, y, sz, 0, TAU); ctx.fill();
+      }
+      var dd = disp - GOLDEN;
+      read.innerHTML = "<b>" + disp.toFixed(2) + "&deg;</b> " +
+        (Math.abs(dd) < 0.05 ? "golden, even everywhere"
+                             : (dd > 0 ? "+" : "") + dd.toFixed(2) + "&deg; from golden");
+      cv.setAttribute("aria-label", N + " seeds placed at a divergence angle of " + disp.toFixed(2) + " degrees");
+    }
+    function chaseFrame(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05); last = now;
+      disp += (target - disp) * (1 - Math.exp(-dt * 6));
+      if (Math.abs(target - disp) < 0.004) { disp = target; paint(); raf = 0; return; }
+      paint();
+      raf = requestAnimationFrame(chaseFrame);
+    }
+    function chase() {
+      if (reduced) { disp = target; paint(); return; }
+      if (!raf) { last = 0; raf = requestAnimationFrame(chaseFrame); }
+    }
+    aEl.addEventListener("input", function () { target = parseFloat(aEl.value); chase(); });
+    nEl.addEventListener("input", function () { N = parseInt(nEl.value, 10); paint(); });
+    document.getElementById("phy-golden").addEventListener("click", function () {
+      target = GOLDEN; aEl.value = String(GOLDEN.toFixed(2)); chase();
+    });
+    new ResizeObserver(paint).observe(cv);
+    paint();
+  })();
+
+  /* ================================================== 2. poisson disc */
+  (function () {
+    var cv = document.getElementById("poi-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("poi-read");
+    var rEl = document.getElementById("poi-r");
+    var group = document.querySelector("#poisson .concept .mrow");
+    var mode = "poisson", seed = 7, pts = [], shown = 0, cancel = null;
+
+    function bridson(W, H, r, rand) {
+      var cell = r / Math.SQRT2, gw = Math.ceil(W / cell), gh = Math.ceil(H / cell);
+      var grid = new Int32Array(gw * gh).fill(-1);
+      var out = [], active = [];
+      function put(p) { out.push(p); active.push(out.length - 1);
+        grid[Math.floor(p[1] / cell) * gw + Math.floor(p[0] / cell)] = out.length - 1; }
+      put([W / 2, H / 2]);
+      while (active.length) {
+        var ai = Math.floor(rand() * active.length), pi = active[ai], p = out[pi], ok = false;
+        for (var t = 0; t < 24; t++) {
+          var a = rand() * TAU, d = r * (1 + rand());
+          var x = p[0] + Math.cos(a) * d, y = p[1] + Math.sin(a) * d;
+          if (x < r * 0.5 || y < r * 0.5 || x > W - r * 0.5 || y > H - r * 0.5) continue;
+          var gx = Math.floor(x / cell), gy = Math.floor(y / cell), fine = true;
+          for (var oy = -2; oy <= 2 && fine; oy++) for (var ox = -2; ox <= 2 && fine; ox++) {
+            var nx = gx + ox, ny = gy + oy;
+            if (nx < 0 || ny < 0 || nx >= gw || ny >= gh) continue;
+            var q = grid[ny * gw + nx];
+            if (q >= 0) { var dx = out[q][0] - x, dy = out[q][1] - y;
+              if (dx * dx + dy * dy < r * r) fine = false; }
+          }
+          if (fine) { put([x, y]); ok = true; break; }
+        }
+        if (!ok) active.splice(ai, 1);
+      }
+      return out;
+    }
+
+    function build() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      var rand = rng(seed);
+      var r = parseFloat(rEl.value) * dpr;
+      var base = bridson(W, H, r, rng(seed));
+      var n = base.length;
+      if (mode === "poisson") pts = base;
+      else if (mode === "random") {
+        pts = [];
+        for (var i = 0; i < n; i++) pts.push([r * 0.5 + rand() * (W - r), r * 0.5 + rand() * (H - r)]);
+      } else {
+        pts = [];
+        var cols = Math.round(Math.sqrt(n * W / H)), rows = Math.ceil(n / cols);
+        for (var g = 0; g < n; g++) {
+          pts.push([(g % cols + 0.5) * W / cols, (Math.floor(g / cols) + 0.5) * H / rows]);
+        }
+      }
+      shown = 0;
+      if (cancel) cancel();
+      if (reduced) { shown = pts.length; paint(); return; }
+      var rate = pts.length / 0.9;
+      cancel = oneshot(function (dt) {
+        shown = Math.min(pts.length, shown + dt * rate);
+        paint();
+        return shown < pts.length;
+      }, function () { shown = pts.length; paint(); }, 5000);
+    }
+
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var m = Math.floor(shown);
+      for (var i = 0; i < m; i++) {
+        var u = i / Math.max(1, pts.length - 1);
+        ctx.fillStyle = "rgba(" + MINT + "," + (0.45 + u * 0.4).toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(pts[i][0], pts[i][1], 1.9 * dpr, 0, TAU); ctx.fill();
+      }
+      read.innerHTML = "<b>" + pts.length + "</b> points, " + mode;
+      cv.setAttribute("aria-label", pts.length + " points scattered by the " + mode + " method");
+    }
+
+    group.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("[data-mode]");
+      if (!b) return;
+      mode = b.getAttribute("data-mode");
+      group.querySelectorAll("[data-mode]").forEach(function (n) {
+        n.setAttribute("aria-pressed", String(n === b));
+      });
+      build();
+    });
+    rEl.addEventListener("input", build);
+    document.getElementById("poi-again").addEventListener("click", function () { seed += 13; build(); });
+    new ResizeObserver(build).observe(cv);
+    build();
+  })();
+
+  /* ================================================== 3. flow field */
+  (function () {
+    var cv = document.getElementById("flo-cv"), ctx = cv.getContext("2d");
+    var scaleEl = document.getElementById("flo-scale");
+    var seed = 11, scale = 3;
+    var P = [], NP = 320;
+
+    /* value noise: a hashed lattice, bilinearly interpolated, two octaves */
+    function makeNoise(s) {
+      var rand = rng(s), G = 24, lat = new Float32Array(G * G);
+      for (var i = 0; i < lat.length; i++) lat[i] = rand();
+      function at(x, y) {
+        var xi = Math.floor(x), yi = Math.floor(y);
+        var xf = x - xi, yf = y - yi;
+        function l(ix, iy) { return lat[((iy % G + G) % G) * G + ((ix % G + G) % G)]; }
+        var sx = xf * xf * (3 - 2 * xf), sy = yf * yf * (3 - 2 * yf);
+        return l(xi, yi) * (1 - sx) * (1 - sy) + l(xi + 1, yi) * sx * (1 - sy) +
+               l(xi, yi + 1) * (1 - sx) * sy + l(xi + 1, yi + 1) * sx * sy;
+      }
+      return function (x, y) { return at(x, y) * 0.68 + at(x * 2.1 + 7, y * 2.1 + 3) * 0.32; };
+    }
+    var noise = makeNoise(seed);
+    function angleAt(x, y, W, H) { return noise(x / W * scale, y / H * scale) * TAU * 2; }
+
+    function scatter() {
+      var rand = rng(seed * 3 + 1);
+      P = [];
+      for (var i = 0; i < NP; i++) P.push([rand() * cv.width, rand() * cv.height]);
+    }
+
+    function streamlines() {
+      /* the reduced motion landing: the field itself, drawn once as lines */
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.fillStyle = "rgba(4,7,12,1)"; ctx.fillRect(0, 0, W, H);
+      var rand = rng(seed * 5 + 2);
+      for (var s = 0; s < 90; s++) {
+        var x = rand() * W, y = rand() * H;
+        ctx.beginPath(); ctx.moveTo(x, y);
+        for (var t = 0; t < 130; t++) {
+          var a = angleAt(x, y, W, H);
+          x += Math.cos(a) * 2.2 * dpr; y += Math.sin(a) * 2.2 * dpr;
+          if (x < 0 || y < 0 || x > W || y > H) break;
+          ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = "rgba(" + MINT + ",0.28)";
+        ctx.lineWidth = 1 * dpr;
+        ctx.stroke();
+      }
+    }
+
+    if (reduced) {
+      new ResizeObserver(streamlines).observe(cv);
+      scaleEl.addEventListener("input", function () { scale = parseFloat(scaleEl.value); streamlines(); });
+      document.getElementById("flo-seed").addEventListener("click", function () {
+        seed += 5; noise = makeNoise(seed); streamlines();
+      });
+      streamlines();
+      return;
+    }
+
+    var primed = false;
+    ambient(cv, function (dt) {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      if (!primed || !P.length) { primed = true; scatter();
+        ctx.fillStyle = "rgba(4,7,12,1)"; ctx.fillRect(0, 0, W, H); }
+      /* the trail is the memory of the field: a translucent wash each frame */
+      ctx.fillStyle = "rgba(4,7,12,0.055)";
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "rgba(" + MINT + ",0.6)";
+      for (var i = 0; i < P.length; i++) {
+        var p = P[i];
+        var a = angleAt(p[0], p[1], W, H);
+        p[0] += Math.cos(a) * 34 * dt * dpr;
+        p[1] += Math.sin(a) * 34 * dt * dpr;
+        if (p[0] < 0) p[0] += W; if (p[0] > W) p[0] -= W;
+        if (p[1] < 0) p[1] += H; if (p[1] > H) p[1] -= H;
+        ctx.fillRect(p[0], p[1], 1.3 * dpr, 1.3 * dpr);
+      }
+    });
+    scaleEl.addEventListener("input", function () { scale = parseFloat(scaleEl.value); });
+    document.getElementById("flo-seed").addEventListener("click", function () {
+      seed += 5; noise = makeNoise(seed); primed = false;
+    });
+  })();
+
+  /* ================================================== 4. fourier epicycles */
+  (function () {
+    var cv = document.getElementById("fsr-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("fsr-read");
+    var termsEl = document.getElementById("fsr-terms");
+    var M = 220, terms = 24, cancel = null, t = 0, tracing = false, trail = [];
+
+    /* the heart, sampled as a complex signal */
+    var sig = [];
+    for (var m = 0; m < M; m++) {
+      var u = m / M * TAU;
+      sig.push([16 * Math.pow(Math.sin(u), 3) / 18,
+                -(13 * Math.cos(u) - 5 * Math.cos(2 * u) - 2 * Math.cos(3 * u) - Math.cos(4 * u)) / 18]);
+    }
+    /* coefficients for k in -60..60, kept sorted by amplitude */
+    var coef = [];
+    for (var k = -60; k <= 60; k++) {
+      var re = 0, im = 0;
+      for (var n = 0; n < M; n++) {
+        var ph = -TAU * k * n / M;
+        re += sig[n][0] * Math.cos(ph) - sig[n][1] * Math.sin(ph);
+        im += sig[n][0] * Math.sin(ph) + sig[n][1] * Math.cos(ph);
+      }
+      coef.push({ k: k, re: re / M, im: im / M, amp: Math.hypot(re, im) / M });
+    }
+    coef.sort(function (a, b) { return b.amp - a.amp; });
+
+    function chainAt(tt, nTerms) {
+      var pts = [[0, 0]], x = 0, y = 0;
+      for (var i = 0; i < nTerms; i++) {
+        var c = coef[i], ph = TAU * c.k * tt;
+        x += c.re * Math.cos(ph) - c.im * Math.sin(ph);
+        y += c.re * Math.sin(ph) + c.im * Math.cos(ph);
+        pts.push([x, y]);
+      }
+      return pts;
+    }
+
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var S = Math.min(W, H) * 0.42, cx = W / 2, cy = H / 2 + S * 0.05;
+      function px(p) { return [cx + p[0] * S, cy + p[1] * S]; }
+
+      /* the reconstruction for this term count, always visible */
+      ctx.beginPath();
+      for (var m = 0; m <= M; m++) {
+        var q = px(chainAt(m / M, terms)[terms]);
+        if (m === 0) ctx.moveTo(q[0], q[1]); else ctx.lineTo(q[0], q[1]);
+      }
+      ctx.strokeStyle = "rgba(" + MINT + ",0.22)";
+      ctx.lineWidth = 1 * dpr;
+      ctx.stroke();
+
+      /* the traced part so far, brighter */
+      if (trail.length > 1) {
+        ctx.beginPath();
+        for (var i = 0; i < trail.length; i++) {
+          var q2 = px(trail[i]);
+          if (i === 0) ctx.moveTo(q2[0], q2[1]); else ctx.lineTo(q2[0], q2[1]);
+        }
+        ctx.strokeStyle = "rgba(" + WARM + ",0.9)";
+        ctx.lineWidth = 1.6 * dpr;
+        ctx.stroke();
+      }
+
+      /* the circle chain at time t */
+      var chain = chainAt(t, terms);
+      for (var j = 0; j < terms; j++) {
+        var a = px(chain[j]), b = px(chain[j + 1]);
+        var rr = coef[j].amp * S;
+        if (rr > 1.5) {
+          ctx.beginPath(); ctx.arc(a[0], a[1], rr, 0, TAU);
+          ctx.strokeStyle = "rgba(" + MINT + ",0.16)";
+          ctx.lineWidth = 1 * dpr;
+          ctx.stroke();
+        }
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+        ctx.strokeStyle = "rgba(" + MINT + ",0.5)";
+        ctx.stroke();
+      }
+      var tip = px(chain[terms]);
+      ctx.beginPath(); ctx.arc(tip[0], tip[1], 2.4 * dpr, 0, TAU);
+      ctx.fillStyle = "rgba(" + WARM + ",0.95)"; ctx.fill();
+
+      read.innerHTML = "<b>" + terms + "</b> of " + coef.length + " terms";
+      cv.setAttribute("aria-label", "A heart outline reconstructed from " + terms + " Fourier terms");
+    }
+
+    function trace() {
+      if (cancel) cancel();
+      trail = []; t = 0; tracing = true;
+      if (reduced) {
+        for (var m = 0; m <= M; m++) trail.push(chainAt(m / M, terms)[terms]);
+        t = 0; tracing = false; paint(); return;
+      }
+      cancel = oneshot(function (dt) {
+        t = Math.min(1, t + dt / 7);
+        trail.push(chainAt(t, terms)[terms]);
+        paint();
+        return t < 1;
+      }, function () { t = 0; tracing = false; paint(); }, 12000);
+    }
+
+    termsEl.addEventListener("input", function () {
+      terms = parseInt(termsEl.value, 10);
+      if (!tracing) { trail = []; paint(); }
+    });
+    document.getElementById("fsr-trace").addEventListener("click", trace);
+    new ResizeObserver(paint).observe(cv);
+    paint();
+    trace();
+  })();
+
+  /* ================================================== 5. reaction diffusion */
+  (function () {
+    var cv = document.getElementById("rd-cv"), ctx = cv.getContext("2d");
+    var group = document.querySelector("#reaction .concept .mrow");
+    var G = 104, U = new Float32Array(G * G), V = new Float32Array(G * G);
+    var U2 = new Float32Array(G * G), V2 = new Float32Array(G * G);
+    var PRESETS = { spots: [0.0375, 0.0649], worms: [0.054, 0.063], maze: [0.029, 0.057] };
+    var F = PRESETS.worms[0], K = PRESETS.worms[1];
+    var off = document.createElement("canvas"); off.width = off.height = G;
+    var offCtx = off.getContext("2d");
+    var img = offCtx.createImageData(G, G);
+    var seed = 3;
+
+    function reseed() {
+      var rand = rng(seed);
+      U.fill(1); V.fill(0);
+      for (var b = 0; b < 14; b++) {
+        var bx = Math.floor(rand() * (G - 12)) + 6, by = Math.floor(rand() * (G - 12)) + 6;
+        for (var y = -3; y <= 3; y++) for (var x = -3; x <= 3; x++) {
+          V[(by + y) * G + (bx + x)] = 1;
+        }
+      }
+    }
+    function step() {
+      for (var y = 0; y < G; y++) {
+        var ym = ((y - 1 + G) % G) * G, yp = ((y + 1) % G) * G, yc = y * G;
+        for (var x = 0; x < G; x++) {
+          var xm = (x - 1 + G) % G, xp = (x + 1) % G;
+          var i = yc + x;
+          var lu = U[ym + x] + U[yp + x] + U[yc + xm] + U[yc + xp] - 4 * U[i];
+          var lv = V[ym + x] + V[yp + x] + V[yc + xm] + V[yc + xp] - 4 * V[i];
+          var uvv = U[i] * V[i] * V[i];
+          U2[i] = U[i] + 0.21 * lu - uvv + F * (1 - U[i]);
+          V2[i] = V[i] + 0.105 * lv + uvv - (F + K) * V[i];
+        }
+      }
+      var tu = U; U = U2; U2 = tu;
+      var tv = V; V = V2; V2 = tv;
+    }
+    function render() {
+      fit(cv);
+      for (var i = 0; i < G * G; i++) {
+        var v = Math.max(0, Math.min(1, V[i] * 2.4));
+        var j = i * 4;
+        img.data[j] = 178 * v + 6;
+        img.data[j + 1] = 216 * v + 9;
+        img.data[j + 2] = 248 * v + 14;
+        img.data[j + 3] = 255;
+      }
+      offCtx.putImageData(img, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(off, 0, 0, cv.width, cv.height);
+    }
+    function settleNow() {
+      /* the reduced motion landing: the pattern the numbers would grow */
+      for (var s = 0; s < 2400; s++) step();
+      render();
+    }
+
+    reseed();
+    if (reduced) {
+      settleNow();
+      new ResizeObserver(render).observe(cv);
+    } else {
+      ambient(cv, function () {
+        for (var s = 0; s < 11; s++) step();
+        render();
+      });
+    }
+    group.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("[data-rd]");
+      if (b) {
+        var p = PRESETS[b.getAttribute("data-rd")];
+        F = p[0]; K = p[1];
+        group.querySelectorAll("[data-rd]").forEach(function (n) {
+          n.setAttribute("aria-pressed", String(n === b));
+        });
+        reseed();
+        if (reduced) settleNow();
+        return;
+      }
+      if (e.target.closest && e.target.closest("#rd-seed")) {
+        seed += 7; reseed();
+        if (reduced) settleNow();
+      }
+    });
+  })();
+
+  /* ================================================== 6. DLA */
+  (function () {
+    var cv = document.getElementById("dla-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("dla-read");
+    var G = 170, grid, stuckCount, order, cancel = null, seedN = 1;
+    var TARGET = 850;
+
+    function reset() {
+      if (cancel) cancel();
+      grid = new Uint8Array(G * G);
+      grid[(G >> 1) * G + (G >> 1)] = 1;
+      stuckCount = 1; order = [[G >> 1, G >> 1]];
+      paint();
+    }
+    function walkOne(rand) {
+      /* spawn on a ring just outside the structure, wander, stick or die */
+      var R = 6 + Math.sqrt(stuckCount) * 1.7;
+      var a = rand() * TAU;
+      var x = (G >> 1) + Math.round(Math.cos(a) * R), y = (G >> 1) + Math.round(Math.sin(a) * R);
+      var kill = (R + 14) * (R + 14);
+      for (var t = 0; t < 4000; t++) {
+        var d = Math.floor(rand() * 4);
+        x += d === 0 ? 1 : d === 1 ? -1 : 0;
+        y += d === 2 ? 1 : d === 3 ? -1 : 0;
+        var dx = x - (G >> 1), dy = y - (G >> 1);
+        if (dx * dx + dy * dy > kill || x < 1 || y < 1 || x >= G - 1 || y >= G - 1) return false;
+        if (grid[y * G + x + 1] || grid[y * G + x - 1] || grid[(y + 1) * G + x] || grid[(y - 1) * G + x]) {
+          grid[y * G + x] = 1; order.push([x, y]); stuckCount++;
+          return true;
+        }
+      }
+      return false;
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var S = Math.min(W, H) / G;
+      var ox = (W - G * S) / 2, oy = (H - G * S) / 2;
+      for (var i = 0; i < order.length; i++) {
+        var u = i / Math.max(1, TARGET - 1);
+        ctx.fillStyle = "rgba(" + MINT + "," + (0.35 + u * 0.6).toFixed(3) + ")";
+        ctx.fillRect(ox + order[i][0] * S, oy + order[i][1] * S, Math.max(1, S), Math.max(1, S));
+      }
+      read.innerHTML = "<b>" + stuckCount + "</b> of " + TARGET + " stuck";
+      cv.setAttribute("aria-label", "A diffusion limited aggregate with " + stuckCount + " stuck particles");
+    }
+    function grow() {
+      if (cancel) cancel();
+      var rand = rng(20260811 + seedN * 97);
+      if (reduced) {
+        while (stuckCount < TARGET) walkOne(rand);
+        paint(); return;
+      }
+      cancel = oneshot(function () {
+        /* a time budget per frame, so growth is visible but never janky */
+        var t0 = performance.now();
+        while (stuckCount < TARGET && performance.now() - t0 < 8) walkOne(rand);
+        paint();
+        return stuckCount < TARGET;
+      }, function () { paint(); }, 30000);
+    }
+    document.getElementById("dla-grow").addEventListener("click", grow);
+    document.getElementById("dla-reset").addEventListener("click", function () { seedN++; reset(); });
+    new ResizeObserver(paint).observe(cv);
+    reset();
+  })();
+
+  /* ================================================== 7. voronoi */
+  (function () {
+    var cv = document.getElementById("vor-cv"), ctx = cv.getContext("2d");
+    var seeds = [], seedN = 1, mine = { x: 0.5, y: 0.5, hx: 0.5, hy: 0.5 };
+    var raf = 0, last = 0, needsPaint = true, homing = false;
+    var off = document.createElement("canvas"), offCtx = off.getContext("2d");
+
+    function scatter() {
+      var rand = rng(40 + seedN * 31);
+      seeds = [];
+      for (var t = 0; t < 300 && seeds.length < 20; t++) {
+        var p = { x: 0.06 + rand() * 0.88, y: 0.08 + rand() * 0.84 }, ok = true;
+        for (var i = 0; i < seeds.length; i++) {
+          var dx = p.x - seeds[i].x, dy = p.y - seeds[i].y;
+          if (dx * dx + dy * dy < 0.018) { ok = false; break; }
+        }
+        if (ok) seeds.push(p);
+      }
+      mine.hx = 0.5; mine.hy = 0.5;
+      needsPaint = true; pump();
+    }
+
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      var RW = Math.max(60, W >> 3), RH = Math.max(40, H >> 3);
+      if (off.width !== RW || off.height !== RH) { off.width = RW; off.height = RH; }
+      var img = offCtx.createImageData(RW, RH);
+      var all = seeds.concat([mine]);
+      for (var y = 0; y < RH; y++) {
+        for (var x = 0; x < RW; x++) {
+          var px = x / RW, py = y / RH;
+          var d1 = 9, d2 = 9, win = 0;
+          for (var i = 0; i < all.length; i++) {
+            var dx = px - all[i].x, dy = (py - all[i].y) * (H / W);
+            var d = dx * dx + dy * dy;
+            if (d < d1) { d2 = d1; d1 = d; win = i; }
+            else if (d < d2) d2 = d;
+          }
+          var edge = Math.min(1, (Math.sqrt(d2) - Math.sqrt(d1)) / 0.045);
+          var isMine = win === all.length - 1;
+          var base = isMine ? [232, 169, 58] : [
+            120 + (win * 47) % 60, 190 + (win * 31) % 40, 220 + (win * 17) % 30];
+          var lift = 0.16 + edge * 0.5 + (isMine ? 0.18 : 0);
+          var j = (y * RW + x) * 4;
+          img.data[j] = base[0] * lift * 0.5;
+          img.data[j + 1] = base[1] * lift * 0.55;
+          img.data[j + 2] = base[2] * lift * 0.6;
+          img.data[j + 3] = 255;
+        }
+      }
+      offCtx.putImageData(img, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(off, 0, 0, W, H);
+      var all2 = seeds.concat([mine]);
+      for (var s = 0; s < all2.length; s++) {
+        var isMe = s === all2.length - 1;
+        ctx.beginPath();
+        ctx.arc(all2[s].x * W, all2[s].y * H, (isMe ? 3.2 : 2.2) * dpr, 0, TAU);
+        ctx.fillStyle = isMe ? "rgba(" + WARM + ",0.95)" : "rgba(" + MINT + ",0.8)";
+        ctx.fill();
+      }
+    }
+
+    function frame(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05); last = now;
+      if (homing) {
+        mine.x += (mine.hx - mine.x) * (1 - Math.exp(-dt * 6));
+        mine.y += (mine.hy - mine.y) * (1 - Math.exp(-dt * 6));
+        if (Math.hypot(mine.hx - mine.x, mine.hy - mine.y) < 0.001) {
+          mine.x = mine.hx; mine.y = mine.hy; homing = false;
+        }
+        needsPaint = true;
+      }
+      if (needsPaint) { needsPaint = false; paint(); }
+      if (homing || needsPaint) raf = requestAnimationFrame(frame);
+      else { raf = 0; }
+    }
+    function pump() { if (!raf) { last = 0; raf = requestAnimationFrame(frame); } }
+
+    cv.addEventListener("pointermove", function (e) {
+      var r = cv.getBoundingClientRect();
+      mine.x = (e.clientX - r.left) / r.width;
+      mine.y = (e.clientY - r.top) / r.height;
+      homing = false; needsPaint = true; pump();
+    });
+    cv.addEventListener("pointerleave", function () {
+      if (reduced) { mine.x = mine.hx; mine.y = mine.hy; needsPaint = true; pump(); return; }
+      homing = true; pump();
+    });
+    document.getElementById("vor-again").addEventListener("click", function () { seedN++; scatter(); });
+    new ResizeObserver(function () { needsPaint = true; pump(); }).observe(cv);
+    scatter();
+  })();
+
+  /* ================================================== 8. boids */
+  (function () {
+    var cv = document.getElementById("boi-cv"), ctx = cv.getContext("2d");
+    var group = document.querySelector("#boids .concept .mrow");
+    var rules = { sep: true, ali: true, coh: true };
+    var B = [], NB = 76, primed = false;
+
+    function prime() {
+      var rand = rng(9);
+      B = [];
+      for (var i = 0; i < NB; i++) {
+        var a = rand() * TAU;
+        B.push({ x: rand(), y: rand(), vx: Math.cos(a), vy: Math.sin(a) });
+      }
+      primed = true;
+    }
+    function step(dt) {
+      var R = 0.09, R2 = R * R;
+      for (var i = 0; i < NB; i++) {
+        var b = B[i];
+        var sx = 0, sy = 0, ax = 0, ay = 0, cx = 0, cy = 0, n = 0;
+        for (var j = 0; j < NB; j++) {
+          if (i === j) continue;
+          var o = B[j];
+          var dx = o.x - b.x, dy = o.y - b.y;
+          if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+          if (dy > 0.5) dy -= 1; if (dy < -0.5) dy += 1;
+          var d2 = dx * dx + dy * dy;
+          if (d2 > R2 || d2 === 0) continue;
+          n++;
+          sx -= dx / d2 * 0.0005; sy -= dy / d2 * 0.0005;
+          ax += o.vx; ay += o.vy;
+          cx += dx; cy += dy;
+        }
+        if (n) {
+          if (rules.sep) { b.vx += sx; b.vy += sy; }
+          if (rules.ali) { b.vx += (ax / n - b.vx) * 0.055; b.vy += (ay / n - b.vy) * 0.055; }
+          if (rules.coh) { b.vx += cx / n * 0.11; b.vy += cy / n * 0.11; }
+        }
+        var sp = Math.hypot(b.vx, b.vy) || 1;
+        var want = 1;
+        b.vx = b.vx / sp * want; b.vy = b.vy / sp * want;
+        b.x += b.vx * dt * 0.11; b.y += b.vy * dt * 0.11;
+        if (b.x < 0) b.x += 1; if (b.x > 1) b.x -= 1;
+        if (b.y < 0) b.y += 1; if (b.y > 1) b.y -= 1;
+      }
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < NB; i++) {
+        var b = B[i], a = Math.atan2(b.vy, b.vx);
+        ctx.save();
+        ctx.translate(b.x * W, b.y * H);
+        ctx.rotate(a);
+        ctx.beginPath();
+        ctx.moveTo(5 * dpr, 0); ctx.lineTo(-3.4 * dpr, 2.5 * dpr); ctx.lineTo(-3.4 * dpr, -2.5 * dpr);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(" + MINT + ",0.82)";
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+    function settleNow() {
+      if (!primed) prime();
+      for (var s = 0; s < 420; s++) step(1 / 60);
+      paint();
+    }
+    if (reduced) {
+      settleNow();
+      new ResizeObserver(paint).observe(cv);
+    } else {
+      ambient(cv, function (dt) {
+        if (!primed) prime();
+        step(dt);
+        paint();
+      });
+    }
+    group.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("[data-rule]");
+      if (!b) return;
+      var r = b.getAttribute("data-rule");
+      rules[r] = !rules[r];
+      b.setAttribute("aria-pressed", String(rules[r]));
+      if (reduced) settleNow();
+    });
+  })();
+
+  /* ================================================== 9. exponential decay */
+  (function () {
+    var cv = document.getElementById("dec-cv"), ctx = cv.getContext("2d");
+    var kEl = document.getElementById("dec-k");
+    var k = 8;
+    var target = { x: 0.5, y: 0.5 };
+    var chaser = { x: 0.3, y: 0.5 };
+    var tween = { x: 0.7, y: 0.5, fx: 0.7, fy: 0.5, t0: 0, dur: 600, active: false };
+    var trails = { c: [], t: [] };
+    var raf = 0, last = 0, backstop = 0;
+
+    function ease(u) { return u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      /* the target crosshair */
+      ctx.strokeStyle = "rgba(" + MINT + ",0.35)";
+      ctx.lineWidth = 1 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(target.x * W - 8 * dpr, target.y * H); ctx.lineTo(target.x * W + 8 * dpr, target.y * H);
+      ctx.moveTo(target.x * W, target.y * H - 8 * dpr); ctx.lineTo(target.x * W, target.y * H + 8 * dpr);
+      ctx.stroke();
+      function trail(list, rgb) {
+        for (var i = 0; i < list.length; i++) {
+          var u = i / Math.max(1, list.length - 1);
+          ctx.fillStyle = "rgba(" + rgb + "," + (u * 0.35).toFixed(3) + ")";
+          ctx.fillRect(list[i][0] * W, list[i][1] * H, 1.4 * dpr, 1.4 * dpr);
+        }
+      }
+      trail(trails.c, MINT);
+      trail(trails.t, WARM);
+      ctx.beginPath(); ctx.arc(chaser.x * W, chaser.y * H, 5 * dpr, 0, TAU);
+      ctx.fillStyle = "rgba(" + MINT + ",0.95)"; ctx.fill();
+      ctx.beginPath(); ctx.arc(tween.x * W, tween.y * H, 5 * dpr, 0, TAU);
+      ctx.fillStyle = "rgba(" + WARM + ",0.95)"; ctx.fill();
+    }
+    function frame(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05); last = now;
+      chaser.x += (target.x - chaser.x) * (1 - Math.exp(-dt * k));
+      chaser.y += (target.y - chaser.y) * (1 - Math.exp(-dt * k));
+      if (tween.active) {
+        var u = Math.min(1, (now - tween.t0) / tween.dur);
+        tween.x = tween.fx + (target.x - tween.fx) * ease(u);
+        tween.y = tween.fy + (target.y - tween.fy) * ease(u);
+        if (u >= 1) tween.active = false;
+      }
+      trails.c.push([chaser.x, chaser.y]); if (trails.c.length > 90) trails.c.shift();
+      trails.t.push([tween.x, tween.y]); if (trails.t.length > 90) trails.t.shift();
+      paint();
+      var settled = !tween.active &&
+        Math.hypot(target.x - chaser.x, target.y - chaser.y) < 0.0015;
+      if (settled) { raf = 0; clearTimeout(backstop); return; }
+      raf = requestAnimationFrame(frame);
+    }
+    function pump() {
+      if (reduced) {
+        chaser.x = target.x; chaser.y = target.y;
+        tween.x = target.x; tween.y = target.y; tween.active = false;
+        paint(); return;
+      }
+      if (!raf) {
+        last = 0; raf = requestAnimationFrame(frame);
+        clearTimeout(backstop);
+        backstop = setTimeout(function () {
+          if (raf) { cancelAnimationFrame(raf); raf = 0; }
+          chaser.x = target.x; chaser.y = target.y;
+          tween.x = target.x; tween.y = target.y; tween.active = false;
+          paint();
+        }, 15000);
+      }
+    }
+    function retarget(e) {
+      var r = cv.getBoundingClientRect();
+      target.x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      target.y = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+      /* the tween's flaw on display: every retarget restarts it from where it
+         is, with its full duration ahead of it again */
+      tween.fx = tween.x; tween.fy = tween.y; tween.t0 = performance.now(); tween.active = true;
+      pump();
+    }
+    cv.addEventListener("pointermove", retarget);
+    cv.addEventListener("pointerdown", retarget);
+    kEl.addEventListener("input", function () { k = parseFloat(kEl.value); });
+    new ResizeObserver(paint).observe(cv);
+    paint();
   })();
 
 })();
