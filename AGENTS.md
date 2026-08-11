@@ -1,4 +1,4 @@
-# AGENTS.md, version 2
+# AGENTS.md, version 3
 
 Working knowledge for anyone contributing to **experimental-ui**. Read it
 before writing a line.
@@ -16,7 +16,15 @@ CDN. Live at https://amyleesterling.github.io/experimental-ui, deployed by
 pushing `main`.
 
 - `index.html`: a landing assembled from the set.
-- `components/`: one component per file pair, plus the two demo pages.
+- `components/`: one component per file pair, plus the demo pages.
+- `components/models.html`: nine sketches sharing one page. A sketch is an
+  interactive demonstration of a model, not yet a reusable component, so the
+  one file per component rule does not apply to it. The promotion path is the
+  rule instead: the moment a sketch is wanted in a second place, it gets
+  extracted into its own css and js pair with the full contract, exactly as
+  the travelling wave once was. Sketches still follow every behaviour rule:
+  ambient loops only in view, one shots with backstops, reduced motion lands
+  true, hover ships its tap path.
 - `hologram-tap.js`: taken unchanged from scifi-ui, see section 4.
 
 ## 2. The claim this repo makes, and the one it does not
@@ -235,3 +243,11 @@ and it carries a backstop that lands the display on the truth.
 Version 2, 2026-08-11. Version 1 split the set out of scifi-ui. Version 2
 added section 10 with the feel pass, after every component was retuned to
 chase, settle, arrive and celebrate.
+
+Version 3, 2026-08-11. Added the sketches page and its promotion rule, and
+two lessons from building it. Simulations under reduced motion should land on
+a settled state computed synchronously, which means the grid or step budget
+has to be chosen so that synchronous compute stays under a second; the
+reaction diffusion grid is 104 for exactly that reason. And a pointer driven
+canvas needs touch-action none on the stage, or the first drag on a phone
+scrolls the page instead of driving the sketch.

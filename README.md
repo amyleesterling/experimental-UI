@@ -52,6 +52,10 @@ and readout is generated for the purpose of moving an interface.
   computed rather than choreographed.
 - `components/motion.html`, the three models with their controls exposed.
 - `components/spatial.html`, the five paper derived components.
+- `components/models.html`, nine borrowed models as live sketches:
+  phyllotaxis, Poisson disc, flow fields, Fourier epicycles, reaction
+  diffusion, diffusion limited aggregation, Voronoi, flocking, and
+  exponential decay.
 
 ## Using one
 

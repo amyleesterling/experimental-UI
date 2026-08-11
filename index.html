@@ -63,6 +63,7 @@
   /* ---------- experiments index ---------- */
   .expcards { display: grid; gap: 1rem; grid-template-columns: 1fr; }
   @media (min-width: 46rem) { .expcards { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 62rem) { .expcards { grid-template-columns: 1fr 1fr 1fr; } }
   .expcard {
     display: grid;
     gap: .45rem;
@@ -230,6 +231,7 @@
     <a href="index.html" aria-current="page">Landing</a>
     <a href="components/motion.html">Motion</a>
     <a href="components/spatial.html">Spatial</a>
+    <a href="components/models.html">Models</a>
     <a href="https://github.com/amyleesterling/experimental-UI" rel="noopener">GitHub</a>
   </nav>
 
@@ -323,11 +325,12 @@
   <!-- ============================================================ all experiments -->
   <section>
     <p class="eyebrow">All experiments</p>
-    <h2>The other two pages</h2>
+    <h2>The other pages</h2>
     <p class="note">
       This page shows the interaction set doing jobs. The models behind the
-      movement, and the five components built from five papers, each have a
-      page of their own with every control exposed.
+      movement, the five components built from five papers, and the nine
+      borrowed models each have a page of their own with every control
+      exposed.
     </p>
     <div class="expcards">
       <a class="expcard" href="components/motion.html">
@@ -345,6 +348,14 @@
         bridge, trajectories collapsing into their matrix, and serial sections
         closing into a volume.</p>
         <span class="go">Open spatial</span>
+      </a>
+      <a class="expcard" href="components/models.html">
+        <p class="eyebrow">Models</p>
+        <strong>Nine borrowed models, live</strong>
+        <p>Phyllotaxis, Poisson scatter, flow fields, Fourier epicycles,
+        reaction diffusion, dendritic growth, Voronoi cells, flocking, and
+        the humble exponential decay, each one driveable.</p>
+        <span class="go">Open models</span>
       </a>
     </div>
   </section>
