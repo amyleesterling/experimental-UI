@@ -3,7 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>experimental-UI models: nine models, worn as interface</title>
+<title>experimental-UI: everything on one page</title>
+
+<link rel="stylesheet" href="wave-progress.css">
+<link rel="stylesheet" href="sync-cluster.css">
+<link rel="stylesheet" href="spring-motion.css">
+<link rel="stylesheet" href="action-state.css">
+<link rel="stylesheet" href="arrival.css">
+<link rel="stylesheet" href="veil.css">
+<link rel="stylesheet" href="atlas-field.css">
+<link rel="stylesheet" href="channel-wipe.css">
+<link rel="stylesheet" href="scale-bridge.css">
+<link rel="stylesheet" href="projection-matrix.css">
+<link rel="stylesheet" href="section-stack.css">
 
 <style>
   .topnav {
@@ -246,6 +258,54 @@
     .col-target.is-pulse { animation: none; }
     .score-tile.is-milestone .value { animation: none; }
   }
+
+  /* lifted from applied.html for its three sections */
+  .tag { position: absolute; top: .6rem; font-size: .62rem; letter-spacing: .13em;
+    text-transform: uppercase; color: rgb(var(--holo-dim) / .95); pointer-events: none; }
+  .tag.is-left { left: .75rem; color: rgb(var(--holo-beam) / .95); }
+  .tag.is-right { right: .75rem; }
+  .readout { position: absolute; left: .7rem; bottom: .55rem; right: .7rem;
+    font-size: .68rem; letter-spacing: .04em; color: rgb(var(--holo-dim) / .95);
+    pointer-events: none; font-variant-numeric: tabular-nums; }
+  .readout b { color: rgb(var(--holo-beam) / .95); font-weight: 600; }
+  .chips { display: flex; gap: .45rem; flex-wrap: wrap; }
+  .chip { display: inline-flex; align-items: center; gap: .4rem; padding: .3rem .7rem;
+    border-radius: 999px; font-size: .66rem; letter-spacing: .06em;
+    color: rgb(var(--holo-dim) / .95); background: rgb(var(--holo-line) / .05);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .12); }
+  .chip i { width: 8px; height: 8px; border-radius: 50%; }
+  .stage { position: relative; border-radius: 10px; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
+    aspect-ratio: 16 / 10; }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .stage.grabby, .stage.grabwipe { cursor: ew-resize; touch-action: none; }
+  .stage.a1610 { aspect-ratio: 16 / 10; }
+
+  /* lifted from spatial.html for its five sections */
+  .demo { padding: 1.2rem; border-radius: 14px;
+    background: linear-gradient(158deg, rgb(var(--holo-panel) / .96), rgb(7 10 15 / .96));
+    box-shadow: 0 22px 50px rgb(0 0 0 / .45), inset 0 1px 0 rgb(var(--holo-line) / .1); }
+  .job { display: inline-block; margin: 0 0 1.2rem; padding: .3rem .7rem; border-radius: 999px;
+    background: rgb(var(--holo-warm) / .12); color: rgb(var(--holo-warm) / .95);
+    font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+  .source { margin: 1rem 0 0; font-size: .78rem; color: rgb(var(--holo-dim) / .7); }
+
+  /* the interaction and motion groups */
+  .two-col { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+  @media (min-width: 62rem) { .two-col { grid-template-columns: 1fr 1fr; } }
+  .stack { display: grid; gap: 1.15rem; align-content: start; }
+  .field { flex: 1 1 15rem; min-width: 0; padding: .72rem .9rem;
+    border: 1px solid rgb(var(--holo-line) / .2); border-radius: 999px;
+    background: rgb(var(--holo-line) / .05); color: rgb(var(--holo-ink) / .9);
+    font: inherit; font-size: .86rem; }
+  .field:focus-visible { outline: 2px solid rgb(var(--holo-beam)); outline-offset: 2px; }
+  .swapper { min-height: 8.5rem; border-radius: 12px; }
+  .swap-body h3 { margin: 0 0 .4rem; font-size: 1rem; font-weight: 500; }
+  .swap-body p { margin: 0; font-size: .88rem; color: rgb(var(--holo-dim) / .95); }
+  .grouphead { padding-top: 3.2rem; }
+  .grouphead h2 { font-size: 1.5rem; font-weight: 300; }
+  .grouphead .note { margin-bottom: 0; }
 </style>
 </head>
 <body>
@@ -254,28 +314,205 @@
 
   <nav class="topnav" aria-label="Experiments">
     <a class="topnav-brand" href="../index.html">experimental-UI</a>
-    <a href="all.html">All</a>
+    <a href="all.html" aria-current="page">All</a>
     <a href="../index.html">Landing</a>
     <a href="motion.html">Motion</a>
     <a href="spatial.html">Spatial</a>
-    <a href="models.html" aria-current="page">Models</a>
+    <a href="models.html">Models</a>
     <a href="applied.html">Applied</a>
     <a href="https://github.com/amyleesterling/experimental-UI" rel="noopener">GitHub</a>
   </nav>
 
   <header>
-    <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">Models</p>
-    <h1>Nine models, worn as interface</h1>
+    <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">All</p>
+    <h1>Everything, on one page</h1>
     <p class="lede">
-      Not visualisations of the science: interface elements powered by it.
-      Each section is a recognisable piece of UI, an avatar, a loader, a
-      progress card, a counter, whose behaviour comes from a named model
-      instead of an easing curve. The model is the engine, never the exhibit.
+      The whole set in one scroll: the interaction states, the three motion
+      models, the five paper derived components, the nine models worn as
+      interface, and the EyeWire 2 placements. Every demo pauses while it is
+      off screen, so the page costs what the part you are looking at costs.
     </p>
   </header>
 
-  <!-- ============================================================ 1 -->
-  <section id="phyllotaxis">
+  <div class="grouphead" id="g-interaction">
+    <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">Group one</p>
+    <h2>Interaction states</h2>
+    <p class="note">Buttons with a lifecycle, arrivals with an unread mark, and a change with a definite instant.</p>
+  </div>
+
+  <section id="i-buttons">
+    <div class="panel stack">
+      <div class="mrow">
+        <button id="btn-ok">Save changes</button>
+        <button id="btn-slow">Run long job</button>
+        <button id="btn-bad">Trigger a failure</button>
+      </div>
+      <div class="mrow">
+        <input class="field" type="text" placeholder="Anything you like" aria-label="An inert demonstration field" autocomplete="off">
+        <button id="btn-send">Request access</button>
+      </div>
+      <span class="quiet">Nothing is submitted. No form, no field name, no request.</span>
+    </div>
+  </section>
+
+  <section id="i-feed">
+    <div class="panel stack">
+      <div class="mrow">
+        <button class="mbtn" id="btn-one" type="button" data-holo-tap>Add one</button>
+        <button class="mbtn" id="btn-batch" type="button" data-holo-tap>Add a batch of five</button>
+        <button class="mbtn" id="btn-seen" type="button" data-holo-tap>Mark all seen</button>
+      </div>
+      <div id="feed"></div>
+    </div>
+  </section>
+
+  <section id="i-veil">
+    <div class="panel swapper" id="swapper">
+      <div class="swap-body" id="swap-body">
+        <h3>Acquisition, session 41</h3>
+        <p>Nine sections registered. The stage is holding within tolerance and the detector is cold.</p>
+      </div>
+      <p class="mrow" style="margin-top:1.1rem">
+        <button class="mbtn" id="btn-swap" type="button" data-holo-tap>Load the next session</button>
+      </p>
+    </div>
+  </section>
+
+  <div class="grouphead" id="g-motion">
+    <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">Group two</p>
+    <h2>Motion with a system behind it</h2>
+    <p class="note">A travelling wave, coupled oscillators that lock by themselves, and a spring you can tune.</p>
+  </div>
+
+  <section id="m-panel">
+    <div class="panel" id="demo-panel">
+      <div class="two-col">
+        <div class="stack">
+          <div id="bar-a"></div>
+          <div id="bar-b"></div>
+          <div id="drawer"></div>
+        </div>
+        <div class="stack">
+          <div id="cluster"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="m-spring">
+    <div class="panel"><div id="spring-solo"></div></div>
+  </section>
+
+  <div class="grouphead" id="g-spatial">
+    <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">Group three</p>
+    <h2>Five components from five papers</h2>
+    <p class="note">Each takes what a recent paper is arguing and turns it into a control.</p>
+  </div>
+
+<section>
+    <p class="eyebrow">One</p>
+    <h2>Field over a changing form</h2>
+    <p class="job">Job: a value that only means something in its place</p>
+    <p class="note">
+      Scrub the stage and the form folds. The expression band is defined in the
+      form's own coordinates rather than the canvas, so it stays on the same
+      tissue and travels with it. A heatmap on a fixed image can get away with
+      being a texture. The moment the form moves, the field has to be attached
+      to the thing, and the difference becomes obvious in one drag.
+    </p>
+    <div class="demo"><div id="atlas"></div></div>
+    <p class="source">
+      After 3D spatial transcriptome atlases of early primate embryogenesis,
+      Nature Cell Biology, 2026, where a programme is only meaningful in the
+      piece of geometry it occupies and at the stage it occupies it.
+    </p>
+  </section>
+
+<section>
+    <p class="eyebrow">Two</p>
+    <h2>Co-registered channel wipe</h2>
+    <p class="job">Job: compare layers without losing registration</p>
+    <p class="note">
+      Drag the divider. The geometry channel runs the full width and the
+      molecular channel is clipped to one side, both drawn from one set of
+      coordinates. Because the shapes never move as the divider passes, you can
+      see they are the same tissue. A crossfade could not tell you that: fading
+      looks identical whether or not two layers are registered, which hides the
+      one property worth checking.
+    </p>
+    <div class="demo"><div id="channel"></div></div>
+    <p class="source">
+      After light microscopy connectomic reconstruction of brain tissue,
+      Nature, 2025, where the appeal is a wiring diagram that carries molecular
+      identity instead of trading one for the other.
+    </p>
+  </section>
+
+<section>
+    <p class="eyebrow">Three</p>
+    <h2>Scale bridge</h2>
+    <p class="job">Job: jump six orders of magnitude and stay oriented</p>
+    <p class="note">
+      Pick a cell by what it does and the view travels to what it is made of.
+      The ladder is the component worth keeping: any interface that jumps
+      between very different magnifications leaves people lost, because the
+      destination gives no clue how far it sits from the origin. A rung per
+      decade and a marker that travels rather than teleports costs almost
+      nothing and answers the question the jump creates.
+    </p>
+    <div class="demo"><div id="bridge"></div></div>
+    <p class="source">
+      After correlative voltage imaging and cryo-electron tomography, Nature
+      Communications, 2025, which links an electrical phenotype to the
+      nanometre scale architecture of that same class of cell.
+    </p>
+  </section>
+
+<section>
+    <p class="eyebrow">Four</p>
+    <h2>Trajectories against their matrix</h2>
+    <p class="job">Job: show what a summary throws away</p>
+    <p class="note">
+      Press collapse. Every point keeps its identity through the morph, so the
+      eye follows individual projections into the grid and watches them pile
+      into a single cell. Two pictures side by side would make the same claim
+      and prove none of it. The morph is the argument, and it is the reason
+      this is a component rather than a pair of charts.
+    </p>
+    <div class="demo"><div id="project"></div></div>
+    <p class="source">
+      After whole brain reconstruction of single neurons, Nature Methods, 2025,
+      where the questions are about the trajectories that an adjacency matrix
+      does not keep.
+    </p>
+  </section>
+
+<section>
+    <p class="eyebrow">Five</p>
+    <h2>Serial sections into a volume</h2>
+    <p class="job">Job: prove a set of layers is one object</p>
+    <p class="note">
+      Close the stack up, then switch registration off. Every section is
+      unchanged and the structure running through the depth disappears, which
+      is a stronger statement than any caption about alignment. When a set of
+      layers really is one object, the control that can take the alignment away
+      is what demonstrates it.
+    </p>
+    <div class="demo"><div id="stack"></div></div>
+    <p class="source">
+      After 3D reconstruction of serial spatial transcriptomic sections, 2026,
+      where the third dimension changes the inference rather than the
+      presentation.
+    </p>
+  </section>
+
+  <div class="grouphead" id="g-models">
+    <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">Group four</p>
+    <h2>Nine models, worn as interface</h2>
+    <p class="note">Recognisable pieces of UI whose behaviour comes from a named model. The model is the engine, never the exhibit.</p>
+  </div>
+
+<section id="phyllotaxis">
     <p class="eyebrow">Phyllotaxis</p>
     <h2>A team ring that never needs layout</h2>
     <p class="note">
@@ -296,8 +533,7 @@
     </div>
   </section>
 
-  <!-- ============================================================ 2 -->
-  <section id="poisson">
+<section id="poisson">
     <p class="eyebrow">Poisson disc</p>
     <h2>A celebration that never clumps</h2>
     <p class="note">
@@ -322,8 +558,7 @@
     </div>
   </section>
 
-  <!-- ============================================================ 3 -->
-  <section id="flow">
+<section id="flow">
     <p class="eyebrow">Flow fields</p>
     <h2>An empty state that is quietly alive</h2>
     <p class="note">
@@ -344,8 +579,7 @@
     </div>
   </section>
 
-  <!-- ============================================================ 4 -->
-  <section id="fourier">
+<section id="fourier">
     <p class="eyebrow">Fourier epicycles</p>
     <h2>A loader that draws the mark</h2>
     <p class="note">
@@ -366,8 +600,7 @@
     </div>
   </section>
 
-  <!-- ============================================================ 5 -->
-  <section id="reaction">
+<section id="reaction">
     <p class="eyebrow">Reaction diffusion</p>
     <h2>Avatars that are grown, not assigned</h2>
     <p class="note">
@@ -385,8 +618,7 @@
     </div>
   </section>
 
-  <!-- ============================================================ 6 -->
-  <section id="dla">
+<section id="dla">
     <p class="eyebrow">Diffusion limited aggregation</p>
     <h2>Progress you can see accreting</h2>
     <p class="note">
@@ -408,8 +640,7 @@
     </div>
   </section>
 
-  <!-- ============================================================ 7 -->
-  <section id="voronoi">
+<section id="voronoi">
     <p class="eyebrow">Voronoi</p>
     <h2>A coverage map that renegotiates around you</h2>
     <p class="note">
@@ -426,8 +657,7 @@
     </div>
   </section>
 
-  <!-- ============================================================ 8 -->
-  <section id="boids">
+<section id="boids">
     <p class="eyebrow">Flocking</p>
     <h2>Batch actions that flock home</h2>
     <p class="note">
@@ -448,8 +678,7 @@
     </div>
   </section>
 
-  <!-- ============================================================ 9 -->
-  <section id="decay">
+<section id="decay">
     <p class="eyebrow">Exponential decay</p>
     <h2>A counter that glides to the truth</h2>
     <p class="note">
@@ -473,23 +702,225 @@
     </div>
   </section>
 
+  <div class="grouphead" id="g-applied">
+    <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">Group five</p>
+    <h2>Placed in EyeWire 2</h2>
+    <p class="note">Three sketches rebuilt around the work of proofreading a connectome. The full panel mapping lives on <a href="applied.html" style="color:rgb(var(--holo-glow) / .95)">the applied page</a>.</p>
+  </div>
+
+<section id="proofread">
+    <p class="eyebrow">From the channel wipe</p>
+    <h2>Before and after proofreading</h2>
+    <p class="note">
+      The co-registered wipe, doing its real job. Left of the divider is the
+      cell <b>after proofreading</b>, right is the raw segmentation
+      <b>before</b>. Both sides are drawn from one skeleton, so the shared
+      anatomy never moves as the divider passes: what changes is exactly the
+      work. A <span style="color:rgb(var(--holo-bad) / .95)">merge error</span>
+      is removed, two truncated branches are
+      <span style="color:rgb(var(--holo-warm) / .95)">extended</span> to their
+      real tips, and an orphaned fragment is attached. Drag the divider.
+    </p>
+    <div class="panel">
+      <div class="stage grabby grabwipe a1610" id="pf-stage">
+        <canvas id="pf-cv" role="img" aria-label="A schematic pyramidal neuron, proofread on the left of the divider and raw on the right"></canvas>
+        <span class="tag is-left">After proofreading</span>
+        <span class="tag is-right">Raw segmentation</span>
+        <p class="readout" id="pf-read"></p>
+      </div>
+      <div class="mrow">
+        <label style="flex:1 1 200px">Reveal
+          <input id="pf-reveal" type="range" min="0" max="1" step="0.005" value="0.5" aria-label="Reveal the proofread cell" style="flex:1">
+        </label>
+      </div>
+      <div class="chips" aria-hidden="true">
+        <span class="chip"><i style="background:rgb(var(--holo-bad) / .9)"></i> merge error, removed</span>
+        <span class="chip"><i style="background:rgb(var(--holo-warm) / .9)"></i> extensions, found</span>
+        <span class="chip"><i style="background:rgb(var(--holo-beam) / .9)"></i> shared anatomy, identical both sides</span>
+      </div>
+    </div>
+    <p class="note" style="margin-top:1rem">
+      In EyeWire 2 this is the review moment: <code>ProofreadingQueuePanel</code>
+      showing what a submission changed, or <code>SplitMergeOverlay</code>
+      asking you to confirm an edit. The wipe answers the reviewer's only
+      question, which is what exactly did this edit do. The whatisabrain
+      interactive neuron was the reference for the morphology, drawn here as
+      a schematic pyramidal cell.
+    </p>
+  </section>
+
+<section id="synapse">
+    <p class="eyebrow">From the matrix morph</p>
+    <h2>The connectivity table becomes the cell</h2>
+    <p class="note">
+      Every row in a connectivity table is a real synapse somewhere on a real
+      arbor. Press morph: each dot keeps its identity as the table collapses
+      onto the neuron, so you watch your partners land on the apical tuft,
+      the basal skirt, the axon. The same argument as the matrix sketch, run
+      in reverse: this time the geometry is what the table was hiding.
+    </p>
+    <div class="panel">
+      <div class="stage a1610">
+        <canvas id="sy-cv" role="img"></canvas>
+        <p class="readout" id="sy-read"></p>
+      </div>
+      <div class="mrow">
+        <button class="mbtn" id="sy-go" type="button" data-holo-tap>Morph onto the cell</button>
+        <label style="flex:1 1 160px">Morph
+          <input id="sy-m" type="range" min="0" max="1" step="0.01" value="0" aria-label="Morph between the table and the cell" style="flex:1">
+        </label>
+      </div>
+      <div class="chips" aria-hidden="true">
+        <span class="chip"><i style="background:rgb(var(--holo-beam) / .9)"></i> onto dendrites, input</span>
+        <span class="chip"><i style="background:rgb(var(--holo-warm) / .9)"></i> onto the axon, output</span>
+      </div>
+    </div>
+    <p class="note" style="margin-top:1rem">
+      In EyeWire 2 this is <code>CellLibraryPanel</code>: a cell's partner
+      list is a grid until you ask where, and then the grid pours onto the
+      anatomy. The same move works for <code>AnnotationPanel</code> marks and
+      for a weekly recap, where the table of your edits lands back onto the
+      cells you fixed.
+    </p>
+  </section>
+
+<section id="emstack">
+    <p class="eyebrow">From the section stack</p>
+    <h2>From EM images to a volume</h2>
+    <p class="note">
+      The section stack, carrying what connectomics actually stacks: electron
+      microscopy images. Each slice is synthetic EM, membranes drawn as dark
+      boundaries between cells, and one profile runs through the depth. Turn
+      the segmentation on and that profile is painted across every slice,
+      which is the whole pipeline in one control: <b>images, aligned, becomes
+      a volume, becomes a cell</b>. Close the stack to see it as tissue.
+    </p>
+    <div class="panel">
+      <div class="stage" style="aspect-ratio:16/11">
+        <div id="em-scene" style="position:absolute;inset:0;transform-style:preserve-3d;perspective:900px;perspective-origin:50% 42%"></div>
+        <p class="readout" id="em-read"></p>
+      </div>
+      <div class="mrow">
+        <label style="flex:1 1 160px">Assemble
+          <input id="em-a" type="range" min="0" max="1" step="0.01" value="1" aria-label="Fan the sections apart or close them into a volume" style="flex:1">
+        </label>
+        <button class="mbtn" id="em-seg" type="button" data-holo-tap aria-pressed="false">Show segmentation</button>
+      </div>
+    </div>
+    <p class="note" style="margin-top:1rem">
+      In EyeWire 2 this belongs to <code>Tutorial</code> and
+      <code>TutorialStep</code>: the first thing a new player needs to
+      believe is that the 2D images and the 3D cell are the same object, and
+      this control demonstrates it instead of captioning it. It also fits
+      <code>VolumesOverlay</code> as the mental model behind the volume
+      picker.
+    </p>
+  </section>
+
   <footer>
     <p class="credit">Created by Amy Sterling
       <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
-    Everything in this repo is original and experimental. Its sibling
+    Everything in this repo is original and experimental, and everything drawn
+    is generated. Its sibling
     <a href="https://github.com/amyleesterling/scifi-ui">scifi-ui</a> holds
     components extracted from software that actually ships. See
-    <a href="../AGENTS.md">AGENTS.md</a> for the working rules,
-    <a href="../index.html">the landing</a> for the interaction set,
-    <a href="motion.html">motion</a> for the models behind the movement,
-    <a href="spatial.html">spatial</a> for the paper set, and
-    <a href="applied.html">applied</a> for the EyeWire 2 placements.
+    <a href="../AGENTS.md">AGENTS.md</a> for the working rules.
   </footer>
 
 </div>
 
 <script src="../hologram-tap.js"></script>
+<script src="wave-progress.js"></script>
+<script src="sync-cluster.js"></script>
+<script src="spring-motion.js"></script>
+<script src="action-state.js"></script>
+<script src="arrival.js"></script>
+<script src="veil.js"></script>
+<script src="atlas-field.js"></script>
+<script src="channel-wipe.js"></script>
+<script src="scale-bridge.js"></script>
+<script src="projection-matrix.js"></script>
+<script src="section-stack.js"></script>
 <script>
+/* the interaction and motion groups, bootstrapped from the component set */
+
+(function () {
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  holoWave.edge(document.getElementById("demo-panel"), { speed: 0.22, radius: 16 });
+  var barA = holoWave(document.getElementById("bar-a"), { label: "Streaming segmentation", value: 0.61, speed: 0.45 });
+  holoWave(document.getElementById("bar-b"), { label: "Rebuilding index", busyLabel: "working", speed: 0.3, width: 0.22 });
+  holoSync(document.getElementById("cluster"), {
+    title: "Subsystem coherence",
+    nodes: ["optics", "stage", "detector", "cooling", "shutter", "clock"],
+    coupling: 0,
+  });
+  holoSpring(document.getElementById("drawer"), {
+    label: "Acquisition detail",
+    body: "A drawer moved by integrating a spring. Grab the switch again while it is still travelling: it continues from the position and the speed it actually had.",
+  });
+  holoSpring(document.getElementById("spring-solo"), {
+    label: "Tune the spring",
+    body: "Stiffness sets how hard it pulls, damping sets how much the motion is resisted. The readout above names where you are against critical damping.",
+  });
+  var pct = 0.61;
+  var tick = setInterval(function () {
+    pct += 0.013;
+    if (pct >= 1) { pct = 1; clearInterval(tick); }
+    barA.set(pct);
+  }, 900);
+
+  holoAction(document.getElementById("btn-ok"), { label: "Save changes", busyLabel: "Saving", doneLabel: "Saved", run: function () { return wait(1400); } });
+  holoAction(document.getElementById("btn-slow"), { label: "Run long job", busyLabel: "Running", doneLabel: "Finished", run: function () { return wait(4200); } });
+  holoAction(document.getElementById("btn-bad"), { label: "Trigger a failure", busyLabel: "Trying", failLabel: "Did not send", run: function () { return wait(1200).then(function () { return Promise.reject(new Error("demo")); }); } });
+  holoAction(document.getElementById("btn-send"), { label: "Request access", busyLabel: "Sending", doneLabel: "Noted", run: function () { return wait(1600); } });
+
+  var feed = holoArrive(document.getElementById("feed"));
+  var LINES = ["Segmentation finished on section 4", "Two proofreads queued",
+    "Detector reached target temperature", "Stage drift corrected",
+    "Session 41 archived", "New candidate cell type flagged"];
+  var n = 0;
+  feed.add({ text: LINES[0], time: "earlier" });
+  feed.markAllSeen();
+  document.getElementById("btn-one").addEventListener("click", function () {
+    feed.add({ text: LINES[++n % LINES.length], time: "now" });
+  });
+  document.getElementById("btn-batch").addEventListener("click", function () {
+    for (var i = 0; i < 5; i++) feed.add({ text: LINES[++n % LINES.length], time: "now" }, { batch: true });
+  });
+  document.getElementById("btn-seen").addEventListener("click", function () { feed.markAllSeen(); });
+
+  var SESSIONS = [
+    ["Acquisition, session 41", "Nine sections registered. The stage is holding within tolerance and the detector is cold."],
+    ["Acquisition, session 42", "Fourteen sections queued. One alignment pass outstanding and the shutter is being recalibrated."],
+    ["Acquisition, session 43", "Six sections registered. Cooling is still coming down and imaging has not started."],
+  ];
+  var si = 0;
+  document.getElementById("btn-swap").addEventListener("click", function () {
+    si = (si + 1) % SESSIONS.length;
+    holoVeil(document.getElementById("swapper"), function () {
+      var body = document.getElementById("swap-body");
+      body.querySelector("h3").textContent = SESSIONS[si][0];
+      body.querySelector("p").textContent = SESSIONS[si][1];
+    });
+  });
+})();
+</script>
+<script>
+/* the spatial group, bootstrapped from its components */
+(function () {
+  "use strict";
+  holoAtlas(document.getElementById("atlas"));
+  holoChannel(document.getElementById("channel"));
+  holoBridge(document.getElementById("bridge"));
+  holoProject(document.getElementById("project"));
+  holoStack(document.getElementById("stack"));
+})();
+</script>
+<script>
+/* the models group, lifted whole from models.html */
 (function () {
   "use strict";
 
@@ -1326,6 +1757,456 @@
     document.getElementById("score-50").addEventListener("click", function () { add(50); });
     document.getElementById("score-250").addEventListener("click", function () { add(250); });
     report();
+  })();
+
+})();
+</script>
+<script>
+/* the applied group, lifted whole from applied.html */
+(function () {
+  "use strict";
+
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var TAU = Math.PI * 2;
+  var MINT = "178,216,248", WARM = "232,169,58", BAD = "236,130,130";
+
+  function fit(cv) {
+    var dpr = Math.min(devicePixelRatio || 1, 2);
+    var r = cv.getBoundingClientRect();
+    var w = Math.max(1, Math.round(r.width * dpr));
+    var h = Math.max(1, Math.round(r.height * dpr));
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    return dpr;
+  }
+  function rng(seed) {
+    return function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+  }
+
+  /* ---- one schematic pyramidal neuron, shared by sketches 1 and 2 ------
+     Apical trunk and tuft above the soma, a basal skirt around it, an axon
+     descending with collaterals. Coordinates live in a unit square, drawn
+     through a fitted transform, per the aspect lesson in AGENTS.md. */
+  function buildNeuron() {
+    var rand = rng(20260812);
+    var branches = [];
+
+    function grow(x, y, ang, len, depth, w, kind) {
+      var steps = 6, pts = [[x, y]];
+      for (var i = 0; i < steps; i++) {
+        ang += (rand() - 0.5) * 0.5;
+        x += Math.cos(ang) * len / steps;
+        y += Math.sin(ang) * len / steps;
+        pts.push([x, y]);
+      }
+      branches.push({ pts: pts, w: w, kind: kind, role: "keep" });
+      if (depth > 1) {
+        grow(x, y, ang - 0.45 - rand() * 0.3, len * 0.7, depth - 1, w * 0.72, kind);
+        grow(x, y, ang + 0.45 + rand() * 0.3, len * 0.7, depth - 1, w * 0.72, kind);
+      }
+    }
+
+    var sx = 0.5, sy = 0.62;
+    /* apical trunk up, then the tuft */
+    var trunk = [[sx, sy]];
+    for (var t = 1; t <= 7; t++) trunk.push([sx + Math.sin(t * 1.1) * 0.008, sy - t * 0.038]);
+    branches.push({ pts: trunk, w: 2.6, kind: "apical", role: "keep" });
+    var top = trunk[trunk.length - 1];
+    grow(top[0], top[1], -Math.PI / 2 - 0.55, 0.16, 3, 1.7, "apical");
+    grow(top[0], top[1], -Math.PI / 2 + 0.55, 0.16, 3, 1.7, "apical");
+    /* obliques off the trunk */
+    grow(trunk[3][0], trunk[3][1], Math.PI - 0.5, 0.1, 2, 1.3, "apical");
+    grow(trunk[4][0], trunk[4][1], -0.4, 0.1, 2, 1.3, "apical");
+    /* basal skirt */
+    for (var b = 0; b < 5; b++) {
+      var a = Math.PI * (0.12 + b * 0.19) + (rand() - 0.5) * 0.2;
+      grow(sx, sy, a, 0.13, 3, 1.6, "basal");
+    }
+    /* axon down with collaterals */
+    var ax = [[sx, sy]];
+    var axx = sx, axy = sy, axa = Math.PI / 2 + 0.12;
+    for (var s = 0; s < 9; s++) {
+      axa += (rand() - 0.5) * 0.24;
+      axx += Math.cos(axa) * 0.032; axy += Math.sin(axa) * 0.032;
+      ax.push([axx, axy]);
+    }
+    branches.push({ pts: ax, w: 1.7, kind: "axon", role: "keep" });
+    grow(ax[4][0], ax[4][1], 0.15, 0.11, 2, 1.1, "axon");
+    grow(ax[6][0], ax[6][1], Math.PI - 0.2, 0.1, 2, 1.1, "axon");
+    return { branches: branches, soma: [sx, sy] };
+  }
+
+  var NEURON = buildNeuron();
+
+  /* assign proofreading roles deterministically: two distal apical branches
+     become extensions, one basal becomes truncated with an orphan tip, and a
+     foreign fragment is merged across the basal field */
+  (function assignRoles() {
+    var distal = NEURON.branches.filter(function (b) { return b.kind === "apical" && b.w < 1.1; });
+    if (distal[2]) distal[2].role = "extension";
+    if (distal[5]) distal[5].role = "extension";
+    var basal = NEURON.branches.filter(function (b) { return b.kind === "basal" && b.w < 1.3; });
+    if (basal[1]) basal[1].role = "orphan";
+    if (basal[4]) basal[4].role = "extension";
+    /* the merge error: a smooth foreign axon passing through, before only */
+    var mr = [[0.12, 0.78]];
+    var mx = 0.12, my = 0.78, ma = -0.5;
+    for (var i = 0; i < 10; i++) {
+      ma += (i === 4 ? 0.5 : (Math.sin(i * 2.7) * 0.14));
+      mx += Math.cos(ma) * 0.075; my += Math.sin(ma) * 0.055;
+      mr.push([mx, my]);
+    }
+    NEURON.merge = { pts: mr, w: 1.9 };
+  })();
+
+  function neuronTransform(cv) {
+    var W = cv.width, H = cv.height;
+    var S = Math.min(W, H) * 1.02;
+    return function (p) { return [W / 2 + (p[0] - 0.5) * S, H * 0.5 + (p[1] - 0.55) * S]; };
+  }
+  function strokeBranch(ctx, px, b, style, width, dpr, upTo) {
+    var n = upTo ? Math.max(2, Math.round(b.pts.length * upTo)) : b.pts.length;
+    ctx.beginPath();
+    for (var i = 0; i < n; i++) {
+      var q = px(b.pts[i]);
+      if (i === 0) ctx.moveTo(q[0], q[1]); else ctx.lineTo(q[0], q[1]);
+    }
+    ctx.strokeStyle = style;
+    ctx.lineWidth = width * dpr;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.stroke();
+  }
+  function drawSoma(ctx, px, dpr, alpha) {
+    var s = px(NEURON.soma);
+    ctx.beginPath();
+    ctx.moveTo(s[0], s[1] - 7 * dpr);
+    ctx.lineTo(s[0] + 6.4 * dpr, s[1] + 5 * dpr);
+    ctx.lineTo(s[0] - 6.4 * dpr, s[1] + 5 * dpr);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(" + MINT + "," + alpha + ")";
+    ctx.fill();
+  }
+
+  /* ================================================== 1. proofread wipe */
+  (function () {
+    var cv = document.getElementById("pf-cv"), ctx = cv.getContext("2d");
+    var stage = document.getElementById("pf-stage");
+    var range = document.getElementById("pf-reveal");
+    var read = document.getElementById("pf-read");
+    var reveal = 0.5, disp = 0.5, raf = 0, last = 0, backstop = 0;
+
+    function drawSide(px, dpr, after) {
+      NEURON.branches.forEach(function (b) {
+        if (b.role === "keep") {
+          strokeBranch(ctx, px, b, "rgba(" + MINT + ",0.8)", b.w, dpr);
+        } else if (b.role === "extension") {
+          if (after) strokeBranch(ctx, px, b, "rgba(" + WARM + ",0.9)", b.w, dpr);
+          else strokeBranch(ctx, px, b, "rgba(" + MINT + ",0.55)", b.w, dpr, 0.45);
+        } else if (b.role === "orphan") {
+          if (after) strokeBranch(ctx, px, b, "rgba(" + WARM + ",0.9)", b.w, dpr);
+          else {
+            strokeBranch(ctx, px, b, "rgba(" + MINT + ",0.55)", b.w, dpr, 0.4);
+            /* the disconnected tip, floating past a gap */
+            var n = b.pts.length, fromI = Math.round(n * 0.62);
+            ctx.beginPath();
+            for (var i = fromI; i < n; i++) {
+              var q = px(b.pts[i]);
+              if (i === fromI) ctx.moveTo(q[0] + 3 * dpr, q[1] - 3 * dpr);
+              else ctx.lineTo(q[0] + 3 * dpr, q[1] - 3 * dpr);
+            }
+            ctx.strokeStyle = "rgba(" + MINT + ",0.4)";
+            ctx.lineWidth = b.w * dpr;
+            ctx.stroke();
+          }
+        }
+      });
+      if (!after) strokeBranch(ctx, px, NEURON.merge, "rgba(" + BAD + ",0.85)", NEURON.merge.w, dpr);
+      drawSoma(ctx, px, dpr, after ? 0.95 : 0.75);
+    }
+
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var px = neuronTransform(cv);
+      /* raw everywhere, proofread clipped to the reveal side */
+      drawSide(px, dpr, false);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, 0, W * disp, H); ctx.clip();
+      ctx.clearRect(0, 0, W * disp, H);
+      drawSide(px, dpr, true);
+      ctx.restore();
+      /* the divider, with its passing light on nearby strokes */
+      ctx.fillStyle = "rgba(" + MINT + ",0.85)";
+      ctx.fillRect(W * disp - 1 * dpr, 0, 2 * dpr, H);
+      read.innerHTML = "<b>" + Math.round(disp * 100) + "%</b> proofread revealed. One skeleton, two states, nothing moves but the work.";
+    }
+
+    function frame(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05); last = now;
+      disp += (reveal - disp) * (1 - Math.exp(-dt * 14));
+      if (Math.abs(reveal - disp) < 0.0006) { disp = reveal; paint(); raf = 0; clearTimeout(backstop); return; }
+      paint();
+      raf = requestAnimationFrame(frame);
+    }
+    function chase() {
+      if (reduced) { disp = reveal; paint(); return; }
+      if (!raf) {
+        last = 0; raf = requestAnimationFrame(frame);
+        clearTimeout(backstop);
+        backstop = setTimeout(function () {
+          if (raf) { cancelAnimationFrame(raf); raf = 0; }
+          disp = reveal; paint();
+        }, 4000);
+      }
+    }
+    function fromX(clientX) {
+      var r = stage.getBoundingClientRect();
+      return Math.max(0.03, Math.min(0.97, (clientX - r.left) / Math.max(1, r.width)));
+    }
+    var dragging = false;
+    stage.addEventListener("pointerdown", function (e) {
+      dragging = true; stage.setPointerCapture(e.pointerId);
+      reveal = fromX(e.clientX); range.value = String(reveal); chase();
+    });
+    stage.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      reveal = fromX(e.clientX); range.value = String(reveal); chase();
+    });
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (t) {
+      stage.addEventListener(t, function () { dragging = false; });
+    });
+    range.addEventListener("input", function () { reveal = parseFloat(range.value); chase(); });
+    new ResizeObserver(paint).observe(cv);
+    paint();
+  })();
+
+  /* ================================================== 2. table onto the cell */
+  (function () {
+    var cv = document.getElementById("sy-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("sy-read");
+    var mEl = document.getElementById("sy-m");
+    var btn = document.getElementById("sy-go");
+    var m = 0, raf = 0, backstop = 0;
+
+    /* synapses sampled along the finished arbor, each with a table cell */
+    var rand = rng(777);
+    var syn = [];
+    var pool = NEURON.branches.filter(function (b) { return b.role !== "orphan"; });
+    for (var i = 0; i < 150; i++) {
+      var b = pool[Math.floor(rand() * pool.length)];
+      var u = 0.25 + rand() * 0.72;
+      var idx = Math.min(b.pts.length - 2, Math.floor(u * (b.pts.length - 1)));
+      var f = u * (b.pts.length - 1) - idx;
+      var p = b.pts[idx], q = b.pts[idx + 1];
+      syn.push({
+        ax: p[0] + (q[0] - p[0]) * f + (rand() - 0.5) * 0.012,
+        ay: p[1] + (q[1] - p[1]) * f + (rand() - 0.5) * 0.012,
+        out: b.kind === "axon",
+      });
+    }
+    /* the table: outputs in the right columns, inputs in the left, row major */
+    syn.sort(function (a, b2) { return (a.out ? 1 : 0) - (b2.out ? 1 : 0); });
+    var COLS = 15, ROWS = Math.ceil(syn.length / COLS);
+    syn.forEach(function (s, i) {
+      s.gc = i % COLS; s.gr = Math.floor(i / COLS);
+    });
+
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var px = neuronTransform(cv);
+
+      /* the cell fades in as the table pours onto it */
+      if (m > 0.04) {
+        ctx.globalAlpha = m * 0.5;
+        NEURON.branches.forEach(function (b) {
+          if (b.role !== "orphan") strokeBranch(ctx, px, b, "rgba(" + MINT + ",0.5)", b.w * 0.8, dpr);
+        });
+        drawSoma(ctx, px, dpr, 0.6);
+        ctx.globalAlpha = 1;
+      }
+      /* the table frame fades out */
+      var side = Math.min(W, H) * 0.66;
+      var ox = (W - side * 1.35) / 2, oy = (H - side * 0.7) / 2;
+      var cw = side * 1.35 / COLS, ch = side * 0.7 / ROWS;
+      if (m < 0.96) {
+        ctx.strokeStyle = "rgba(" + MINT + "," + ((1 - m) * 0.12).toFixed(3) + ")";
+        ctx.lineWidth = 1 * dpr;
+        ctx.strokeRect(ox, oy, side * 1.35, side * 0.7);
+      }
+      for (var i = 0; i < syn.length; i++) {
+        var s = syn[i];
+        var gx = ox + (s.gc + 0.5) * cw, gy = oy + (s.gr + 0.5) * ch;
+        var ap = px([s.ax, s.ay]);
+        var x = gx * (1 - m) + ap[0] * m, y = gy * (1 - m) + ap[1] * m;
+        ctx.fillStyle = s.out ? "rgba(" + WARM + ",0.9)" : "rgba(" + MINT + ",0.85)";
+        ctx.beginPath(); ctx.arc(x, y, 1.7 * dpr, 0, TAU); ctx.fill();
+      }
+      read.innerHTML = m < 0.5
+        ? "<b>" + syn.length + "</b> partners, as the table shows them"
+        : "<b>" + syn.length + "</b> partners, where they actually are";
+      cv.setAttribute("aria-label", m < 0.5
+        ? "A connectivity table of " + syn.length + " synapses"
+        : "The same " + syn.length + " synapses shown on the neuron's arbor");
+    }
+
+    function runTo(v) {
+      if (reduced) { m = v; mEl.value = String(m); paint(); return; }
+      var from = m, t0 = performance.now();
+      if (raf) cancelAnimationFrame(raf);
+      clearTimeout(backstop);
+      backstop = setTimeout(function () {
+        if (raf) { cancelAnimationFrame(raf); raf = 0; }
+        m = v; mEl.value = String(m); paint();
+      }, 3000);
+      (function frame(now) {
+        var d = Math.min(1, (now - t0) / 950);
+        var e = d < 0.5 ? 4 * d * d * d : 1 - Math.pow(-2 * d + 2, 3) / 2;
+        m = from + (v - from) * e;
+        mEl.value = String(m.toFixed(2));
+        paint();
+        if (d < 1) raf = requestAnimationFrame(frame);
+        else { raf = 0; clearTimeout(backstop); }
+      })(t0);
+    }
+    btn.addEventListener("click", function () {
+      var to = m > 0.5 ? 0 : 1;
+      btn.textContent = to === 1 ? "Back to the table" : "Morph onto the cell";
+      runTo(to);
+    });
+    mEl.addEventListener("input", function () {
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      m = parseFloat(mEl.value); paint();
+    });
+    new ResizeObserver(paint).observe(cv);
+    paint();
+  })();
+
+  /* ================================================== 3. EM sections */
+  (function () {
+    var scene = document.getElementById("em-scene");
+    var read = document.getElementById("em-read");
+    var aEl = document.getElementById("em-a");
+    var segBtn = document.getElementById("em-seg");
+    var N = 7, RW = 128, RH = 96;
+    var showSeg = false;
+    var sections = [];
+
+    /* one set of cell seeds drifting smoothly through depth, so membranes
+       are continuous: the same tissue, sliced */
+    var rand = rng(1234);
+    var CELLS = [];
+    for (var c = 0; c < 15; c++) {
+      CELLS.push({
+        x: rand(), y: rand(),
+        dx: (rand() - 0.5) * 0.05, dy: (rand() - 0.5) * 0.05,
+        wob: rand() * TAU,
+      });
+    }
+    var HERO = 6; /* the profile that becomes the cell */
+
+    function paintSection(s) {
+      var cv = s.cv, ctx = s.ctx;
+      var z = s.i / (N - 1);
+      var img = ctx.createImageData(RW, RH);
+      var pts = CELLS.map(function (cell) {
+        return [cell.x + cell.dx * z + Math.sin(cell.wob + z * 2.4) * 0.02,
+                cell.y + cell.dy * z + Math.cos(cell.wob + z * 2.1) * 0.02];
+      });
+      var jit = rng(50 + s.i * 17);
+      for (var y = 0; y < RH; y++) {
+        for (var x = 0; x < RW; x++) {
+          var px2 = x / RW, py = y / RH;
+          var d1 = 9, d2 = 9, win = 0;
+          for (var i = 0; i < pts.length; i++) {
+            var ddx = px2 - pts[i][0], ddy = (py - pts[i][1]) * 0.75;
+            var d = ddx * ddx + ddy * ddy;
+            if (d < d1) { d2 = d1; d1 = d; win = i; }
+            else if (d < d2) d2 = d;
+          }
+          var edge = Math.min(1, (Math.sqrt(d2) - Math.sqrt(d1)) / 0.02);
+          /* EM tonality: light interiors, dark membranes, grain everywhere */
+          var g = 148 + edge * 62 + (jit() - 0.5) * 26;
+          if (edge < 0.24) g = 46 + edge * 90;
+          var j = (y * RW + x) * 4;
+          if (showSeg && win === HERO) {
+            img.data[j] = g * 0.35 + 100;
+            img.data[j + 1] = g * 0.4 + 150;
+            img.data[j + 2] = g * 0.42 + 170;
+          } else {
+            img.data[j] = g * 0.92; img.data[j + 1] = g * 0.96; img.data[j + 2] = g;
+          }
+          img.data[j + 3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+    }
+
+    for (var i = 0; i < N; i++) {
+      var d = document.createElement("div");
+      d.style.cssText = "position:absolute;left:50%;top:50%;width:46%;aspect-ratio:4/3;" +
+        "margin-left:-23%;margin-top:-17.25%;border-radius:4px;overflow:hidden;" +
+        "box-shadow:0 0 0 1px rgb(196 228 255 / .18), 0 8px 22px rgb(0 0 0 / .4);";
+      d.setAttribute("aria-label", "Synthetic electron microscopy section " + (i + 1) + " of " + N);
+      var cv = document.createElement("canvas");
+      cv.width = RW; cv.height = RH;
+      cv.style.cssText = "width:100%;height:100%;display:block;image-rendering:auto;";
+      d.appendChild(cv);
+      scene.appendChild(d);
+      sections.push({ el: d, cv: cv, ctx: cv.getContext("2d"), i: i,
+                      a: 1, rate: 12 - (i / (N - 1)) * 6 });
+      paintSection(sections[i]);
+    }
+
+    var A = 1, raf = 0, last = 0, backstop = 0;
+    function apply() {
+      var mid = (N - 1) / 2;
+      sections.forEach(function (s) {
+        var gap = 6 + s.a * 34;
+        var z = (s.i - mid) * gap;
+        s.el.style.transform = "rotateX(56deg) rotateZ(-30deg) translate3d(0,0," + z.toFixed(1) + "px)";
+        s.el.style.opacity = (0.55 + 0.45 * (s.i / (N - 1))).toFixed(2);
+      });
+      read.innerHTML = showSeg
+        ? "The same profile painted on every aligned section is <b>the cell</b>."
+        : "Seven aligned sections of the same synthetic tissue. Membranes continue through the depth.";
+    }
+    function frame(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05); last = now;
+      var busy = false;
+      sections.forEach(function (s) {
+        s.a += (A - s.a) * (1 - Math.exp(-dt * s.rate));
+        if (Math.abs(A - s.a) > 0.001) busy = true; else s.a = A;
+      });
+      apply();
+      if (!busy) { raf = 0; clearTimeout(backstop); return; }
+      raf = requestAnimationFrame(frame);
+    }
+    function settle() {
+      if (reduced) { sections.forEach(function (s) { s.a = A; }); apply(); return; }
+      if (!raf) {
+        last = 0; raf = requestAnimationFrame(frame);
+        clearTimeout(backstop);
+        backstop = setTimeout(function () {
+          if (raf) { cancelAnimationFrame(raf); raf = 0; }
+          sections.forEach(function (s) { s.a = A; }); apply();
+        }, 5000);
+      }
+    }
+    aEl.addEventListener("input", function () { A = parseFloat(aEl.value); settle(); });
+    segBtn.addEventListener("click", function () {
+      showSeg = !showSeg;
+      segBtn.setAttribute("aria-pressed", String(showSeg));
+      segBtn.textContent = showSeg ? "Hide segmentation" : "Show segmentation";
+      sections.forEach(paintSection);
+      apply();
+    });
+    apply();
   })();
 
 })();

@@ -62,6 +62,9 @@ and readout is generated for the purpose of moving an interface.
   diffusion, dendritic progress by DLA, a Voronoi coverage map, batch
   actions that flock home, and a counter that glides on exponential
   decay.
+- `components/all.html`, everything on one page: the interaction states,
+  the three motion models, the five spatial components, the nine model
+  elements and the three applied mockups, in one scroll.
 
 ## Using one
 
