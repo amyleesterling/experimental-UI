@@ -1,4 +1,4 @@
-# AGENTS.md, version 3
+# AGENTS.md, version 4
 
 Working knowledge for anyone contributing to **experimental-ui**. Read it
 before writing a line.
@@ -251,3 +251,18 @@ has to be chosen so that synchronous compute stays under a second; the
 reaction diffusion grid is 104 for exactly that reason. And a pointer driven
 canvas needs touch-action none on the stage, or the first drag on a phone
 scrolls the page instead of driving the sketch.
+
+Version 4, 2026-08-11. Two rules from assembling the everything page and the
+concept panes. First, a model element ships with its concept: every section
+on the models page pairs the UI element with an interactive of the original
+science, in a `.concept` block, so a reader can drive the model that drives
+the interface. Second, the section 5 rule about shared base classes now has
+its proof: when the applied sections were lifted onto the everything page
+without their `.stage canvas { width: 100%; height: 100% }` rule, the
+canvases sized themselves from the container each frame while widening it,
+a resize feedback loop that grew two canvases to 38,000 px and took
+`getImageData` out of memory with them. A canvas that a script sizes from
+its container must always carry the CSS that pins it back to that
+container, and a section lifted onto another page must bring that CSS
+along. That is also why the concept panes use `.cstage` and `.cread`
+rather than the `.stage` and `.readout` the applied page already claims.

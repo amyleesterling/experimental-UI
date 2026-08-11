@@ -61,7 +61,8 @@ and readout is generated for the purpose of moving an interface.
   empty state, a Fourier epicycle loader, avatars grown by reaction
   diffusion, dendritic progress by DLA, a Voronoi coverage map, batch
   actions that flock home, and a counter that glides on exponential
-  decay.
+  decay. Under each element the original concept runs live, so every
+  section pairs the UI with an interactive of the science behind it.
 - `components/all.html`, everything on one page: the interaction states,
   the three motion models, the five spatial components, the nine model
   elements and the three applied mockups, in one scroll.
