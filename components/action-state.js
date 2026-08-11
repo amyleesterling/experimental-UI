@@ -64,6 +64,9 @@
 
     var labelEl = btn.querySelector(".holoaction-label");
     var markPath = btn.querySelector(".holoaction-mark path");
+    /* normalised path length, so the stylesheet can draw the mark from the
+       same spring value that scales it in */
+    markPath.setAttribute("pathLength", "1");
     var mark = btn.querySelector(".holoaction-mark");
     var status = btn.querySelector(".holoaction-status");
     var cv = btn.querySelector("canvas");

@@ -149,6 +149,22 @@
   border-radius: 4px;
   background: linear-gradient(90deg,
               rgb(var(--holosync-tint) / .35), rgb(var(--holosync-tint) / .95));
+  /* the readout is throttled to about 8 Hz, so the bar glides between
+     reports instead of stepping */
+  transition: width .16s linear;
+}
+
+/* One bloom at the instant of lock. The class comes off on a timer, per the
+   replay rule: a one-shot class that never comes off can never fire again. */
+.holosync.is-locking .holosync-dot {
+  animation: holosync-lockbloom .8s ease-out 1;
+}
+@keyframes holosync-lockbloom {
+  30% {
+    background: rgb(var(--holosync-tint) / 1);
+    box-shadow: 0 0 18px rgb(var(--holosync-tint) / .95),
+                0 0 3px rgb(255 255 255 / .8);
+  }
 }
 
 /* ---- controls ----------------------------------------------------------- */
@@ -195,6 +211,9 @@
 @media (prefers-reduced-motion: reduce) {
   /* The js holds the oscillators at their locked phase instead of integrating,
      so the cluster still reads as coherent without anything moving. The glow
-     is dropped here too, or a tap would restore what the preference removed. */
+     is dropped here too, or a tap would restore what the preference removed.
+     The lock bloom is a celebration, which is decoration, so it goes too. */
   .holosync-dot { box-shadow: none; }
+  .holosync.is-locking .holosync-dot { animation: none; }
+  .holosync-meter i { transition: none; }
 }

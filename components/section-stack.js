@@ -18,6 +18,8 @@
 (function (global) {
   "use strict";
 
+  var reduced = global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)");
+
   function rng(seed) {
     return function () {
       seed = (seed * 1664525 + 1013904223) % 4294967296;
@@ -30,8 +32,13 @@
     if (!el) return null;
 
     var N = opts.sections || 9;
-    var assembly = 1;      // 1 fanned apart, 0 closed up
+    var assembly = 1;      // the target: 1 fanned apart, 0 closed up
     var aligned = true;
+    /* every section carries its own chased copy of the assembly value, each
+       with a slightly different time constant, so the stack settles as a
+       cascade instead of one rigid plate. G chases the misalignment. */
+    var G = 0, Gt = 0;
+    var settleRaf = 0, settleLast = 0, settleBackstop = 0;
 
     el.classList.add("holostack");
     el.innerHTML =
@@ -66,6 +73,8 @@
         el: d, cv: cv, ctx: cv.getContext("2d"), i: i,
         /* the offset applied when registration is switched off */
         ox: (rand() - 0.5) * 34, oy: (rand() - 0.5) * 34,
+        /* this section's own chased assembly, nearer sections settle first */
+        a: 1, rate: 12 - (i / Math.max(1, N - 1)) * 6,
       });
     }
 
@@ -107,13 +116,13 @@
     }
 
     function apply() {
-      var gap = 8 + assembly * 30;          // closed up to fanned apart
       var mid = (N - 1) / 2;
       sections.forEach(function (s) {
+        var gap = 8 + s.a * 30;             // closed up to fanned apart
         var z = (s.i - mid) * gap;
         s.el.style.setProperty("--z", z.toFixed(2));
-        s.el.style.setProperty("--dx", (aligned ? 0 : s.ox * assembly).toFixed(2));
-        s.el.style.setProperty("--dy", (aligned ? 0 : s.oy * assembly).toFixed(2));
+        s.el.style.setProperty("--dx", (s.ox * G * s.a).toFixed(2));
+        s.el.style.setProperty("--dy", (s.oy * G * s.a).toFixed(2));
         /* the near faces stay brighter so depth order is readable */
         s.el.style.opacity = (0.5 + 0.5 * (s.i / Math.max(1, N - 1))).toFixed(2);
       });
@@ -126,13 +135,48 @@
 
     function paintAll() { sections.forEach(paintSection); }
 
+    function settleFrame(now) {
+      if (!settleLast) settleLast = now;
+      var dt = Math.min((now - settleLast) / 1000, 0.05);
+      settleLast = now;
+      var busy = false;
+      sections.forEach(function (s) {
+        s.a += (assembly - s.a) * (1 - Math.exp(-dt * s.rate));
+        if (Math.abs(assembly - s.a) > 0.0008) busy = true; else s.a = assembly;
+      });
+      G += (Gt - G) * (1 - Math.exp(-dt * 9));
+      if (Math.abs(Gt - G) > 0.0008) busy = true; else G = Gt;
+      apply();
+      if (!busy) { settleRaf = 0; global.clearTimeout(settleBackstop); return; }
+      settleRaf = global.requestAnimationFrame(settleFrame);
+    }
+    function settle() {
+      if (reduced && reduced.matches) {
+        sections.forEach(function (s) { s.a = assembly; });
+        G = Gt; apply();
+        return;
+      }
+      if (!settleRaf) {
+        settleLast = 0;
+        settleRaf = global.requestAnimationFrame(settleFrame);
+        global.clearTimeout(settleBackstop);
+        settleBackstop = global.setTimeout(function () {
+          if (settleRaf) { global.cancelAnimationFrame(settleRaf); settleRaf = 0; }
+          sections.forEach(function (s) { s.a = assembly; });
+          G = Gt; apply();
+        }, 5000);
+      }
+    }
+
     range.addEventListener("input", function () {
       assembly = parseFloat(range.value);
-      apply();
+      settle();
     });
     btn.addEventListener("click", function () {
       aligned = !aligned;
-      apply();
+      Gt = aligned ? 0 : 1;
+      apply();   /* the readout and pressed state update at once */
+      settle();
     });
 
     var ro = null;
@@ -144,9 +188,13 @@
     paintAll();
 
     var handle = {
-      setAssembly: function (v) { assembly = Math.max(0, Math.min(1, v)); range.value = String(assembly); apply(); return handle; },
-      setAligned: function (v) { aligned = !!v; apply(); return handle; },
-      destroy: function () { if (ro) ro.disconnect(); },
+      setAssembly: function (v) { assembly = Math.max(0, Math.min(1, v)); range.value = String(assembly); settle(); return handle; },
+      setAligned: function (v) { aligned = !!v; Gt = aligned ? 0 : 1; apply(); settle(); return handle; },
+      destroy: function () {
+        if (settleRaf) global.cancelAnimationFrame(settleRaf);
+        global.clearTimeout(settleBackstop);
+        if (ro) ro.disconnect();
+      },
     };
     return handle;
   }

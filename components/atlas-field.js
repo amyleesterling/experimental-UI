@@ -23,6 +23,8 @@
 (function (global) {
   "use strict";
 
+  var reduced = global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)");
+
   var DEFAULT_PROGRAMS = [
     { id: "neural",  name: "Neural tube", at: 0.32, width: 0.2 },
     { id: "cardiac", name: "Heart field", at: 0.63, width: 0.12 },
@@ -35,7 +37,9 @@
 
     var stages = opts.stages || ["CS9", "CS9.5", "CS10"];
     var programs = opts.programs || DEFAULT_PROGRAMS;
-    var stage = 0;                 // 0 .. 1 across the stage list
+    var stage = 0;                 // what paint draws
+    var target = 0;                // where the slider is
+    var scrubRaf = 0, scrubLast = 0, scrubBackstop = 0;
     var program = programs[0];
 
     el.classList.add("holoatlas");
@@ -185,9 +189,38 @@
         program.name + " expression shown on a schematic embryo at stage " + label);
     }
 
-    range.addEventListener("input", function () {
-      stage = parseFloat(range.value);
+    /* The form chases the slider instead of tracking it one to one, so a
+       scrub has weight: the embryo folds a beat behind the finger and settles
+       when the finger stops. That settle is most of the satisfaction. */
+    function scrubFrame(now) {
+      if (!scrubLast) scrubLast = now;
+      var dt = Math.min((now - scrubLast) / 1000, 0.05);
+      scrubLast = now;
+      stage += (target - stage) * (1 - Math.exp(-dt * 7));
+      if (Math.abs(target - stage) < 0.0008) {
+        stage = target; paint();
+        scrubRaf = 0; global.clearTimeout(scrubBackstop);
+        return;
+      }
       paint();
+      scrubRaf = global.requestAnimationFrame(scrubFrame);
+    }
+    function chase() {
+      if (reduced && reduced.matches) { stage = target; paint(); return; }
+      if (!scrubRaf) {
+        scrubLast = 0;
+        scrubRaf = global.requestAnimationFrame(scrubFrame);
+        global.clearTimeout(scrubBackstop);
+        scrubBackstop = global.setTimeout(function () {
+          if (scrubRaf) { global.cancelAnimationFrame(scrubRaf); scrubRaf = 0; }
+          stage = target; paint();
+        }, 4000);
+      }
+    }
+
+    range.addEventListener("input", function () {
+      target = parseFloat(range.value);
+      chase();
     });
 
     group.addEventListener("click", function (e) {
@@ -206,7 +239,7 @@
     paint();
 
     var handle = {
-      setStage: function (v) { stage = Math.max(0, Math.min(1, v)); range.value = String(stage); paint(); return handle; },
+      setStage: function (v) { target = Math.max(0, Math.min(1, v)); range.value = String(target); chase(); return handle; },
       setProgram: function (id) {
         programs.forEach(function (p) { if (p.id === id) program = p; });
         group.querySelectorAll(".holoatlas-btn").forEach(function (n) {
@@ -215,7 +248,11 @@
         paint();
         return handle;
       },
-      destroy: function () { if (ro) ro.disconnect(); },
+      destroy: function () {
+        if (scrubRaf) global.cancelAnimationFrame(scrubRaf);
+        global.clearTimeout(scrubBackstop);
+        if (ro) ro.disconnect();
+      },
     };
     return handle;
   }

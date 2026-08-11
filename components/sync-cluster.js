@@ -102,6 +102,7 @@
     }
 
     var raf = 0, last = 0, running = false, dead = false, visible = false, awake = true;
+    var wasLocked = false, bloomTimer = 0;
     /* starts far in the past so the first paint reports once, then throttles */
     var lastReport = -1e9;
 
@@ -125,6 +126,17 @@
         meter.setAttribute("aria-valuenow", r.toFixed(2));
         valueEl.textContent = r.toFixed(2);
         var locked = r > 0.9;
+        /* the instant of lock is worth one celebration: a single bloom across
+           every dot at the same moment, never a loop, and only when the lock
+           was earned by the dynamics rather than set by reduced motion */
+        if (locked && !wasLocked && !(reduced && reduced.matches)) {
+          el.classList.add("is-locking");
+          global.clearTimeout(bloomTimer);
+          bloomTimer = global.setTimeout(function () {
+            el.classList.remove("is-locking");
+          }, 900);
+        }
+        wasLocked = locked;
         el.classList.toggle("is-locked", locked);
         stateEl.textContent = locked ? "locked" : (r > 0.55 ? "pulling in" : "free running");
       }
@@ -207,6 +219,7 @@
       coherence: order,
       destroy: function () {
         dead = true; stop();
+        global.clearTimeout(bloomTimer);
         if (io) io.disconnect();
       },
     };

@@ -24,6 +24,8 @@
 (function (global) {
   "use strict";
 
+  var reduced = global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)");
+
   var DEFAULT_CLASSES = [
     { id: "exc",  name: "Excitatory", rgb: "232 169 58" },
     { id: "inh",  name: "Inhibitory", rgb: "126 224 255" },
@@ -44,7 +46,11 @@
     var classes = opts.classes || DEFAULT_CLASSES;
     var on = {};
     classes.forEach(function (c) { on[c.id] = true; });
-    var reveal = 0.55;
+    /* reveal is the truth, disp is what paint draws. The divider chases the
+       target with a short lag, so it moves like a thing with mass instead of
+       teleporting under the pointer, and it settles instead of stopping. */
+    var reveal = 0.55, disp = 0.55;
+    var chaseRaf = 0, chaseLast = 0, chaseBackstop = 0;
 
     el.classList.add("holochannel");
     el.innerHTML =
@@ -104,7 +110,9 @@
           y += Math.sin(a) * len * 0.7;
           pts.push([x, y]);
         }
-        branches.push({ pts: pts, cls: cls, w: 0.7 + rand() * 1.5 });
+        var midx = 0;
+        for (var m = 0; m < pts.length; m++) midx += pts[m][0];
+        branches.push({ pts: pts, cls: cls, w: 0.7 + rand() * 1.5, midx: midx / pts.length });
       }
     })();
 
@@ -136,19 +144,25 @@
         stroke(dpr, W, H, b, "rgba(10,16,22,0.9)", b.w * 0.5);
       });
 
-      /* channel two: the same strokes, coloured, clipped to the reveal */
+      /* channel two: the same strokes, coloured, clipped to the reveal.
+         Strokes near the divider carry a passing light, so the wipe reads as
+         revealing the tissue it crosses rather than sliding a mask. */
       ctx.save();
       ctx.beginPath();
-      ctx.rect(0, 0, W * reveal, H);
+      ctx.rect(0, 0, W * disp, H);
       ctx.clip();
       branches.forEach(function (b) {
         if (!on[b.cls.id]) return;
         var rgb = b.cls.rgb.replace(/\s+/g, ",");
         stroke(dpr, W, H, b, "rgba(" + rgb + ",0.95)", b.w + 0.9);
+        var near = Math.exp(-Math.pow((b.midx - disp) / 0.08, 2));
+        if (near > 0.05) {
+          stroke(dpr, W, H, b, "rgba(235,248,255," + (near * 0.55).toFixed(3) + ")", b.w * 0.6);
+        }
       });
       ctx.restore();
 
-      divider.style.left = (reveal * 100) + "%";
+      divider.style.left = (disp * 100) + "%";
     }
 
     /* ---- input ----------------------------------------------------------- */
@@ -183,6 +197,20 @@
       paint();
     });
 
+    function chaseFrame(now) {
+      if (!chaseLast) chaseLast = now;
+      var dt = Math.min((now - chaseLast) / 1000, 0.05);
+      chaseLast = now;
+      disp += (reveal - disp) * (1 - Math.exp(-dt * 15));
+      if (Math.abs(reveal - disp) < 0.0006) {
+        disp = reveal; paint();
+        chaseRaf = 0; global.clearTimeout(chaseBackstop);
+        return;
+      }
+      paint();
+      chaseRaf = global.requestAnimationFrame(chaseFrame);
+    }
+
     var ro = null;
     if (global.ResizeObserver) { ro = new global.ResizeObserver(paint); ro.observe(cv); }
     paint();
@@ -191,7 +219,18 @@
       setReveal: function (v) {
         reveal = Math.max(0, Math.min(1, v));
         range.value = String(reveal);
-        paint();
+        if (reduced && reduced.matches) { disp = reveal; paint(); return handle; }
+        if (!chaseRaf) {
+          chaseLast = 0;
+          chaseRaf = global.requestAnimationFrame(chaseFrame);
+          /* teardown backstop, per AGENTS.md: a settle loop that never gets
+             its frame must still land the divider on the truth */
+          global.clearTimeout(chaseBackstop);
+          chaseBackstop = global.setTimeout(function () {
+            if (chaseRaf) { global.cancelAnimationFrame(chaseRaf); chaseRaf = 0; }
+            disp = reveal; paint();
+          }, 4000);
+        }
         return handle;
       },
       toggleClass: function (id, state) {
@@ -201,7 +240,11 @@
         paint();
         return handle;
       },
-      destroy: function () { if (ro) ro.disconnect(); },
+      destroy: function () {
+        if (chaseRaf) global.cancelAnimationFrame(chaseRaf);
+        global.clearTimeout(chaseBackstop);
+        if (ro) ro.disconnect();
+      },
     };
     return handle;
   }

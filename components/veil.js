@@ -79,8 +79,11 @@
         ctx.clearRect(0, 0, W, H);
 
         /* the packet centre travels from just off one edge to just off the
-           other, so the region is never partly lit at the start or the end */
-        var centre = -0.25 + d * 1.5;
+           other, so the region is never partly lit at the start or the end.
+           The travel is eased, so the packet is at its slowest exactly where
+           the swap happens: the moment of meaning gets the most time. */
+        var e = d < 0.5 ? 4 * d * d * d : 1 - Math.pow(-2 * d + 2, 3) / 2;
+        var centre = -0.25 + e * 1.5;
         var step = Math.max(1, Math.floor(dpr));
         for (var x = 0; x < W; x += step) {
           var u = x / W;

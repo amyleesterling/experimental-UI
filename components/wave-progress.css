@@ -64,6 +64,14 @@
    read as done with no animation running behind it. */
 .holowave.is-idle .holowave-track { box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .1); }
 
+/* Finished is a state, not an absence: the track keeps a quiet settled glow
+   and the value reads a touch brighter, so done looks done at a glance. */
+.holowave.is-complete .holowave-track {
+  box-shadow: inset 0 0 0 1px rgb(var(--holowave-tint) / .38),
+              0 0 10px rgb(var(--holowave-tint) / .14);
+}
+.holowave.is-complete .holowave-value { color: rgb(var(--holowave-tint) / 1); }
+
 /* ---- the same packet, running a panel border ---------------------------- */
 
 .holowave-edge {
