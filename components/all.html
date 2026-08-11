@@ -368,6 +368,85 @@
   header.hero-band { position: relative; padding: 3.4rem 0 2.6rem; }
   .hero-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
   .hero-fg { position: relative; }
+
+  /* 10..17 the second wave of models */
+  .mstage {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
+    aspect-ratio: 16 / 7;
+  }
+  .mstage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .mp-jobs { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .mp-job {
+    padding: .7rem .8rem; border-radius: 10px; display: grid; gap: .35rem;
+    font-size: .72rem; background: rgb(var(--holo-line) / .04);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .12);
+  }
+  .mp-job strong { font-size: .78rem; font-weight: 600; }
+  .mp-job .bar { height: 4px; border-radius: 2px; background: rgb(var(--holo-line) / .1); overflow: hidden; }
+  .mp-job .bar i { display: block; height: 100%; width: 0; background: rgb(var(--holo-beam) / .85); }
+  .mp-job.is-done { box-shadow: inset 0 0 0 1px rgb(126 224 176 / .5); }
+  .mp-job.is-done .bar i { background: rgb(126 224 176 / .9); }
+  .pl-ramp-row {
+    display: flex; align-items: center; gap: .6rem;
+    font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
+    color: rgb(var(--holo-dim) / .9);
+  }
+  .pl-ramp {
+    flex: 1; height: 7px; border-radius: 4px;
+    background: linear-gradient(90deg, rgb(232 169 58 / .9), rgb(154 162 177 / .55), rgb(178 216 248 / .95));
+  }
+  .sac-wrap { position: relative; }
+  .sac-cv { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .sac-form { position: relative; display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .sac-field {
+    display: grid; gap: .3rem; font-size: .64rem; letter-spacing: .1em;
+    text-transform: uppercase; color: rgb(var(--holo-dim) / .9);
+  }
+  .sac-field input {
+    background: rgb(var(--holo-line) / .05);
+    border: 1px solid rgb(var(--holo-warm) / .4);
+    border-radius: 8px; padding: .45rem .6rem;
+    color: rgb(var(--holo-ink) / .95); font: inherit; font-size: .8rem;
+  }
+  .sac-field input:focus-visible { outline: 2px solid rgb(var(--holo-beam)); outline-offset: 2px; }
+  .sac-field.is-ok input { border-color: rgb(126 224 176 / .5); }
+  .mbtn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+  .mbtn.is-armed {
+    background: rgb(126 224 176 / .16);
+    border-color: rgb(126 224 176 / .6);
+    color: rgb(var(--holo-ink) / .98);
+  }
+  .qs-meter { position: relative; height: 8px; border-radius: 4px; background: rgb(var(--holo-line) / .08); }
+  .qs-meter i { display: block; height: 100%; width: 0; border-radius: 4px; background: rgb(var(--holo-beam) / .8); }
+  .qs-meter b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: rgb(var(--holo-warm) / .9); }
+  .qs-toasts { display: grid; gap: .4rem; min-height: 3.4rem; }
+  .qs-toast {
+    padding: .5rem .7rem; border-radius: 8px; font-size: .72rem;
+    background: rgb(var(--holo-line) / .04);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
+    color: rgb(var(--holo-dim) / .8); opacity: .55;
+  }
+  .qs-toast.is-lit {
+    color: rgb(var(--holo-ink) / .95); opacity: 1;
+    background: rgb(var(--holo-beam) / .08);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-beam) / .45);
+  }
+  .rt-rows { display: grid; gap: .4rem; }
+  .rt-row {
+    padding: .45rem .7rem; border-radius: 8px; font-size: .74rem;
+    background: rgb(var(--holo-line) / .04);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
+    color: rgb(var(--holo-dim) / .85);
+  }
+  .rt-row.is-lit {
+    color: rgb(var(--holo-ink) / .97);
+    background: rgb(var(--holo-beam) / .09);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-beam) / .5);
+  }
 </style>
 </head>
 <body>
@@ -392,7 +471,7 @@
       <h1>Everything, on one page</h1>
       <p class="lede">
         The whole set in one scroll: the interaction states, the three motion
-        models, the five paper derived components, the nine models worn as
+        models, the five paper derived components, the seventeen models worn as
         interface, and the EyeWire 2 placements. Every demo pauses while it is
         off screen, so the page costs what the part you are looking at costs.
       </p>
@@ -957,6 +1036,366 @@
         </label>
       </div>
     </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 10 -->
+  <section id="mpemba">
+    <p class="eyebrow">Quantum Mpemba effect</p>
+    <h2>Two progress traces that cross</h2>
+    <p class="note">
+      Distance from done is not time to done. Two jobs launch together, and
+      the one that starts far behind finishes first, overtaking the nearer
+      one on the way. Trapped ion experiments showed exactly this: prepare a
+      state with no weight on the slowest decaying mode and it relaxes
+      exponentially faster, and a 2026 follow-up watched trajectories cross
+      more than once. The naive ETA under each bar is computed the way every
+      progress bar implies, and the crossing is the proof that it lies.
+    </p>
+    <div class="panel">
+      <div class="mp-jobs">
+        <div class="mp-job" id="mp-job-a">
+          <strong>Rebuild index</strong>
+          <span class="quiet" id="mp-eta-a">idle</span>
+          <span class="bar"><i id="mp-bar-a"></i></span>
+        </div>
+        <div class="mp-job" id="mp-job-b">
+          <strong>Full resegmentation</strong>
+          <span class="quiet" id="mp-eta-b">idle</span>
+          <span class="bar"><i id="mp-bar-b"></i></span>
+        </div>
+      </div>
+      <div class="mstage"><canvas id="mp-cv" role="img" aria-label="Two distance from done traces over time"></canvas>
+        <p class="cread" id="mp-read"></p></div>
+      <div class="mrow">
+        <button class="mbtn" id="mp-go" type="button" data-holo-tap>Launch both</button>
+        <span class="quiet" id="mp-note" role="status"></span>
+      </div>
+    </div>
+    <div class="concept">
+      <p class="concept-title">The concept, live: relaxation modes and their overlaps</p>
+      <p class="note">
+        Relaxation is a sum of decaying modes, each with its own rate, and
+        how fast a state equilibrates is set by how much of it sits on the
+        slowest one. Slide the far state's overlap with the slow mode. At
+        zero it beats the near state easily. Give it slow mode weight and
+        the advantage dies, which is the whole effect in one slider.
+      </p>
+      <div class="panel">
+        <div class="cstage"><canvas id="mpc-cv" role="img"></canvas>
+          <p class="cread" id="mpc-read"></p></div>
+        <div class="mrow">
+          <label>Slow mode overlap
+            <input id="mpc-w" type="range" min="0" max="1" step="0.02" value="0" aria-label="Overlap of the far state with the slowest mode">
+          </label>
+          <button class="mbtn" id="mpc-zero" type="button" data-holo-tap>Snap to zero</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 11 -->
+  <section id="chirp">
+    <p class="eyebrow">Gravitational wave chirp</p>
+    <h2>A merge that sounds like what it is</h2>
+    <p class="note">
+      An irreversible combine, staged the way the universe does one: two
+      segments inspiral, the orbit tightening and quickening, a merger, then
+      a ringdown as the single new object settles. GW250114, the loudest
+      event yet recorded, was used to test the rule this button obeys: the
+      merged element's area is never less than the sum of its parents. A
+      merge drawn this way visibly loses nothing.
+    </p>
+    <div class="panel">
+      <div class="mstage"><canvas id="gw-cv" role="img" aria-label="Two segments inspiralling into one"></canvas>
+        <p class="cread" id="gw-read"></p></div>
+      <div class="mrow">
+        <button class="mbtn" id="gw-go" type="button" data-holo-tap>Merge segments</button>
+        <span class="quiet" id="gw-note" role="status"></span>
+      </div>
+    </div>
+    <div class="concept">
+      <p class="concept-title">The concept, live: the chirp waveform</p>
+      <p class="note">
+        The signal itself: amplitude and frequency climb together as the
+        orbit shrinks, cut off at merger, then ring down as a damped tone.
+        The mass ratio sets how long the chirp lasts and how it ends. Drawn
+        schematically, no detector data.
+      </p>
+      <div class="panel">
+        <div class="cstage"><canvas id="gwc-cv" role="img"></canvas>
+          <p class="cread" id="gwc-read"></p></div>
+        <div class="mrow">
+          <label>Mass ratio
+            <input id="gwc-q" type="range" min="0.35" max="1" step="0.01" value="1" aria-label="Mass ratio of the pair">
+          </label>
+          <button class="mbtn" id="gwc-go" type="button" data-holo-tap>Replay</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 12 -->
+  <section id="atomarray">
+    <p class="eyebrow">Atom array assembly</p>
+    <h2>A grid that heals before it presents</h2>
+    <p class="note">
+      Stochastic loading, guaranteed layout. Results arrive the way tweezer
+      arrays load atoms, each slot filling by chance, and instead of showing
+      you the gaps the grid runs a rearrangement pass: items are moved one
+      by one into the target region until it is perfect, and only then does
+      the state say complete. Optical tweezer arrays do exactly this at the
+      scale of six thousand atoms. Loaded and assembled are different
+      states, and hiding the pass between them is what ordinary grids get
+      wrong.
+    </p>
+    <div class="panel">
+      <div class="mstage"><canvas id="aa-cv" role="img" aria-label="A results grid loading with gaps and healing itself"></canvas>
+        <p class="cread" id="aa-read"></p></div>
+      <div class="mrow">
+        <button class="mbtn" id="aa-go" type="button" data-holo-tap>Fetch results</button>
+        <span class="quiet" id="aa-note" role="status"></span>
+      </div>
+    </div>
+    <div class="concept">
+      <p class="concept-title">The concept, live: rearranging atoms one tweezer at a time</p>
+      <p class="note">
+        The same mechanic with the physics showing: sites load at a
+        probability you control, then a single tweezer drags atoms into the
+        target block one at a time. Lower the odds and watch the pass work
+        harder for the same guarantee.
+      </p>
+      <div class="panel">
+        <div class="cstage"><canvas id="aac-cv" role="img"></canvas>
+          <p class="cread" id="aac-read"></p></div>
+        <div class="mrow">
+          <label>Load probability
+            <input id="aac-p" type="range" min="0.35" max="0.8" step="0.05" value="0.55" aria-label="Probability each site loads">
+          </label>
+          <button class="mbtn" id="aac-go" type="button" data-holo-tap>Reload</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 13 -->
+  <section id="edge">
+    <p class="eyebrow">Topological edge states</p>
+    <h2>Progress that survives damage</h2>
+    <p class="note">
+      A control whose robustness is demonstrable, not asserted. Progress
+      travels the boundary of the panel while the toggle riddles the bulk
+      with defects, and the edge transport does not care, because in a
+      photonic topological insulator light routed along the edge goes
+      around trouble instead of scattering into it. The toggle that fails
+      to break it is the proof, the same shape as taking registration off.
+    </p>
+    <div class="panel">
+      <div class="mstage"><canvas id="te-cv" role="img" aria-label="Progress travelling a panel boundary through disorder"></canvas>
+        <p class="cread" id="te-read"></p></div>
+      <div class="mrow">
+        <button class="mbtn" id="te-go" type="button" data-holo-tap>Run</button>
+        <button class="mbtn" id="te-dis" type="button" data-holo-tap aria-pressed="false">Add disorder</button>
+      </div>
+    </div>
+    <div class="concept">
+      <p class="concept-title">The concept, live: an edge mode routing around defects</p>
+      <p class="note">
+        A lattice with a pulse bound to its boundary. Tap the lattice to
+        place defects. In the bulk they do nothing. On the edge the
+        boundary itself deforms and the pulse follows the new contour
+        around the damage, which is the property the whole field is named
+        for.
+      </p>
+      <div class="panel">
+        <div class="cstage grabby"><canvas id="tec-cv" role="img" aria-label="A lattice whose edge pulse routes around tapped defects"></canvas>
+          <p class="cread" id="tec-read"></p></div>
+        <div class="mrow">
+          <button class="mbtn" id="tec-clear" type="button" data-holo-tap>Clear defects</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 14 -->
+  <section id="plddt">
+    <p class="eyebrow">Predicted confidence</p>
+    <h2>A rendering that carries its own doubt</h2>
+    <p class="note">
+      AlphaFold colours every residue by how much to trust it, and people
+      actually read that channel. Here the same move on generated content:
+      an automatic segmentation drawn with its confidence baked into the
+      rendering, certain anatomy crisp and cool, doubtful tips warm, soft
+      and dashed. Press review and watch regions firm up as they are
+      checked. Raw output should never be allowed to look as certain as
+      reviewed anatomy.
+    </p>
+    <div class="panel">
+      <div class="mstage"><canvas id="pl-cv" role="img" aria-label="A segmentation drawn with per region confidence"></canvas>
+        <p class="cread" id="pl-read"></p></div>
+      <div class="pl-ramp-row" aria-hidden="true">
+        <span>doubt</span><span class="pl-ramp"></span><span>trust</span>
+      </div>
+      <div class="mrow">
+        <button class="mbtn" id="pl-go" type="button" data-holo-tap>Review the doubtful regions</button>
+        <button class="mbtn" id="pl-reset" type="button" data-holo-tap>Back to raw</button>
+      </div>
+    </div>
+    <div class="concept">
+      <p class="concept-title">The concept, live: a fold coloured by confidence</p>
+      <p class="note">
+        A schematic chain folded at random, each bead coloured by a
+        confidence computed from its own packing: buried, well supported
+        beads read cool, exposed loops read warm. Refold it and the colour
+        map follows the structure, because the confidence is a property of
+        the prediction, not paint.
+      </p>
+      <div class="panel">
+        <div class="cstage"><canvas id="plc-cv" role="img"></canvas>
+          <p class="cread" id="plc-read"></p></div>
+        <div class="mrow">
+          <button class="mbtn" id="plc-go" type="button" data-holo-tap>New fold</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 15 -->
+  <section id="spindle">
+    <p class="eyebrow">Spindle assembly checkpoint</p>
+    <h2>The submit button one field can hold</h2>
+    <p class="note">
+      In mitosis a single unattached kinetochore vetoes the entire
+      division, and when the last one attaches, release is not gradual, it
+      is anaphase, all at once. Form validation with the same mechanism:
+      every incomplete field visibly restrains the button, completion does
+      not trickle, and the instant the last tether releases the whole thing
+      snaps ready. Visual component only, nothing is submitted.
+    </p>
+    <div class="panel">
+      <div class="sac-wrap">
+        <canvas class="sac-cv" id="sac-cv" aria-hidden="true"></canvas>
+        <div class="sac-form">
+          <label class="sac-field" id="sac-f0">Dataset
+            <input type="text" autocomplete="off" aria-label="Dataset, demo field">
+          </label>
+          <label class="sac-field" id="sac-f1">Cell id
+            <input type="text" autocomplete="off" aria-label="Cell id, demo field">
+          </label>
+          <label class="sac-field" id="sac-f2">Note
+            <input type="text" autocomplete="off" aria-label="Note, demo field">
+          </label>
+          <label class="sac-field" id="sac-f3">Reviewer
+            <input type="text" autocomplete="off" aria-label="Reviewer, demo field">
+          </label>
+        </div>
+        <div class="mrow" style="margin-top:.9rem">
+          <button class="mbtn" id="sac-go" type="button" data-holo-tap aria-disabled="true">Submit for review</button>
+          <button class="mbtn" id="sac-reset" type="button" data-holo-tap>Reset</button>
+          <span class="quiet" id="sac-note" role="status"></span>
+        </div>
+      </div>
+    </div>
+    <div class="concept">
+      <p class="concept-title">The concept, live: one kinetochore holds the division</p>
+      <p class="note">
+        Six chromosome pairs on the plate. Spindle fibres attach in their
+        own time, the last unattached pair pulses its wait signal, and the
+        moment it attaches everything separates at once. Nothing moves
+        early, which is the point of a checkpoint.
+      </p>
+      <div class="panel">
+        <div class="cstage"><canvas id="sacc-cv" role="img"></canvas>
+          <p class="cread" id="sacc-read"></p></div>
+        <div class="mrow">
+          <button class="mbtn" id="sacc-go" type="button" data-holo-tap>Restart division</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 16 -->
+  <section id="quorum">
+    <p class="eyebrow">Quorum sensing</p>
+    <h2>Notifications that wait for consensus</h2>
+    <p class="note">
+      Vibrio does not glow until the autoinducer it is releasing crosses a
+      threshold, and then every cell lights at once. Batched alerts with
+      the same honesty: each event adds to a visible signal that also
+      decays, the threshold is drawn on the meter, and when it is crossed
+      the whole pending batch delivers together. No mystery debounce, the
+      batching rule is on screen.
+    </p>
+    <div class="panel">
+      <div class="qs-meter" aria-hidden="true"><i id="qs-fill"></i><b style="left:78%"></b></div>
+      <div class="qs-toasts" id="qs-toasts" aria-label="Pending notifications"></div>
+      <div class="mrow">
+        <button class="mbtn" id="qs-one" type="button" data-holo-tap>Emit an event</button>
+        <button class="mbtn" id="qs-burst" type="button" data-holo-tap>Emit a burst</button>
+        <span class="quiet" id="qs-note" role="status"></span>
+      </div>
+    </div>
+    <div class="concept">
+      <p class="concept-title">The concept, live: a dish deciding to glow</p>
+      <p class="note">
+        Cells secrete into a shared medium, so density of neighbours is
+        density of signal. Slide the population up and the dish crosses
+        threshold and luminesces as one. Slide it down and no cell ever
+        glows alone, which is the sensing part of quorum sensing.
+      </p>
+      <div class="panel">
+        <div class="cstage"><canvas id="qsc-cv" role="img"></canvas>
+          <p class="cread" id="qsc-read"></p></div>
+        <div class="mrow">
+          <label>Population
+            <input id="qsc-n" type="range" min="4" max="40" step="1" value="12" aria-label="Number of cells in the dish">
+          </label>
+          <button class="mbtn" id="qsc-stir" type="button" data-holo-tap>Stir</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 17 -->
+  <section id="tumble">
+    <p class="eyebrow">Run and tumble</p>
+    <h2>A search that visibly finds</h2>
+    <p class="note">
+      E. coli cannot steer. It runs straight, tumbles to a random heading,
+      and simply tumbles less while things are improving, and that bias
+      alone climbs the gradient. A search indicator built the same way: the
+      cursor runs and tumbles up the relevance field and lands on the best
+      match, so the search is seen to find its result rather than teleport
+      to it. Berg and Brown timed the real cells in 1972.
+    </p>
+    <div class="panel">
+      <div class="mstage"><canvas id="rt-cv" role="img" aria-label="A cursor running and tumbling up a relevance gradient"></canvas>
+        <p class="cread" id="rt-read"></p></div>
+      <div class="rt-rows" id="rt-rows" aria-label="Search results">
+        <span class="rt-row" data-rt="0">cell 41, apical dendrite</span>
+        <span class="rt-row" data-rt="1">cell 41, axon initial segment</span>
+        <span class="rt-row" data-rt="2">cell 07, basal arbour</span>
+        <span class="rt-row" data-rt="3">cell 88, soma</span>
+      </div>
+      <div class="mrow">
+        <button class="mbtn" id="rt-go" type="button" data-holo-tap>Search again</button>
+      </div>
+    </div>
+    <div class="concept">
+      <p class="concept-title">The concept, live: chemotaxis without steering</p>
+      <p class="note">
+        A dish of cells doing only runs and tumbles. With the attractant on
+        they pile up at the source without one of them ever turning toward
+        it. Take the gradient away and the same rule scatters them, which
+        is the honest control.
+      </p>
+      <div class="panel">
+        <div class="cstage"><canvas id="rtc-cv" role="img"></canvas>
+          <p class="cread" id="rtc-read"></p></div>
+        <div class="mrow">
+          <button class="mbtn" id="rtc-grad" type="button" data-holo-tap aria-pressed="true">Attractant on</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -3442,6 +3881,1286 @@
     raf = requestAnimationFrame(loop);
   }
 })();
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var TAU = Math.PI * 2;
+  var MINT = "178,216,248", WARM = "232,169,58", GOOD = "126,224,176", DIMC = "154,162,177";
+
+  function fit(cv) {
+    var dpr = Math.min(devicePixelRatio || 1, 2);
+    var r = cv.getBoundingClientRect();
+    var w = Math.max(1, Math.round(r.width * dpr));
+    var h = Math.max(1, Math.round(r.height * dpr));
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    return dpr;
+  }
+  function rng(seed) {
+    return function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+  }
+  function ambient(el, frame) {
+    var raf = 0, last = 0;
+    function loop(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      frame(dt);
+      raf = requestAnimationFrame(loop);
+    }
+    var io = new IntersectionObserver(function (en) {
+      var vis = en[en.length - 1].isIntersecting;
+      if (vis && !raf) { last = 0; raf = requestAnimationFrame(loop); }
+      else if (!vis && raf) { cancelAnimationFrame(raf); raf = 0; }
+    });
+    io.observe(el);
+  }
+  function oneshot(step, land, ms) {
+    var raf = 0, last = 0;
+    var backstop = setTimeout(function () {
+      if (raf) cancelAnimationFrame(raf);
+      land();
+    }, ms || 8000);
+    function loop(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      if (step(dt)) raf = requestAnimationFrame(loop);
+      else { clearTimeout(backstop); land(); }
+    }
+    raf = requestAnimationFrame(loop);
+    return function cancel() { if (raf) cancelAnimationFrame(raf); clearTimeout(backstop); };
+  }
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  /* confidence ramp: warm at 0, grey mid, mint at 1 */
+  function rampColor(c) {
+    var a = [232, 169, 58], b = [154, 162, 177], m = [178, 216, 248], lo, hi, u;
+    if (c < 0.5) { lo = a; hi = b; u = c * 2; } else { lo = b; hi = m; u = (c - 0.5) * 2; }
+    return Math.round(lo[0] + (hi[0] - lo[0]) * u) + "," +
+           Math.round(lo[1] + (hi[1] - lo[1]) * u) + "," +
+           Math.round(lo[2] + (hi[2] - lo[2]) * u);
+  }
+
+  /* ================================================== 10. mpemba */
+  (function () {
+    var cv = document.getElementById("mp-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("mp-read");
+    var note = document.getElementById("mp-note");
+    var barA = document.getElementById("mp-bar-a"), barB = document.getElementById("mp-bar-b");
+    var etaA = document.getElementById("mp-eta-a"), etaB = document.getElementById("mp-eta-b");
+    var jobA = document.getElementById("mp-job-a"), jobB = document.getElementById("mp-job-b");
+    var DONE = 0.02, T = 6.4, cancel = null, t = 0;
+    function dA(x) { return 0.34 * Math.exp(-0.5 * x); }
+    function dB(x) { return Math.max(0.001, 0.92 * Math.exp(-2.1 * x) + 0.05 * Math.exp(-0.55 * x) * Math.cos(2.2 * x)); }
+    function doneAt(f) { for (var x = 0; x < 12; x += 0.01) if (f(x) < DONE) return x; return 12; }
+    var tDoneA = doneAt(dA), tDoneB = doneAt(dB);
+    var tCross = (function () { for (var x = 0; x < 6; x += 0.01) if (dB(x) < dA(x)) return x; return -1; })();
+
+    function paint(tt) {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var x0 = 34 * dpr, x1 = W - 12 * dpr, y0 = 10 * dpr, y1 = H - 20 * dpr;
+      function X(x) { return x0 + (x1 - x0) * (x / T); }
+      function Y(d) { return y1 - (y1 - y0) * Math.sqrt(clamp01(d)); }
+      ctx.strokeStyle = "rgba(" + WARM + ",0.4)";
+      ctx.setLineDash([4 * dpr, 4 * dpr]);
+      ctx.lineWidth = 1 * dpr;
+      ctx.beginPath(); ctx.moveTo(x0, Y(DONE)); ctx.lineTo(x1, Y(DONE)); ctx.stroke();
+      ctx.setLineDash([]);
+      function trace(f, col, wpx) {
+        ctx.beginPath();
+        for (var x = 0; x <= Math.min(tt, T); x += T / 240) {
+          var px = X(x), py = Y(f(x));
+          if (x === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = col; ctx.lineWidth = wpx * dpr; ctx.stroke();
+      }
+      trace(dA, "rgba(" + MINT + ",0.85)", 1.6);
+      trace(dB, "rgba(" + GOOD + ",0.85)", 1.6);
+      if (tCross > 0 && tt >= tCross) {
+        ctx.beginPath(); ctx.arc(X(tCross), Y(dA(tCross)), 5 * dpr, 0, TAU);
+        ctx.strokeStyle = "rgba(" + WARM + ",0.9)"; ctx.lineWidth = 1.4 * dpr; ctx.stroke();
+      }
+      ctx.font = (9 * dpr) + "px system-ui, sans-serif";
+      ctx.fillStyle = "rgba(" + DIMC + ",0.9)";
+      ctx.save(); ctx.translate(12 * dpr, (y0 + y1) / 2); ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = "center"; ctx.fillText("distance from done", 0, 0); ctx.restore();
+      read.innerHTML = tt <= 0 ? "press launch" :
+        "t = <b>" + Math.min(tt, T).toFixed(1) + " s</b>" +
+        (tt >= tCross && tCross > 0 ? ", the far one has overtaken" : "");
+    }
+    function jobs(tt) {
+      var a = dA(Math.min(tt, tDoneA)), b = dB(Math.min(tt, tDoneB));
+      barA.style.width = ((1 - a) * 100).toFixed(1) + "%";
+      barB.style.width = ((1 - b) * 100).toFixed(1) + "%";
+      var aDone = tt >= tDoneA, bDone = tt >= tDoneB;
+      jobA.classList.toggle("is-done", aDone);
+      jobB.classList.toggle("is-done", bDone);
+      etaA.textContent = aDone ? "done in " + tDoneA.toFixed(1) + " s"
+        : "looks " + Math.round((1 - a) * 100) + " percent done";
+      etaB.textContent = bDone ? "done in " + tDoneB.toFixed(1) + " s"
+        : "looks " + Math.round((1 - b) * 100) + " percent done";
+      if (aDone && bDone) note.textContent = "the far one won by " + (tDoneA - tDoneB).toFixed(1) + " s";
+      else if (bDone) note.textContent = "far one finished first";
+      else note.textContent = "";
+    }
+    function land() { t = T; paint(T); jobs(T); }
+    function run() {
+      if (cancel) cancel();
+      t = 0;
+      jobA.classList.remove("is-done"); jobB.classList.remove("is-done");
+      if (reduced) { land(); return; }
+      cancel = oneshot(function (dt) {
+        t += dt * 1.7;
+        paint(t); jobs(t);
+        return t < T;
+      }, land, 9000);
+    }
+    document.getElementById("mp-go").addEventListener("click", run);
+    new ResizeObserver(function () { paint(t); }).observe(cv);
+    paint(0); jobs(0);
+  })();
+
+  /* ================================================== 10b. mpemba concept */
+  (function () {
+    var cv = document.getElementById("mpc-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("mpc-read");
+    var wEl = document.getElementById("mpc-w");
+    var DONE = 0.02, T = 9;
+    function dA(x) { return 0.34 * Math.exp(-0.5 * x); }
+    function dB(x, w) { var s = w * 0.8; return (0.92 - s) * Math.exp(-2.1 * x) + s * Math.exp(-0.5 * x); }
+    function doneAt(f) { for (var x = 0; x < 14; x += 0.01) if (f(x) < DONE) return x; return 14; }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      var w = parseFloat(wEl.value);
+      ctx.clearRect(0, 0, W, H);
+      var x0 = 14 * dpr, x1 = W - 12 * dpr, y0 = 10 * dpr, y1 = H - 22 * dpr;
+      function X(x) { return x0 + (x1 - x0) * (x / T); }
+      function Y(d) { return y1 - (y1 - y0) * Math.sqrt(clamp01(d)); }
+      ctx.strokeStyle = "rgba(" + WARM + ",0.4)";
+      ctx.setLineDash([4 * dpr, 4 * dpr]); ctx.lineWidth = 1 * dpr;
+      ctx.beginPath(); ctx.moveTo(x0, Y(DONE)); ctx.lineTo(x1, Y(DONE)); ctx.stroke();
+      ctx.setLineDash([]);
+      function trace(f, col) {
+        ctx.beginPath();
+        for (var x = 0; x <= T; x += T / 260) {
+          var px = X(x), py = Y(f(x));
+          if (x === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = col; ctx.lineWidth = 1.6 * dpr; ctx.stroke();
+      }
+      trace(dA, "rgba(" + MINT + ",0.85)");
+      trace(function (x) { return dB(x, w); }, "rgba(" + GOOD + ",0.85)");
+      var ta = doneAt(dA), tb = doneAt(function (x) { return dB(x, w); });
+      read.innerHTML = tb < ta
+        ? "far state wins by <b>" + (ta - tb).toFixed(1) + " s</b>"
+        : "slow mode weight " + (w * 0.8).toFixed(2) + " kills the shortcut, near state wins";
+      cv.setAttribute("aria-label", "Two relaxation traces, far state slow mode weight " + (w * 0.8).toFixed(2));
+    }
+    wEl.addEventListener("input", paint);
+    document.getElementById("mpc-zero").addEventListener("click", function () { wEl.value = "0"; paint(); });
+    new ResizeObserver(paint).observe(cv);
+    paint();
+  })();
+
+  /* ================================================== 11. chirp merge */
+  (function () {
+    var cv = document.getElementById("gw-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("gw-read");
+    var note = document.getElementById("gw-note");
+    var A1 = 12, A2 = 7, A3 = (A1 + A2) * 1.04;
+    var cancel = null, u = 1.001, phase = 0, merged = false;
+    function paint(uu) {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var S = Math.min(W, H), cx = W / 2, cy = H / 2;
+      var r1 = Math.sqrt(A1) * 0.045 * S, r2 = Math.sqrt(A2) * 0.045 * S;
+      var r3 = Math.sqrt(A3) * 0.045 * S;
+      ctx.font = (9 * dpr) + "px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      if (uu < 0) {
+        var R = S * 0.26;
+        drawPair(cx, cy, R, 0, r1, r2, dpr);
+        ctx.fillStyle = "rgba(" + DIMC + ",0.9)";
+        ctx.fillText("area " + A1, cx - R, cy + r1 + 14 * dpr);
+        ctx.fillText("area " + A2, cx + R, cy + r2 + 14 * dpr);
+        read.innerHTML = "two segments, areas <b>" + A1 + "</b> and <b>" + A2 + "</b>";
+        return;
+      }
+      var insp = clamp01(uu / 0.72), ring = clamp01((uu - 0.72) / 0.08), down = clamp01((uu - 0.8) / 0.2);
+      if (insp < 1) {
+        var R2 = S * 0.26 * Math.pow(1 - insp * 0.995, 0.28);
+        phase += Math.pow(S * 0.26 / Math.max(R2, 2), 1.5) * 0.05;
+        drawPair(cx, cy, R2, phase, r1, r2, dpr);
+        read.innerHTML = "inspiral, f = <b>" + Math.round(30 * Math.pow(1 / Math.max(1 - insp * 0.995, 0.02), 1.2)) + " Hz</b>";
+      } else {
+        var wob = merged ? 0 : Math.exp(-down * 6) * Math.cos(down * 26);
+        var rr = r3 * (1 + 0.14 * wob);
+        ctx.beginPath(); ctx.arc(cx, cy, rr, 0, TAU);
+        ctx.fillStyle = "rgba(" + MINT + ",0.25)"; ctx.fill();
+        ctx.strokeStyle = "rgba(" + MINT + ",0.9)"; ctx.lineWidth = 1.6 * dpr; ctx.stroke();
+        if (ring > 0 && ring < 1) {
+          ctx.beginPath(); ctx.arc(cx, cy, r3 + ring * S * 0.3, 0, TAU);
+          ctx.strokeStyle = "rgba(" + MINT + "," + (0.5 * (1 - ring)).toFixed(3) + ")";
+          ctx.lineWidth = 1.4 * dpr; ctx.stroke();
+        }
+        ctx.fillStyle = "rgba(" + DIMC + ",0.9)";
+        ctx.fillText("area " + A3.toFixed(1), cx, cy + r3 + 16 * dpr);
+        read.innerHTML = down < 1 ? "ringdown" :
+          "merged, area <b>" + A1 + " + " + A2 + " to " + A3.toFixed(1) + "</b>, nothing lost";
+      }
+    }
+    function drawPair(cx, cy, R, ph, r1, r2, dpr) {
+      var m1 = A1 / (A1 + A2), m2 = A2 / (A1 + A2);
+      var x1 = cx + Math.cos(ph) * R * m2 * 2 * 0.5, y1 = cy + Math.sin(ph) * R * m2;
+      var x2 = cx - Math.cos(ph) * R * m1 * 2 * 0.5, y2 = cy - Math.sin(ph) * R * m1;
+      ctx.beginPath(); ctx.arc(x1, y1, r1, 0, TAU);
+      ctx.fillStyle = "rgba(" + MINT + ",0.22)"; ctx.fill();
+      ctx.strokeStyle = "rgba(" + MINT + ",0.85)"; ctx.lineWidth = 1.4 * dpr; ctx.stroke();
+      ctx.beginPath(); ctx.arc(x2, y2, r2, 0, TAU);
+      ctx.fillStyle = "rgba(" + WARM + ",0.18)"; ctx.fill();
+      ctx.strokeStyle = "rgba(" + WARM + ",0.8)"; ctx.stroke();
+    }
+    function land() { merged = true; u = 1.001; paint(1.001); note.textContent = "irreversible, and bigger than its parents"; }
+    function run() {
+      if (cancel) cancel();
+      merged = false; u = 0; phase = 0; note.textContent = "";
+      if (reduced) { land(); return; }
+      cancel = oneshot(function (dt) {
+        u += dt / 3.2;
+        paint(u);
+        return u < 1.001;
+      }, land, 9000);
+    }
+    document.getElementById("gw-go").addEventListener("click", run);
+    new ResizeObserver(function () { paint(merged ? 1.001 : -1); }).observe(cv);
+    paint(-1);
+  })();
+
+  /* ================================================== 11b. chirp concept */
+  (function () {
+    var cv = document.getElementById("gwc-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("gwc-read");
+    var qEl = document.getElementById("gwc-q");
+    var cancel = null, prog = 1;
+    function wave(q) {
+      var tc = 0.5 + 0.32 * q, pts = [], ph = 0;
+      for (var x = 0; x <= 1; x += 1 / 900) {
+        var h;
+        if (x < tc) {
+          var tau = Math.max(tc - x, 0.004);
+          var f = 6 * Math.pow(tau, -0.6);
+          ph += f * (1 / 900) * TAU;
+          h = Math.min(0.9, 0.16 * Math.pow(tau, -0.25)) * Math.sin(ph);
+        } else {
+          var td = x - tc, fr = 70 * (1.5 - q * 0.5);
+          h = 0.9 * Math.exp(-td * 26) * Math.sin(ph + td * fr * TAU);
+        }
+        pts.push(h);
+      }
+      return { pts: pts, tc: tc };
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      var q = parseFloat(qEl.value);
+      var wv = wave(q);
+      ctx.clearRect(0, 0, W, H);
+      var mid = H / 2, n = Math.floor(wv.pts.length * clamp01(prog));
+      ctx.beginPath();
+      for (var i = 0; i < n; i++) {
+        var x = 8 * dpr + (W - 16 * dpr) * (i / wv.pts.length);
+        var y = mid - wv.pts[i] * H * 0.4;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = "rgba(" + MINT + ",0.85)";
+      ctx.lineWidth = 1.3 * dpr;
+      ctx.stroke();
+      read.innerHTML = "q = <b>" + q.toFixed(2) + "</b>, merger at " + wv.tc.toFixed(2) + " of the window, schematic";
+      cv.setAttribute("aria-label", "A schematic chirp waveform for mass ratio " + q.toFixed(2));
+    }
+    function replay() {
+      if (cancel) cancel();
+      if (reduced) { prog = 1; paint(); return; }
+      prog = 0;
+      cancel = oneshot(function (dt) {
+        prog += dt / 2.2;
+        paint();
+        return prog < 1;
+      }, function () { prog = 1; paint(); }, 7000);
+    }
+    qEl.addEventListener("input", function () { prog = 1; paint(); });
+    document.getElementById("gwc-go").addEventListener("click", replay);
+    new ResizeObserver(paint).observe(cv);
+    paint();
+  })();
+
+  /* ================================================== 12. atom arrays, one machine for both panes */
+  function makeArray(o) {
+    var cv = document.getElementById(o.cv), ctx = cv.getContext("2d");
+    var read = document.getElementById(o.read);
+    var cols = o.cols, rows = o.rows;
+    var site = [], cancel = null, seedN = 1;
+    var st = { phase: "idle", t: 0, moves: [], mi: 0, mprog: 0, loadedN: 0 };
+    function inTarget(cx, cyy) {
+      return cx >= o.tx0 && cx < o.tx1 && cyy >= o.ty0 && cyy < o.ty1;
+    }
+    function geom() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      var cw = Math.min((W - 24 * dpr) / cols, (H - 24 * dpr) / rows);
+      return { dpr: dpr, W: W, H: H, cw: cw,
+        ox: (W - cw * cols) / 2, oy: (H - cw * rows) / 2 };
+    }
+    function pos(g, cx, cyy) { return [g.ox + (cx + 0.5) * g.cw, g.oy + (cyy + 0.5) * g.cw]; }
+    function build() {
+      var rand = rng(77 + seedN * 131);
+      var p = o.getP();
+      site = [];
+      var loaded = 0;
+      for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++) {
+        var on = rand() < p;
+        if (on) loaded++;
+        site.push({ x: x, y: y, on: on, t0: rand() * 0.8, moved: false });
+      }
+      var targetN = (o.tx1 - o.tx0) * (o.ty1 - o.ty0);
+      var i;
+      if (loaded < targetN) {
+        for (i = 0; i < site.length && loaded < targetN; i++) {
+          if (!site[i].on) { site[i].on = true; site[i].t0 = 0.6; loaded++; }
+        }
+      }
+      st.loadedN = loaded;
+      var vac = [], out = [];
+      for (i = 0; i < site.length; i++) {
+        var s = site[i];
+        if (inTarget(s.x, s.y)) { if (!s.on) vac.push(i); }
+        else if (s.on) out.push(i);
+      }
+      st.moves = [];
+      for (i = 0; i < vac.length; i++) {
+        var v = site[vac[i]], best = -1, bd = 1e9;
+        for (var j = 0; j < out.length; j++) {
+          if (out[j] < 0) continue;
+          var c = site[out[j]];
+          var d = (c.x - v.x) * (c.x - v.x) + (c.y - v.y) * (c.y - v.y);
+          if (d < bd) { bd = d; best = j; }
+        }
+        if (best >= 0) { st.moves.push({ from: out[best], to: vac[i] }); out[best] = -1; }
+      }
+    }
+    function paint() {
+      var g = geom();
+      ctx.clearRect(0, 0, g.W, g.H);
+      var i, s, p2;
+      for (i = 0; i < site.length; i++) {
+        s = site[i];
+        p2 = pos(g, s.x, s.y);
+        var tgt = inTarget(s.x, s.y);
+        var appear = st.phase === "load" ? clamp01((st.t - s.t0) / 0.15) : 1;
+        var done = st.phase === "done";
+        if (o.style === "cards") {
+          var half = g.cw * 0.38;
+          if (!s.on || (done && !tgt && !s.movedAway)) {
+            ctx.strokeStyle = "rgba(" + MINT + "," + (tgt ? 0.22 : 0.1) + ")";
+            ctx.lineWidth = 1 * g.dpr;
+            ctx.strokeRect(p2[0] - half, p2[1] - half, half * 2, half * 2);
+          }
+          if (s.on) {
+            var al = (done && !tgt) ? 0.16 : 0.5 * appear + 0.3;
+            ctx.fillStyle = "rgba(" + MINT + "," + (al * 0.25).toFixed(3) + ")";
+            ctx.strokeStyle = "rgba(" + MINT + "," + al.toFixed(3) + ")";
+            ctx.lineWidth = 1 * g.dpr;
+            ctx.fillRect(p2[0] - half, p2[1] - half, half * 2, half * 2);
+            ctx.strokeRect(p2[0] - half, p2[1] - half, half * 2, half * 2);
+            ctx.beginPath();
+            ctx.moveTo(p2[0] - half * 0.55, p2[1] - half * 0.2); ctx.lineTo(p2[0] + half * 0.55, p2[1] - half * 0.2);
+            ctx.moveTo(p2[0] - half * 0.55, p2[1] + half * 0.25); ctx.lineTo(p2[0] + half * 0.15, p2[1] + half * 0.25);
+            ctx.strokeStyle = "rgba(" + MINT + "," + (al * 0.5).toFixed(3) + ")";
+            ctx.stroke();
+          }
+        } else {
+          if (!s.on) {
+            ctx.beginPath(); ctx.arc(p2[0], p2[1], 1.2 * g.dpr, 0, TAU);
+            ctx.fillStyle = "rgba(" + MINT + "," + (tgt ? 0.25 : 0.12) + ")"; ctx.fill();
+          } else {
+            var al2 = (done && !tgt) ? 0.18 : 0.35 + 0.55 * appear;
+            ctx.beginPath(); ctx.arc(p2[0], p2[1], 2.6 * g.dpr * appear + 0.1, 0, TAU);
+            ctx.fillStyle = "rgba(" + MINT + "," + al2.toFixed(3) + ")"; ctx.fill();
+          }
+        }
+      }
+      if (st.phase === "move" && st.mi < st.moves.length) {
+        var mv = st.moves[st.mi];
+        var a = pos(g, site[mv.from].x, site[mv.from].y);
+        var b = pos(g, site[mv.to].x, site[mv.to].y);
+        var mx = a[0] + (b[0] - a[0]) * st.mprog, my = a[1] + (b[1] - a[1]) * st.mprog;
+        if (o.style === "atoms") {
+          ctx.beginPath(); ctx.moveTo(mx, 0); ctx.lineTo(mx, my);
+          ctx.strokeStyle = "rgba(" + WARM + ",0.5)"; ctx.lineWidth = 1 * g.dpr; ctx.stroke();
+        }
+        ctx.beginPath(); ctx.arc(mx, my, 3.4 * g.dpr, 0, TAU);
+        ctx.fillStyle = "rgba(" + WARM + ",0.95)"; ctx.fill();
+      }
+      var tx0 = g.ox + o.tx0 * g.cw, ty0 = g.oy + o.ty0 * g.cw;
+      ctx.strokeStyle = st.phase === "done" ? "rgba(" + GOOD + ",0.8)" : "rgba(" + WARM + ",0.35)";
+      ctx.lineWidth = 1.3 * g.dpr;
+      ctx.setLineDash(st.phase === "done" ? [] : [5 * g.dpr, 4 * g.dpr]);
+      ctx.strokeRect(tx0 - g.cw * 0.06, ty0 - g.cw * 0.06,
+        (o.tx1 - o.tx0) * g.cw + g.cw * 0.12, (o.ty1 - o.ty0) * g.cw + g.cw * 0.12);
+      ctx.setLineDash([]);
+      var targetN = (o.tx1 - o.tx0) * (o.ty1 - o.ty0);
+      read.innerHTML =
+        st.phase === "idle" ? "press " + o.verb :
+        st.phase === "load" ? "loading, <b>" + st.loadedN + "</b> of " + site.length + " sites arrived" :
+        st.phase === "move" ? "assembling, move <b>" + (st.mi + 1) + "</b> of " + st.moves.length :
+        "complete, target <b>" + targetN + " of " + targetN + "</b>" + (o.pTag ? ", p = " + o.getP().toFixed(2) : "");
+      cv.setAttribute("aria-label", read.textContent);
+    }
+    function landAll() {
+      var i;
+      for (i = 0; i < st.moves.length; i++) {
+        site[st.moves[i].from].on = false;
+        site[st.moves[i].from].movedAway = true;
+        site[st.moves[i].to].on = true;
+      }
+      st.phase = "done"; st.mi = st.moves.length;
+      paint();
+    }
+    function run() {
+      if (cancel) cancel();
+      seedN++;
+      build();
+      st.phase = "load"; st.t = 0; st.mi = 0; st.mprog = 0;
+      if (reduced) { landAll(); return; }
+      cancel = oneshot(function (dt) {
+        if (st.phase === "load") {
+          st.t += dt;
+          if (st.t >= 0.95) { st.phase = st.moves.length ? "move" : "done"; }
+          paint();
+          return st.phase !== "done";
+        }
+        st.mprog += dt / 0.13;
+        if (st.mprog >= 1) {
+          var mv = st.moves[st.mi];
+          site[mv.from].on = false; site[mv.from].movedAway = true;
+          site[mv.to].on = true;
+          st.mi++; st.mprog = 0;
+          if (st.mi >= st.moves.length) { st.phase = "done"; paint(); return false; }
+        }
+        paint();
+        return true;
+      }, landAll, 16000);
+    }
+    document.getElementById(o.btn).addEventListener("click", run);
+    if (o.slider) document.getElementById(o.slider).addEventListener("input", run);
+    new ResizeObserver(paint).observe(cv);
+    build(); st.phase = "idle"; paint();
+  }
+  makeArray({ cv: "aa-cv", read: "aa-read", btn: "aa-go", cols: 12, rows: 5,
+    tx0: 3, tx1: 9, ty0: 1, ty1: 4, style: "cards", verb: "fetch", getP: function () { return 0.58; } });
+  makeArray({ cv: "aac-cv", read: "aac-read", btn: "aac-go", slider: "aac-p", cols: 14, rows: 7,
+    tx0: 4, tx1: 10, ty0: 2, ty1: 5, style: "atoms", verb: "reload", pTag: true,
+    getP: function () { return parseFloat(document.getElementById("aac-p").value); } });
+
+  /* ================================================== 13. topological edge, element */
+  (function () {
+    var cv = document.getElementById("te-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("te-read");
+    var dis = document.getElementById("te-dis");
+    var cancel = null, prog = 0, running = false, defects = [], seedN = 1;
+    function perim(g, s) {
+      var x0 = g.pad, y0 = g.pad, x1 = g.W - g.pad, y1 = g.H - g.pad;
+      var w = x1 - x0, h = y1 - y0, P = 2 * (w + h), d = s * P;
+      if (d < w) return [x0 + d, y0];
+      d -= w; if (d < h) return [x1, y0 + d];
+      d -= h; if (d < w) return [x1 - d, y1];
+      d -= w; return [x0, y1 - d];
+    }
+    function scatter() {
+      var rand = rng(300 + seedN * 17);
+      defects = [];
+      for (var i = 0; i < 46; i++) {
+        defects.push([0.12 + rand() * 0.76, 0.2 + rand() * 0.6]);
+      }
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      var g = { W: W, H: H, pad: 14 * dpr };
+      ctx.clearRect(0, 0, W, H);
+      var on = dis.getAttribute("aria-pressed") === "true";
+      if (on) {
+        for (var i = 0; i < defects.length; i++) {
+          var x = defects[i][0] * W, y = defects[i][1] * H;
+          ctx.strokeStyle = "rgba(" + WARM + ",0.4)";
+          ctx.lineWidth = 1 * dpr;
+          ctx.beginPath();
+          ctx.moveTo(x - 3 * dpr, y - 3 * dpr); ctx.lineTo(x + 3 * dpr, y + 3 * dpr);
+          ctx.moveTo(x + 3 * dpr, y - 3 * dpr); ctx.lineTo(x - 3 * dpr, y + 3 * dpr);
+          ctx.stroke();
+        }
+      }
+      ctx.strokeStyle = "rgba(" + MINT + ",0.14)";
+      ctx.lineWidth = 1.4 * dpr;
+      ctx.strokeRect(g.pad, g.pad, W - 2 * g.pad, H - 2 * g.pad);
+      ctx.beginPath();
+      var steps = Math.floor(240 * clamp01(prog));
+      for (var s = 0; s <= steps; s++) {
+        var p = perim(g, (s / 240) * clamp01(prog));
+        if (s === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+      }
+      ctx.strokeStyle = "rgba(" + MINT + ",0.7)";
+      ctx.stroke();
+      if (running && prog < 1) {
+        var hp = perim(g, prog);
+        ctx.beginPath(); ctx.arc(hp[0], hp[1], 3.4 * dpr, 0, TAU);
+        ctx.fillStyle = "rgba(" + MINT + ",0.95)"; ctx.fill();
+      }
+      if (prog >= 1) {
+        var e = perim(g, 0);
+        ctx.beginPath(); ctx.arc(e[0], e[1], 3 * dpr, 0, TAU);
+        ctx.fillStyle = "rgba(" + GOOD + ",0.9)"; ctx.fill();
+      }
+      read.innerHTML = (on ? "<b>" + defects.length + "</b> defects in the bulk, " : "bulk clean, ") +
+        (prog >= 1 ? "transport complete, untouched" : running ? "edge transport running" : "idle");
+    }
+    function run() {
+      if (cancel) cancel();
+      prog = 0; running = true;
+      if (reduced) { prog = 1; running = false; paint(); return; }
+      cancel = oneshot(function (dt) {
+        prog += dt / 3;
+        paint();
+        return prog < 1;
+      }, function () { prog = 1; running = false; paint(); }, 8000);
+    }
+    dis.addEventListener("click", function () {
+      var on = dis.getAttribute("aria-pressed") === "true";
+      dis.setAttribute("aria-pressed", String(!on));
+      if (!on) { seedN++; scatter(); }
+      paint();
+    });
+    document.getElementById("te-go").addEventListener("click", run);
+    new ResizeObserver(paint).observe(cv);
+    scatter(); paint();
+  })();
+
+  /* ================================================== 13b. edge concept, boundary tracing */
+  (function () {
+    var cv = document.getElementById("tec-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("tec-read");
+    var C = 26, R = 14;
+    var def = new Uint8Array(C * R);
+    var contour = [], head = 0;
+    function free(x, y) { return x >= 0 && y >= 0 && x < C && y < R && !def[y * C + x]; }
+    var DIRS = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]];
+    function trace() {
+      contour = [];
+      var sx = -1, sy = -1;
+      for (var y = 0; y < R && sx < 0; y++) for (var x = 0; x < C; x++) {
+        if (free(x, y)) { sx = x; sy = y; break; }
+      }
+      if (sx < 0) return;
+      var cx = sx, cy = sy, dir = 6, guard = 0;
+      do {
+        contour.push([cx, cy]);
+        var found = false;
+        for (var k = 0; k < 8; k++) {
+          var d = (dir + 6 + k) % 8;
+          var nx = cx + DIRS[d][0], ny = cy + DIRS[d][1];
+          if (free(nx, ny)) { cx = nx; cy = ny; dir = d; found = true; break; }
+        }
+        if (!found) break;
+        guard++;
+      } while ((cx !== sx || cy !== sy) && guard < C * R * 4);
+    }
+    function geom() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      var cw = Math.min((W - 20 * dpr) / C, (H - 20 * dpr) / R);
+      return { dpr: dpr, W: W, H: H, cw: cw, ox: (W - cw * C) / 2, oy: (H - cw * R) / 2 };
+    }
+    function pos(g, x, y) { return [g.ox + (x + 0.5) * g.cw, g.oy + (y + 0.5) * g.cw]; }
+    function paint() {
+      var g = geom();
+      ctx.clearRect(0, 0, g.W, g.H);
+      var i, x, y;
+      for (y = 0; y < R; y++) for (x = 0; x < C; x++) {
+        var p = pos(g, x, y);
+        if (def[y * C + x]) {
+          ctx.strokeStyle = "rgba(" + WARM + ",0.75)";
+          ctx.lineWidth = 1.1 * g.dpr;
+          ctx.beginPath();
+          ctx.moveTo(p[0] - 2.6 * g.dpr, p[1] - 2.6 * g.dpr); ctx.lineTo(p[0] + 2.6 * g.dpr, p[1] + 2.6 * g.dpr);
+          ctx.moveTo(p[0] + 2.6 * g.dpr, p[1] - 2.6 * g.dpr); ctx.lineTo(p[0] - 2.6 * g.dpr, p[1] + 2.6 * g.dpr);
+          ctx.stroke();
+        } else {
+          ctx.beginPath(); ctx.arc(p[0], p[1], 1 * g.dpr, 0, TAU);
+          ctx.fillStyle = "rgba(" + MINT + ",0.14)"; ctx.fill();
+        }
+      }
+      if (contour.length > 2) {
+        ctx.beginPath();
+        for (i = 0; i < contour.length; i++) {
+          var q = pos(g, contour[i][0], contour[i][1]);
+          if (i === 0) ctx.moveTo(q[0], q[1]); else ctx.lineTo(q[0], q[1]);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = "rgba(" + MINT + ",0.5)";
+        ctx.lineWidth = 1.4 * g.dpr;
+        ctx.stroke();
+        var hi = Math.floor(head) % contour.length;
+        for (i = 0; i < 14; i++) {
+          var j = (hi - i + contour.length * 2) % contour.length;
+          var q2 = pos(g, contour[j][0], contour[j][1]);
+          ctx.beginPath(); ctx.arc(q2[0], q2[1], (3.2 - i * 0.18) * g.dpr, 0, TAU);
+          ctx.fillStyle = "rgba(" + MINT + "," + (0.9 - i * 0.06).toFixed(3) + ")";
+          ctx.fill();
+        }
+      }
+      var nd = 0;
+      for (i = 0; i < def.length; i++) nd += def[i];
+      read.innerHTML = "boundary <b>" + contour.length + "</b> cells, defects <b>" + nd + "</b>, tap to damage";
+      cv.setAttribute("aria-label", "A lattice edge pulse, boundary of " + contour.length + " cells with " + nd + " defects");
+    }
+    cv.addEventListener("pointerdown", function (e) {
+      var r = cv.getBoundingClientRect();
+      var g = geom();
+      var x = Math.floor(((e.clientX - r.left) * (cv.width / r.width) - g.ox) / g.cw);
+      var y = Math.floor(((e.clientY - r.top) * (cv.height / r.height) - g.oy) / g.cw);
+      if (x < 0 || y < 0 || x >= C || y >= R) return;
+      def[y * C + x] = def[y * C + x] ? 0 : 1;
+      trace(); paint();
+    });
+    document.getElementById("tec-clear").addEventListener("click", function () {
+      def = new Uint8Array(C * R); trace(); paint();
+    });
+    trace();
+    if (reduced) { head = 0; paint(); }
+    else ambient(cv, function (dt) { head += dt * 40; paint(); });
+    new ResizeObserver(paint).observe(cv);
+    paint();
+  })();
+
+  /* ================================================== 14. plddt element */
+  (function () {
+    var cv = document.getElementById("pl-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("pl-read");
+    var cancel = null;
+    function seg(pts, c) { return { pts: pts, c0: c, c: c, reviewed: false }; }
+    function line(x0, y0, x1, y1, wob, sd) {
+      var rand = rng(sd), pts = [];
+      for (var i = 0; i <= 18; i++) {
+        var v = i / 18;
+        pts.push([x0 + (x1 - x0) * v + (rand() - 0.5) * wob,
+                  y0 + (y1 - y0) * v + (rand() - 0.5) * wob]);
+      }
+      return pts;
+    }
+    var segs = [
+      seg(line(0.06, 0.55, 0.94, 0.42, 0.03, 11), 0.95),
+      seg(line(0.3, 0.51, 0.44, 0.16, 0.04, 12), 0.78),
+      seg(line(0.52, 0.47, 0.7, 0.82, 0.04, 13), 0.72),
+      seg(line(0.44, 0.16, 0.58, 0.06, 0.05, 14), 0.38),
+      seg(line(0.7, 0.82, 0.86, 0.9, 0.05, 15), 0.33),
+      seg(line(0.16, 0.53, 0.1, 0.24, 0.05, 16), 0.45),
+      seg(line(0.78, 0.44, 0.9, 0.2, 0.05, 17), 0.3)
+    ];
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var mean = 0;
+      for (var i = 0; i < segs.length; i++) {
+        var s = segs[i];
+        mean += s.c;
+        ctx.beginPath();
+        for (var j = 0; j < s.pts.length; j++) {
+          var x = s.pts[j][0] * W, y = s.pts[j][1] * H;
+          if (j === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.setLineDash(s.c < 0.55 ? [5 * dpr, 5 * dpr] : []);
+        ctx.shadowColor = "rgba(" + WARM + ",0.6)";
+        ctx.shadowBlur = (1 - s.c) * 9 * dpr;
+        ctx.strokeStyle = "rgba(" + rampColor(s.c) + "," + (0.4 + 0.55 * s.c).toFixed(3) + ")";
+        ctx.lineWidth = (1 + s.c * 1.1) * dpr;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.setLineDash([]);
+      }
+      mean /= segs.length;
+      var done = segs.filter(function (s) { return s.reviewed; }).length;
+      read.innerHTML = "mean confidence <b>" + mean.toFixed(2) + "</b>, " + done + " of " + segs.length + " regions reviewed";
+      cv.setAttribute("aria-label", "A segmentation at mean confidence " + mean.toFixed(2));
+    }
+    function review() {
+      if (cancel) cancel();
+      var order = segs.slice().sort(function (a, b) { return a.c0 - b.c0; })
+        .filter(function (s) { return !s.reviewed; });
+      if (!order.length) return;
+      if (reduced) {
+        order.forEach(function (s) { s.reviewed = true; s.c = 0.97; });
+        paint(); return;
+      }
+      var t = 0, k = 0;
+      cancel = oneshot(function (dt) {
+        t += dt;
+        if (t > 0.4 && k < order.length) { order[k].reviewed = true; k++; t = 0; }
+        var busy = k < order.length;
+        for (var i = 0; i < segs.length; i++) {
+          var s = segs[i];
+          var target = s.reviewed ? 0.97 : s.c0;
+          s.c += (target - s.c) * (1 - Math.exp(-dt * 6));
+          if (Math.abs(target - s.c) > 0.005) busy = true;
+        }
+        paint();
+        return busy;
+      }, function () {
+        order.forEach(function (s) { s.reviewed = true; s.c = 0.97; });
+        paint();
+      }, 12000);
+    }
+    function reset() {
+      if (cancel) cancel();
+      segs.forEach(function (s) { s.reviewed = false; s.c = s.c0; });
+      paint();
+    }
+    document.getElementById("pl-go").addEventListener("click", review);
+    document.getElementById("pl-reset").addEventListener("click", reset);
+    new ResizeObserver(paint).observe(cv);
+    paint();
+  })();
+
+  /* ================================================== 14b. plddt concept */
+  (function () {
+    var cv = document.getElementById("plc-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("plc-read");
+    var seedN = 1, beads = [], hoverI = -1;
+    function build() {
+      var rand = rng(500 + seedN * 37);
+      beads = [];
+      var x = 0.5, y = 0.5, a = rand() * TAU;
+      for (var i = 0; i < 90; i++) {
+        a += (rand() - 0.5) * 1.7;
+        x += Math.cos(a) * 0.035; y += Math.sin(a) * 0.035;
+        x = Math.max(0.07, Math.min(0.93, x));
+        y = Math.max(0.1, Math.min(0.9, y));
+        beads.push([x, y, 0]);
+      }
+      for (i = 0; i < beads.length; i++) {
+        var n = 0;
+        for (var j = 0; j < beads.length; j++) {
+          if (Math.abs(i - j) < 3) continue;
+          var dx = beads[i][0] - beads[j][0], dy = beads[i][1] - beads[j][1];
+          if (dx * dx + dy * dy < 0.012) n++;
+        }
+        beads[i][2] = clamp01(n / 11);
+      }
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      ctx.beginPath();
+      for (var i = 0; i < beads.length; i++) {
+        var x = beads[i][0] * W, y = beads[i][1] * H;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = "rgba(" + DIMC + ",0.25)";
+      ctx.lineWidth = 1 * dpr;
+      ctx.stroke();
+      var mean = 0;
+      for (i = 0; i < beads.length; i++) {
+        var c = beads[i][2];
+        mean += c;
+        ctx.beginPath();
+        ctx.arc(beads[i][0] * W, beads[i][1] * H, (i === hoverI ? 4.4 : 2.6) * dpr, 0, TAU);
+        ctx.fillStyle = "rgba(" + rampColor(c) + "," + (0.5 + 0.5 * c).toFixed(3) + ")";
+        ctx.fill();
+      }
+      read.innerHTML = hoverI >= 0
+        ? "residue <b>" + (hoverI + 1) + "</b>, confidence " + beads[hoverI][2].toFixed(2)
+        : "mean confidence <b>" + (mean / beads.length).toFixed(2) + "</b>, buried reads cool, exposed reads warm";
+      cv.setAttribute("aria-label", "A schematic fold of 90 residues coloured by confidence");
+    }
+    cv.addEventListener("pointermove", function (e) {
+      var r = cv.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      var best = -1, bd = 0.0025;
+      for (var i = 0; i < beads.length; i++) {
+        var dx = beads[i][0] - x, dy = beads[i][1] - y, d = dx * dx + dy * dy;
+        if (d < bd) { bd = d; best = i; }
+      }
+      if (best !== hoverI) { hoverI = best; paint(); }
+    });
+    cv.addEventListener("pointerleave", function () { hoverI = -1; paint(); });
+    document.getElementById("plc-go").addEventListener("click", function () { seedN++; hoverI = -1; build(); paint(); });
+    new ResizeObserver(paint).observe(cv);
+    build(); paint();
+  })();
+
+  /* ================================================== 15. spindle checkpoint element */
+  (function () {
+    var wrap = document.querySelector("#spindle .sac-wrap");
+    var cv = document.getElementById("sac-cv"), ctx = cv.getContext("2d");
+    var go = document.getElementById("sac-go");
+    var note = document.getElementById("sac-note");
+    var fields = [0, 1, 2, 3].map(function (i) { return document.getElementById("sac-f" + i); });
+    var inputs = fields.map(function (f) { return f.querySelector("input"); });
+    var armed = false, releasing = 0, cancel = null;
+    function okAt(i) { return inputs[i].value.trim().length > 0; }
+    function rectOf(el) {
+      var wr = wrap.getBoundingClientRect(), r = el.getBoundingClientRect();
+      var dpr = cv.width / Math.max(1, wr.width);
+      return { x: (r.left - wr.left + r.width / 2) * dpr, y: (r.top - wr.top + r.height) * dpr,
+        topY: (r.top - wr.top) * dpr };
+    }
+    function paint() {
+      var dpr = fit(cv);
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      if (armed) return;
+      var b = rectOf(go);
+      for (var i = 0; i < 4; i++) {
+        var f = rectOf(inputs[i]);
+        var ok = okAt(i);
+        var mx = (f.x + b.x) / 2, my = Math.max(f.y, b.topY) + (ok ? 16 : 5) * dpr;
+        ctx.beginPath();
+        ctx.moveTo(f.x, f.y);
+        ctx.quadraticCurveTo(mx, my + (releasing * 30 * dpr), b.x, b.topY);
+        var al = (ok ? 0.3 : 0.55) * (1 - releasing);
+        ctx.strokeStyle = ok ? "rgba(" + GOOD + "," + al.toFixed(3) + ")" : "rgba(" + WARM + "," + al.toFixed(3) + ")";
+        ctx.lineWidth = 1.2 * dpr;
+        ctx.setLineDash(ok ? [] : [5 * dpr, 4 * dpr]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+    function ring() {
+      var b = rectOf(go), t = 0;
+      oneshot(function (dt) {
+        t += dt / 0.6;
+        paint();
+        var dpr = cv.width / Math.max(1, wrap.getBoundingClientRect().width);
+        ctx.beginPath();
+        ctx.arc(b.x, b.topY + 14 * dpr, 10 * dpr + t * 44 * dpr, 0, TAU);
+        ctx.strokeStyle = "rgba(" + GOOD + "," + (0.6 * (1 - t)).toFixed(3) + ")";
+        ctx.lineWidth = 1.6 * dpr;
+        ctx.stroke();
+        return t < 1;
+      }, paint, 2000);
+    }
+    function check() {
+      var all = true;
+      for (var i = 0; i < 4; i++) {
+        var ok = okAt(i);
+        fields[i].classList.toggle("is-ok", ok);
+        if (!ok) all = false;
+      }
+      var held = 4 - [0, 1, 2, 3].filter(okAt).length;
+      note.textContent = armed ? "released, all at once" :
+        held ? held + " field" + (held > 1 ? "s" : "") + " holding everything" : "";
+      if (all && !armed) {
+        if (cancel) cancel();
+        if (reduced) { armed = true; releasing = 1; }
+        else {
+          releasing = 0;
+          cancel = oneshot(function (dt) {
+            releasing = Math.min(1, releasing + dt / 0.35);
+            paint();
+            return releasing < 1;
+          }, function () { armed = true; paint(); if (!reduced) ring(); }, 2000);
+        }
+        go.setAttribute("aria-disabled", "false");
+        go.classList.add("is-armed");
+        note.textContent = "released, all at once";
+      }
+      if (!all && armed) {
+        armed = false; releasing = 0;
+        go.setAttribute("aria-disabled", "true");
+        go.classList.remove("is-armed");
+      }
+      paint();
+    }
+    inputs.forEach(function (inp) { inp.addEventListener("input", check); });
+    go.addEventListener("click", function () {
+      if (go.getAttribute("aria-disabled") === "true") {
+        note.textContent = "held by the checkpoint, complete every field";
+        return;
+      }
+      note.textContent = "submitted, visually only";
+    });
+    document.getElementById("sac-reset").addEventListener("click", function () {
+      inputs.forEach(function (inp) { inp.value = ""; });
+      check();
+    });
+    new ResizeObserver(check).observe(wrap);
+    check();
+  })();
+
+  /* ================================================== 15b. spindle concept */
+  (function () {
+    var cv = document.getElementById("sacc-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("sacc-read");
+    var cancel = null, seedN = 0;
+    var pairs = [], t = 0, phase = "idle", sep = 0, tLast = 0;
+    function build() {
+      var rand = rng(900 + seedN * 41);
+      pairs = [];
+      for (var i = 0; i < 6; i++) {
+        pairs.push({ y: 0.18 + i * 0.13, at: 0.5 + rand() * 2.6, attached: false });
+      }
+      pairs[Math.floor(rand() * 6)].at = 3.4;
+      tLast = Math.max.apply(null, pairs.map(function (p) { return p.at; }));
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var px0 = W * 0.1, px1 = W * 0.9, pcy = H * 0.5;
+      [px0, px1].forEach(function (px) {
+        ctx.beginPath(); ctx.arc(px, pcy, 4 * dpr, 0, TAU);
+        ctx.fillStyle = "rgba(" + MINT + ",0.8)"; ctx.fill();
+      });
+      var waiting = 0;
+      for (var i = 0; i < pairs.length; i++) {
+        var p = pairs[i];
+        var y = p.y * H;
+        var wob = p.attached || phase !== "run" ? 0 : Math.sin(t * 7 + i * 2) * 3 * dpr;
+        var off = sep * (px1 - px0) * 0.38;
+        var xa = W * 0.5 - 4 * dpr - off, xb = W * 0.5 + 4 * dpr + off;
+        if (p.attached || phase === "ana" || phase === "done") {
+          ctx.strokeStyle = "rgba(" + MINT + ",0.35)";
+          ctx.lineWidth = 1 * dpr;
+          ctx.beginPath(); ctx.moveTo(px0, pcy); ctx.lineTo(xa, y); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(px1, pcy); ctx.lineTo(xb, y); ctx.stroke();
+        } else if (phase === "run") {
+          waiting++;
+          ctx.beginPath(); ctx.arc(W * 0.5, y, (8 + Math.sin(t * 6) * 3) * dpr, 0, TAU);
+          ctx.strokeStyle = "rgba(" + WARM + ",0.5)";
+          ctx.lineWidth = 1.2 * dpr; ctx.stroke();
+        }
+        ctx.fillStyle = p.attached || phase !== "run" ? "rgba(" + MINT + ",0.9)" : "rgba(" + WARM + ",0.9)";
+        ctx.fillRect(xa - 2.2 * dpr, y + wob - 6 * dpr, 4.4 * dpr, 12 * dpr);
+        ctx.fillRect(xb - 2.2 * dpr, y - wob - 6 * dpr, 4.4 * dpr, 12 * dpr);
+      }
+      read.innerHTML =
+        phase === "idle" ? "press restart" :
+        phase === "run" ? (waiting ? "checkpoint holding, <b>" + waiting + "</b> unattached" : "all attached") :
+        phase === "ana" ? "<b>anaphase</b>, all at once" :
+        "divided, nothing moved early";
+      cv.setAttribute("aria-label", read.textContent);
+    }
+    function run() {
+      if (cancel) cancel();
+      seedN++; build();
+      pairs.forEach(function (p) { p.attached = false; });
+      t = 0; sep = 0; phase = "run";
+      if (reduced) { pairs.forEach(function (p) { p.attached = true; }); sep = 1; phase = "done"; paint(); return; }
+      cancel = oneshot(function (dt) {
+        t += dt;
+        if (phase === "run") {
+          pairs.forEach(function (p) { if (t >= p.at) p.attached = true; });
+          if (t >= tLast) phase = "ana";
+        } else {
+          sep = Math.min(1, sep + (1 - sep) * (1 - Math.exp(-dt * 6)) + dt * 0.2);
+          if (sep >= 0.995) { sep = 1; phase = "done"; paint(); return false; }
+        }
+        paint();
+        return true;
+      }, function () { pairs.forEach(function (p) { p.attached = true; }); sep = 1; phase = "done"; paint(); }, 12000);
+    }
+    document.getElementById("sacc-go").addEventListener("click", run);
+    new ResizeObserver(paint).observe(cv);
+    build(); paint();
+  })();
+
+  /* ================================================== 16. quorum element */
+  (function () {
+    var fill = document.getElementById("qs-fill");
+    var toasts = document.getElementById("qs-toasts");
+    var note = document.getElementById("qs-note");
+    var THRESH = 0.78, S = 0, raf = 0, last = 0, backstop = 0;
+    var labels = ["cell 41 was extended", "a merge was flagged", "weekly recap is ready",
+      "cell 88 hit review", "your extension was confirmed", "a new dataset opened"];
+    var li = 0;
+    function meter() { fill.style.width = (clamp01(S / THRESH) * 78) + "%"; }
+    function deliver() {
+      var pend = toasts.querySelectorAll(".qs-toast:not(.is-lit)");
+      pend.forEach(function (tst) { tst.classList.add("is-lit"); });
+      note.textContent = "threshold crossed, " + pend.length + " delivered together";
+      S = 0; meter();
+    }
+    function loop(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05); last = now;
+      S = Math.max(0, S - dt * 0.05);
+      meter();
+      if (S <= 0.001) { raf = 0; clearTimeout(backstop); return; }
+      raf = requestAnimationFrame(loop);
+    }
+    function pump() {
+      if (reduced) { meter(); return; }
+      if (!raf) {
+        last = 0; raf = requestAnimationFrame(loop);
+        clearTimeout(backstop);
+        backstop = setTimeout(function () {
+          if (raf) { cancelAnimationFrame(raf); raf = 0; }
+          S = 0; meter();
+        }, 30000);
+      }
+    }
+    function emit() {
+      var el = document.createElement("span");
+      el.className = "qs-toast";
+      el.textContent = labels[li % labels.length];
+      li++;
+      toasts.appendChild(el);
+      while (toasts.children.length > 5) toasts.removeChild(toasts.firstChild);
+      S += 0.17;
+      var pend = toasts.querySelectorAll(".qs-toast:not(.is-lit)").length;
+      note.textContent = pend + " pending, signal " + Math.round(S / THRESH * 100) + " percent of threshold";
+      if (S >= THRESH) deliver();
+      meter(); pump();
+    }
+    document.getElementById("qs-one").addEventListener("click", emit);
+    document.getElementById("qs-burst").addEventListener("click", function () {
+      if (reduced) { for (var i = 0; i < 5; i++) emit(); return; }
+      var n = 0;
+      var timer = setInterval(function () { emit(); if (++n >= 5) clearInterval(timer); }, 240);
+    });
+    meter();
+    note.textContent = "quiet, nothing pending";
+  })();
+
+  /* ================================================== 16b. quorum concept */
+  (function () {
+    var cv = document.getElementById("qsc-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("qsc-read");
+    var nEl = document.getElementById("qsc-n");
+    var seedN = 1, cells = [], lum = 0, raf = 0, last = 0, backstop = 0;
+    var QUORUM = 24;
+    function build() {
+      var rand = rng(40 + seedN * 3);
+      var n = parseInt(nEl.value, 10);
+      cells = [];
+      for (var i = 0; i < n; i++) {
+        cells.push([0.08 + rand() * 0.84, 0.12 + rand() * 0.76]);
+      }
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var n = cells.length, density = n / 40;
+      for (var i = 0; i < n; i++) {
+        var x = cells[i][0] * W, y = cells[i][1] * H;
+        var halo = ctx.createRadialGradient(x, y, 0, x, y, 34 * dpr);
+        halo.addColorStop(0, "rgba(" + MINT + "," + (0.05 + density * 0.06).toFixed(3) + ")");
+        halo.addColorStop(1, "rgba(" + MINT + ",0)");
+        ctx.fillStyle = halo;
+        ctx.fillRect(x - 34 * dpr, y - 34 * dpr, 68 * dpr, 68 * dpr);
+        ctx.beginPath(); ctx.arc(x, y, (2 + lum * 1.6) * dpr, 0, TAU);
+        ctx.fillStyle = "rgba(" + MINT + "," + (0.35 + lum * 0.6).toFixed(3) + ")";
+        ctx.fill();
+        if (lum > 0.5) {
+          ctx.beginPath(); ctx.arc(x, y, 7 * dpr, 0, TAU);
+          ctx.fillStyle = "rgba(" + MINT + "," + (0.12 * lum).toFixed(3) + ")";
+          ctx.fill();
+        }
+      }
+      read.innerHTML = "n = <b>" + n + "</b>, quorum at " + QUORUM + ", " +
+        (n >= QUORUM ? "<b>luminescing together</b>" : "signal at " + Math.round(n / QUORUM * 100) + " percent, dark");
+      cv.setAttribute("aria-label", read.textContent);
+    }
+    function settle() {
+      var target = cells.length >= QUORUM ? 1 : 0;
+      if (reduced) { lum = target; paint(); return; }
+      if (raf) return;
+      function step(now) {
+        if (!last) last = now;
+        var dt = Math.min((now - last) / 1000, 0.05); last = now;
+        var t2 = cells.length >= QUORUM ? 1 : 0;
+        lum += (t2 - lum) * (1 - Math.exp(-dt * 5));
+        paint();
+        if (Math.abs(t2 - lum) < 0.01) { lum = t2; paint(); raf = 0; clearTimeout(backstop); return; }
+        raf = requestAnimationFrame(step);
+      }
+      last = 0; raf = requestAnimationFrame(step);
+      clearTimeout(backstop);
+      backstop = setTimeout(function () {
+        if (raf) { cancelAnimationFrame(raf); raf = 0; }
+        lum = cells.length >= QUORUM ? 1 : 0; paint();
+      }, 6000);
+    }
+    nEl.addEventListener("input", function () { build(); settle(); paint(); });
+    document.getElementById("qsc-stir").addEventListener("click", function () { seedN++; build(); paint(); });
+    new ResizeObserver(paint).observe(cv);
+    build(); settle(); paint();
+  })();
+
+  /* ================================================== 17. run and tumble element */
+  (function () {
+    var cv = document.getElementById("rt-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("rt-read");
+    var rows = Array.prototype.slice.call(document.querySelectorAll("#rt-rows .rt-row"));
+    var cancel = null, seedN = 0, target = 0;
+    var st = null;
+    function targetPos() { return [0.93, 0.2 + target * 0.2]; }
+    function start() {
+      if (cancel) cancel();
+      rows.forEach(function (r) { r.classList.remove("is-lit"); });
+      seedN++;
+      target = seedN % rows.length;
+      var rand = rng(1200 + seedN * 61);
+      st = { x: 0.06, y: 0.5, a: 0, t: 0, tumbles: 0, prevD: 1, win: 0, dAcc: 0, trail: [], rand: rand, found: false };
+      st.a = (rand() - 0.5) * 2;
+      var tp = targetPos();
+      if (reduced) {
+        st.found = true;
+        st.trail = [[0.06, 0.5], [tp[0], tp[1]]];
+        rows[target].classList.add("is-lit");
+        paint();
+        read.innerHTML = "found <b>" + rows[target].textContent + "</b>";
+        return;
+      }
+      cancel = oneshot(function (dt) {
+        st.t += dt;
+        var sp = 0.46;
+        st.x += Math.cos(st.a) * sp * dt;
+        st.y += Math.sin(st.a) * sp * dt * 1.6;
+        if (st.x < 0.02 || st.x > 0.97) st.a = Math.PI - st.a;
+        if (st.y < 0.06 || st.y > 0.94) st.a = -st.a;
+        st.x = clamp01(st.x); st.y = clamp01(st.y);
+        var d = Math.hypot(st.x - tp[0], (st.y - tp[1]) * 0.6);
+        st.win += dt; st.dAcc += st.prevD - d; st.prevD = d;
+        if (st.win >= 0.18) {
+          var improving = st.dAcc > 0;
+          st.win = 0; st.dAcc = 0;
+          if (st.rand() < (improving ? 0.06 : 0.85)) { st.a = st.rand() * TAU; st.tumbles++; }
+        }
+        st.trail.push([st.x, st.y]);
+        if (st.trail.length > 700) st.trail.shift();
+        paint();
+        if (d < 0.08) {
+          st.found = true;
+          rows[target].classList.add("is-lit");
+          paint();
+          read.innerHTML = "found in <b>" + st.t.toFixed(1) + " s</b>, " + st.tumbles + " tumbles";
+          return false;
+        }
+        read.innerHTML = "searching, " + st.tumbles + " tumbles so far";
+        return true;
+      }, function () {
+        st.found = true;
+        rows[target].classList.add("is-lit");
+        paint();
+        read.innerHTML = "found <b>" + rows[target].textContent + "</b>";
+      }, 9000);
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var tp = targetPos();
+      var glow = ctx.createRadialGradient(tp[0] * W, tp[1] * H, 0, tp[0] * W, tp[1] * H, W * 0.32);
+      glow.addColorStop(0, "rgba(" + MINT + ",0.12)");
+      glow.addColorStop(1, "rgba(" + MINT + ",0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+      for (var i = 0; i < rows.length; i++) {
+        var y = (0.2 + i * 0.2) * H;
+        ctx.beginPath(); ctx.arc(0.93 * W, y, 2.4 * dpr, 0, TAU);
+        ctx.fillStyle = i === target ? "rgba(" + MINT + ",0.9)" : "rgba(" + DIMC + ",0.4)";
+        ctx.fill();
+      }
+      if (!st) return;
+      for (i = 1; i < st.trail.length; i++) {
+        var u = i / st.trail.length;
+        ctx.fillStyle = "rgba(" + MINT + "," + (u * 0.4).toFixed(3) + ")";
+        ctx.fillRect(st.trail[i][0] * W, st.trail[i][1] * H, 1.3 * dpr, 1.3 * dpr);
+      }
+      var last2 = st.trail.length ? st.trail[st.trail.length - 1] : [st.x, st.y];
+      ctx.beginPath();
+      ctx.arc(last2[0] * W, last2[1] * H, 3.4 * dpr, 0, TAU);
+      ctx.fillStyle = st.found ? "rgba(" + GOOD + ",0.95)" : "rgba(" + WARM + ",0.95)";
+      ctx.fill();
+    }
+    document.getElementById("rt-go").addEventListener("click", start);
+    new ResizeObserver(paint).observe(cv);
+    start();
+  })();
+
+  /* ================================================== 17b. run and tumble concept */
+  (function () {
+    var cv = document.getElementById("rtc-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("rtc-read");
+    var gradBtn = document.getElementById("rtc-grad");
+    var rand = rng(2200);
+    var SRC = [0.72, 0.5];
+    var cells = [];
+    for (var i = 0; i < 26; i++) {
+      cells.push({ x: rand(), y: rand(), a: rand() * TAU, pd: 1 });
+    }
+    function gradOn() { return gradBtn.getAttribute("aria-pressed") === "true"; }
+    function step(dt) {
+      var g = gradOn();
+      for (var i = 0; i < cells.length; i++) {
+        var c = cells[i];
+        c.x += Math.cos(c.a) * 0.09 * dt;
+        c.y += Math.sin(c.a) * 0.09 * dt;
+        if (c.x < 0.02 || c.x > 0.98) c.a = Math.PI - c.a;
+        if (c.y < 0.04 || c.y > 0.96) c.a = -c.a;
+        c.x = clamp01(c.x); c.y = clamp01(c.y);
+        var d = Math.hypot(c.x - SRC[0], c.y - SRC[1]);
+        var improving = d < c.pd;
+        c.pd = d;
+        var rate = g ? (improving ? 0.55 : 4.5) : 2.2;
+        if (rand() < rate * dt) c.a = rand() * TAU;
+      }
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      if (gradOn()) {
+        var glow = ctx.createRadialGradient(SRC[0] * W, SRC[1] * H, 0, SRC[0] * W, SRC[1] * H, W * 0.3);
+        glow.addColorStop(0, "rgba(" + WARM + ",0.16)");
+        glow.addColorStop(1, "rgba(" + WARM + ",0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, W, H);
+      }
+      var mean = 0;
+      for (var i = 0; i < cells.length; i++) {
+        mean += cells[i].pd;
+        ctx.save();
+        ctx.translate(cells[i].x * W, cells[i].y * H);
+        ctx.rotate(cells[i].a);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 3.6 * dpr, 1.8 * dpr, 0, 0, TAU);
+        ctx.fillStyle = "rgba(" + MINT + ",0.8)";
+        ctx.fill();
+        ctx.restore();
+      }
+      read.innerHTML = (gradOn() ? "attractant on" : "no gradient") +
+        ", mean distance to source <b>" + (mean / cells.length).toFixed(2) + "</b>";
+      cv.setAttribute("aria-label", read.textContent);
+    }
+    function settleNow() {
+      for (var s = 0; s < 900; s++) step(1 / 60);
+      paint();
+    }
+    gradBtn.addEventListener("click", function () {
+      gradBtn.setAttribute("aria-pressed", String(!gradOn()));
+      gradBtn.textContent = gradOn() ? "Attractant on" : "Gradient off";
+      if (reduced) settleNow();
+    });
+    if (reduced) {
+      settleNow();
+      new ResizeObserver(paint).observe(cv);
+    } else {
+      ambient(cv, function (dt) { step(dt); paint(); });
+    }
+  })();
+
+})();
+
 </script>
 
 </body>
