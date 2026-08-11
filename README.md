@@ -56,16 +56,22 @@ and readout is generated for the purpose of moving an interface.
   proofreading wipe, a connectivity table that morphs onto its cell, EM
   sections closing into a volume, and a mapping from every component to a
   named panel in the eyewire-ii-community branch of ng-extend.
-- `components/models.html`, nine models worn as interface: a
+- `components/models.html`, seventeen models worn as interface: a
   contribution sunflower packed by phyllotaxis, a Poisson seeded celebration, a flow field
   empty state, a Fourier epicycle loader, avatars grown by reaction
   diffusion, dendritic progress by DLA, a Voronoi coverage map, batch
   actions that flock home, and a counter that glides on exponential
-  decay. Under each element the original concept runs live, so every
-  section pairs the UI with an interactive of the science behind it.
+  decay. Eight more from recent physics and biology: Mpemba progress
+  traces that cross, a gravitational wave merge that keeps its area, an
+  atom array grid that heals before presenting, edge transport that
+  survives disorder, a rendering that carries its own confidence, a
+  checkpoint submit one field can hold, quorum batched notifications,
+  and a run and tumble search. Under each element the original concept
+  runs live, so every section pairs the UI with an interactive of the
+  science behind it.
 - `components/all.html`, everything on one page: the interaction states,
-  the three motion models, the five spatial components, the nine model
-  elements and the three applied mockups, in one scroll.
+  the three motion models, the five spatial components, the seventeen
+  model elements and the three applied mockups, in one scroll.
 
 ## Using one
 
