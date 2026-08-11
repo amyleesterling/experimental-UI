@@ -57,6 +57,17 @@
   background: rgb(var(--holo-beam, 178 216 248) / .5);
 }
 
+/* one glint as the row's spring settles, so the landing has a full stop */
+.holoarrive-item.is-landed .holoarrive-dot {
+  animation: holoarrive-glint .45s ease-out 1;
+}
+@keyframes holoarrive-glint {
+  40% {
+    background: rgb(var(--holo-beam, 178 216 248) / 1);
+    box-shadow: 0 0 11px rgb(var(--holo-beam, 178 216 248) / .85);
+  }
+}
+
 .holoarrive-body { flex: 1 1 auto; min-width: 0; }
 .holoarrive-time {
   flex: 0 0 auto;
@@ -82,6 +93,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   /* items are placed rather than flown in, and the mark still decays, because
-     the mark is information and not decoration */
+     the mark is information and not decoration. The glint is decoration. */
   .holoarrive-item { translate: none; opacity: 1; }
+  .holoarrive-item.is-landed .holoarrive-dot { animation: none; }
 }

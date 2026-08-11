@@ -58,6 +58,9 @@
             if (Math.abs(it.x - 1) < 0.002 && Math.abs(it.v) < 0.002) {
               it.el.style.setProperty("--in", "1");
               it.settled = true;
+              /* one glint as the row lands. Each row lands once, so the class
+                 staying on cannot block a replay. */
+              it.el.classList.add("is-landed");
             }
           }
           busy = true;

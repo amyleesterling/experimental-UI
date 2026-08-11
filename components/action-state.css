@@ -91,6 +91,28 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke: rgb(var(--holoaction-good));
+  /* the mark draws itself from the same spring value that scales it, tip to
+     tail, which is why it feels like it lands rather than fades. min() clamps
+     the spring's overshoot so the draw finishes clean at the tip. */
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - min(1, var(--in, 0)));
+}
+/* one ring on success, released from the button's edge and gone. The class
+   is re-applied on each new success, so the animation name recomputes and the
+   ring can fire again. */
+.holoaction:after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 1px solid rgb(var(--holoaction-good) / 0);
+  opacity: 0;
+  pointer-events: none;
+}
+.holoaction.is-done:after { animation: holoaction-ring .65s ease-out 1; }
+@keyframes holoaction-ring {
+  from { opacity: .85; transform: scale(.94); border-color: rgb(var(--holoaction-good) / .8); }
+  to   { opacity: 0;   transform: scale(1.18); border-color: rgb(var(--holoaction-good) / 0); }
 }
 .holoaction.is-done { border-color: rgb(var(--holoaction-good) / .5); background: rgb(var(--holoaction-good) / .14); }
 .holoaction.is-done .holoaction-mark { margin-left: 0; }
@@ -111,7 +133,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   /* the js stops integrating and jumps to each state, so the control still
-     reports what happened without anything moving */
+     reports what happened without anything moving. The ring is a celebration,
+     which is decoration, so it goes; the drawn mark lands complete. */
   .holoaction { transform: none; translate: none; }
   .holoaction-mark { scale: 1; }
+  .holoaction-mark path { stroke-dashoffset: 0; }
+  .holoaction.is-done:after { animation: none; }
 }

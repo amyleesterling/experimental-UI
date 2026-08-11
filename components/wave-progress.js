@@ -75,6 +75,12 @@
     }
 
     var phase = 0, raf = 0, last = 0, running = false, dead = false;
+    /* the drawn fill chases the reported value, so a jump in the number still
+       moves like a quantity. disp is what paint draws; value is the truth. */
+    var disp = value;
+    /* run: the packet orbits. arrive: it runs out to the end. bloom: the bar
+       glows once and settles. rest: finished, nothing animates. */
+    var mode = "run", bloom = 0;
 
     function paint() {
       var dpr = Math.min(global.devicePixelRatio || 1, 2);
@@ -86,18 +92,21 @@
       var tint = tokenRGB(el, "--holowave-tint", "178,216,248");
       ctx.clearRect(0, 0, w, h);
 
-      /* the filled part, which is the honest value */
-      var fill = Math.round(w * value);
+      /* the filled part, drawn from the chased value so it moves like a
+         quantity. The bloom lifts the whole fill once at completion. */
+      var fill = Math.round(w * disp);
       if (determinate) {
-        ctx.fillStyle = "rgba(" + tint + ",0.22)";
+        var fillAlpha = mode === "rest" ? 0.34 : 0.22 + bloom * 0.4;
+        ctx.fillStyle = "rgba(" + tint + "," + fillAlpha.toFixed(3) + ")";
         ctx.fillRect(0, 0, fill, h);
       }
 
       /* the packet, drawn column by column so the profile is the maths and not
          a gradient approximating it. The packet only travels inside the filled
-         part, so it never promises progress the value does not have. */
+         part, so it never promises progress the value does not have. It is not
+         drawn at rest, because a finished bar should be quiet. */
       var span = determinate ? fill : w;
-      if (span > 0) {
+      if (span > 0 && mode !== "rest" && mode !== "bloom") {
         var step = Math.max(1, Math.floor(dpr));
         for (var x = 0; x < span; x += step) {
           var a = packet(phase, x / span, sigma);
@@ -113,14 +122,37 @@
       if (!last) last = now;
       var dt = Math.min((now - last) / 1000, 0.05);
       last = now;
-      phase = (phase + dt * speed) % 1;
+      disp += (value - disp) * (1 - Math.exp(-dt * 9));
+      if (mode === "run") {
+        phase = (phase + dt * speed) % 1;
+        /* completion is an arrival, not a stop: once the fill has caught up,
+           the packet runs out to the far end instead of orbiting again */
+        if (determinate && value >= 1 && disp > 0.995) mode = "arrive";
+      } else if (mode === "arrive") {
+        phase += dt * Math.max(speed * 2.2, 1.1);
+        if (phase >= 0.99) { phase = 0.99; mode = "bloom"; bloom = 1; }
+      } else if (mode === "bloom") {
+        bloom -= dt / 0.55;
+        if (bloom <= 0) {
+          bloom = 0; mode = "rest"; disp = 1;
+          el.classList.add("is-complete");
+          paint();
+          running = false; raf = 0;
+          return;
+        }
+      }
       paint();
       raf = global.requestAnimationFrame(frame);
     }
 
     function start() {
       if (running || dead) return;
-      if (reduced && reduced.matches) { paint(); return; }
+      if (reduced && reduced.matches) {
+        disp = value;
+        if (determinate && value >= 1) { mode = "rest"; el.classList.add("is-complete"); }
+        paint();
+        return;
+      }
       running = true;
       last = 0;
       raf = global.requestAnimationFrame(frame);
@@ -165,8 +197,17 @@
     var handle = {
       set: function (v) {
         if (typeof v === "number") { value = Math.min(1, Math.max(0, v)); }
+        if (value < 1 && mode !== "run") {
+          mode = "run"; bloom = 0;
+          el.classList.remove("is-complete");
+        }
+        if (reduced && reduced.matches) {
+          disp = value;
+          if (determinate && value >= 1) { mode = "rest"; el.classList.add("is-complete"); }
+        }
         report();
         paint();
+        start();
         return handle;
       },
       stop: stop,

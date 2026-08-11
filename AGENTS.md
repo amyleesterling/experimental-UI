@@ -1,4 +1,4 @@
-# AGENTS.md, version 1
+# AGENTS.md, version 2
 
 Working knowledge for anyone contributing to **experimental-ui**. Read it
 before writing a line.
@@ -171,7 +171,53 @@ because that is what an underdamped system does and it settles honestly.
 control that fails mid press composes instead of one animation clobbering the
 other. This comes up any time a state machine can overlap its own states.
 
-## 10. Non-negotiables
+## 10. Feel
+
+The components are meant to be oddly satisfying, and satisfaction is not a
+coat of polish applied at the end. It comes from a handful of mechanics, all
+cheap, all already in the set. Use them, and do not stack them: one felt
+moment per event.
+
+**Chase, do not jump.** A displayed value follows its truth through an
+exponential approach, `disp += (truth - disp) * (1 - exp(-dt * k))`, and the
+loop stops on settle. The embryo folds a beat behind the finger, the wipe
+divider trails the pointer, the bar's fill glides to its number. The settle at
+the end is most of the satisfaction, so never clamp it away. Keep the truth
+and the display as separate variables: aria values, range inputs and readouts
+report the truth, paint draws the chase.
+
+**Completions arrive, they do not stop.** The wave bar at 100 percent sends
+its packet out to the far end, blooms once, then rests with a quiet settled
+glow and no animation at all. Done is a state with its own look, not the
+absence of the busy look.
+
+**Celebrate once.** The cluster blooms at the instant coherence crosses the
+lock threshold, the button releases one ring on success, an arriving row
+glints as its spring settles. Always one shot, never a loop, and the class
+that fires it either comes off on a timer or marks an event that can only
+happen once, per the replay rule. Celebrations are decoration: under reduced
+motion they are suppressed entirely, while the state they celebrate still
+lands.
+
+**Draw marks, do not fade them in.** The check and the cross draw from tip to
+tail through `stroke-dashoffset`, driven by the same spring that scales them,
+with `min()` clamping the overshoot so the draw finishes clean. Set
+`pathLength="1"` on the path and the stylesheet needs no measured lengths.
+
+**Settle as a cascade.** When several siblings move to one target, give each
+its own chased copy with a slightly different time constant. The section
+stack closes like a liquid rather than a plate. The constants differ by
+depth, so the cascade means something: nearer settles sooner.
+
+**Spend time at the moment of meaning.** The veil's travel is eased, so the
+packet is at its slowest exactly where the swap happens. Where an animation
+carries an instant that matters, shape the timing so that instant gets the
+most of it.
+
+Every chase and settle loop follows section 7: it runs only while unsettled,
+and it carries a backstop that lands the display on the truth.
+
+## 11. Non-negotiables
 
 - **No authentication, ever.** Inputs in demos are inert: no `<form>`, no field
   with a `name`, nothing submitted. Say "visual component only" in the copy.
@@ -186,5 +232,6 @@ other. This comes up any time a state machine can overlap its own states.
 
 ---
 
-Version 1, 2026-08-11. Split out of scifi-ui so that repo can keep its porting
-rule absolute and this one can be freely experimental.
+Version 2, 2026-08-11. Version 1 split the set out of scifi-ui. Version 2
+added section 10 with the feel pass, after every component was retuned to
+chase, settle, arrive and celebrate.
