@@ -12,6 +12,30 @@
 <link rel="stylesheet" href="section-stack.css">
 
 <style>
+  .topnav {
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 0 0;
+    font-size: .78rem;
+    letter-spacing: .06em;
+  }
+  .topnav-brand {
+    margin-right: auto;
+    color: rgb(var(--holo-beam, 178 216 248) / .95);
+    font-size: .8rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .topnav a { color: rgb(var(--holo-dim, 154 162 177) / .95); text-decoration: none; }
+  .topnav a:hover,
+  .topnav a.holo-on,
+  .topnav a:focus-visible { color: rgb(var(--holo-ink, 239 244 251) / .98); }
+  .topnav a[aria-current="page"] { color: rgb(var(--holo-ink, 239 244 251) / .98); border-bottom: 1px solid rgb(var(--holo-beam, 178 216 248) / .6); }
+  .topnav a:focus-visible { outline: 2px solid rgb(var(--holo-beam, 178 216 248)); outline-offset: 3px; }
+
   /* Page chrome only. The five stylesheets above are self contained and each
      one works alone, same as everywhere else in this repo. */
   :root {
@@ -88,6 +112,14 @@
 <body>
 
 <div class="wrap">
+
+  <nav class="topnav" aria-label="Experiments">
+    <a class="topnav-brand" href="../index.html">experimental-UI</a>
+    <a href="../index.html">Landing</a>
+    <a href="motion.html">Motion</a>
+    <a href="spatial.html" aria-current="page">Spatial</a>
+    <a href="https://github.com/amyleesterling/experimental-UI" rel="noopener">GitHub</a>
+  </nav>
 
   <header>
     <p class="eyebrow">Spatial</p>
