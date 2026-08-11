@@ -1,4 +1,4 @@
-# AGENTS.md, version 4
+# AGENTS.md, version 5
 
 Working knowledge for anyone contributing to **experimental-ui**. Read it
 before writing a line.
@@ -266,3 +266,16 @@ its container must always carry the CSS that pins it back to that
 container, and a section lifted onto another page must bring that CSS
 along. That is also why the concept panes use `.cstage` and `.cread`
 rather than the `.stage` and `.readout` the applied page already claims.
+
+Version 5, 2026-08-11. Every demo page now opens with a hero landing state,
+a one shot canvas behind the header that settles to a still final frame,
+following section 7 with a backstop and landing synchronously under reduced
+motion. Two lessons. A hero that shares the header with text must be laid
+out against the text: on a wide screen the lede stops at its max width and
+the right column is free, but on a portrait screen the text owns the whole
+width, so any hero that overlaps it multiplies its alpha by a portrait damp
+factor, and heroes that live on a baseline pin it in device pixels to the
+bottom padding rather than using a height fraction, because a fraction of a
+tall header lands in the middle of a paragraph. And judge brightness by
+measurement, not by eye: two dark screenshots read as identical while the
+canvas pixel means differed by the exact damp factor.
