@@ -189,6 +189,11 @@
   footer .credit { margin: 0 0 10px; color: #C4CCD8; font-size: 15px; }
   footer a { color: #4FA3F0; text-decoration: none; }
   footer a:hover, footer a:focus-visible { text-decoration: underline; }
+
+  /* hero landing state: a one shot that settles, per section 7 */
+  header.hero-band { position: relative; padding: 3.4rem 0 2.6rem; }
+  .hero-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+  .hero-fg { position: relative; }
 </style>
 </head>
 <body>
@@ -206,20 +211,23 @@
     <a href="https://github.com/amyleesterling/experimental-UI" rel="noopener">GitHub</a>
   </nav>
 
-  <header>
-    <p class="eyebrow">Applied</p>
-    <h1>The experiments, placed in EyeWire 2</h1>
-    <p class="lede">
-      An experiment that cannot say where it would live is a demo. This page
-      places them: three sketches rebuilt around the actual work of
-      proofreading a connectome, and a mapping from every component in this
-      repo to a named panel in the eyewire-ii-community branch of ng-extend.
-    </p>
-    <p class="note">
-      Everything drawn here is generated. The neuron is schematic, the EM
-      texture is synthetic, and no segmentation, imagery or measurement from
-      any dataset appears on this page.
-    </p>
+  <header class="hero-band">
+    <canvas class="hero-cv" id="hero-cv" aria-hidden="true"></canvas>
+    <div class="hero-fg">
+      <p class="eyebrow">Applied</p>
+      <h1>The experiments, placed in EyeWire 2</h1>
+      <p class="lede">
+        An experiment that cannot say where it would live is a demo. This page
+        places them: three sketches rebuilt around the actual work of
+        proofreading a connectome, and a mapping from every component in this
+        repo to a named panel in the eyewire-ii-community branch of ng-extend.
+      </p>
+      <p class="note">
+        Everything drawn here is generated. The neuron is schematic, the EM
+        texture is synthetic, and no segmentation, imagery or measurement from
+        any dataset appears on this page.
+      </p>
+    </div>
   </header>
 
   <!-- ============================================================ 1 -->
@@ -837,6 +845,102 @@
     apply();
   })();
 
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var cv = document.getElementById("hero-cv");
+  if (!cv) return;
+  var ctx = cv.getContext("2d");
+  var TAU = Math.PI * 2;
+  function fit() {
+    var dpr = Math.min(devicePixelRatio || 1, 2);
+    var r = cv.getBoundingClientRect();
+    var w = Math.max(1, Math.round(r.width * dpr));
+    var h = Math.max(1, Math.round(r.height * dpr));
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    return dpr;
+  }
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  /* the page's own subject, a skeleton drawing itself */
+  function pathPts(n, fx, fy) {
+    var pts = [];
+    for (var i = 0; i <= n; i++) { var v = i / n; pts.push([fx(v), fy(v)]); }
+    return pts;
+  }
+  var MAIN = pathPts(64, function (v) { return 0.60 + v * 0.36; },
+    function (v) { return 0.22 + v * 0.54 + Math.sin(v * 4.6) * 0.05; });
+  var BR = [0.22, 0.45, 0.68, 0.88].map(function (f, j) {
+    var i0 = Math.round(f * 64), p0 = MAIN[i0];
+    var dir = j % 2 ? 1 : -1;
+    return pathPts(26, function (v) { return Math.min(0.985, p0[0] + v * 0.055 + j * 0.004); },
+      function (v) { return p0[1] + dir * (v * 0.17 + Math.sin(v * 6.1) * 0.015) - v * 0.02; });
+  });
+  function stroke(pts, frac, alpha, wpx, dpr, W, H) {
+    var n = Math.floor((pts.length - 1) * clamp01(frac));
+    if (n < 1) return false;
+    ctx.beginPath();
+    for (var i = 0; i <= n; i++) {
+      var x = pts[i][0] * W, y = pts[i][1] * H;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = "rgba(178,216,248," + alpha.toFixed(3) + ")";
+    ctx.lineWidth = wpx * dpr;
+    ctx.lineCap = "round";
+    ctx.stroke();
+    return frac >= 1;
+  }
+  function draw(u) {
+    var dpr = fit(), W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    var dim = W < H * 1.3 ? 0.4 : 1;
+    stroke(MAIN, u / 0.55, 0.26 * dim, 1.5, dpr, W, H);
+    if (u > 0.02) {
+      ctx.beginPath();
+      ctx.arc(MAIN[0][0] * W, MAIN[0][1] * H, 4.6 * dpr, 0, TAU);
+      ctx.fillStyle = "rgba(178,216,248," + (0.4 * dim).toFixed(3) + ")"; ctx.fill();
+    }
+    for (var j = 0; j < BR.length; j++) {
+      var f = (u - (0.30 + j * 0.13)) / 0.26;
+      var landed = stroke(BR[j], f, 0.20 * dim, 1.1, dpr, W, H);
+      if (landed) {
+        var tip = BR[j][BR[j].length - 1];
+        var pop = clamp01((f - 1) * 3);
+        ctx.beginPath();
+        ctx.arc(tip[0] * W, tip[1] * H, (1.6 + (1 - pop) * 2.4) * dpr, 0, TAU);
+        ctx.fillStyle = "rgba(232,169,58," + ((0.35 + 0.35 * pop) * dim).toFixed(3) + ")";
+        ctx.fill();
+      }
+    }
+  }
+  var t = 0, shown = 0, raf = 0, last = 0, backstop = 0, done = false;
+  var DUR = 2.8;
+  function ease(v) { return 1 - Math.pow(1 - v, 3); }
+  function land() {
+    done = true;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    clearTimeout(backstop);
+    shown = 1; draw(1);
+  }
+  function loop(now) {
+    if (!last) last = now;
+    var dt = Math.min((now - last) / 1000, 0.05); last = now;
+    t = Math.min(1, t + dt / DUR);
+    shown = ease(t);
+    draw(shown);
+    if (t >= 1) { land(); return; }
+    raf = requestAnimationFrame(loop);
+  }
+  new ResizeObserver(function () { draw(done ? 1 : shown); }).observe(cv);
+  if (reduced) { land(); }
+  else {
+    backstop = setTimeout(land, DUR * 1000 + 2500);
+    raf = requestAnimationFrame(loop);
+  }
 })();
 </script>
 

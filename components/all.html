@@ -125,22 +125,41 @@
   }
   .quiet { font-size: .72rem; letter-spacing: .05em; color: rgb(var(--holo-dim) / .8); }
 
-  /* 1. team ring */
-  .ring-stage { position: relative; height: 300px; }
-  .ring-core {
-    position: absolute; left: 50%; top: 50%; translate: -50% -50%;
-    z-index: 2;
+  /* 1. contribution sunflower */
+  .sun-stage {
+    position: relative;
+    width: 100%;
+    max-width: 27rem;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
+    touch-action: none;
+    cursor: crosshair;
   }
-  .ring-avatar {
-    position: absolute; left: 50%; top: 50%;
-    width: 30px; height: 30px; margin: -15px 0 0 -15px;
-    display: grid; place-items: center;
-    border-radius: 50%;
-    font-size: .66rem; font-weight: 600;
-    color: rgb(6 10 16 / .9);
-    box-shadow: 0 0 0 2px rgb(7 10 15 / .9), 0 4px 10px rgb(0 0 0 / .4);
+  .sun-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .sun-read {
+    position: absolute; left: .7rem; right: .7rem; bottom: .55rem;
+    font-size: .68rem; letter-spacing: .05em;
+    color: rgb(var(--holo-dim) / .95);
     pointer-events: none;
+    font-variant-numeric: tabular-nums;
   }
+  .sun-read b { color: rgb(var(--holo-beam) / .95); font-weight: 600; }
+  .sun-legend { display: flex; gap: .45rem; flex-wrap: wrap; justify-content: center; }
+  .sun-chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .28rem .65rem; border-radius: 999px;
+    font-size: .64rem; letter-spacing: .06em; text-transform: uppercase;
+    color: rgb(var(--holo-dim) / .95);
+    background: rgb(var(--holo-line) / .05);
+    box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .12);
+    font-variant-numeric: tabular-nums;
+  }
+  .sun-chip i { width: 8px; height: 8px; border-radius: 50%; }
+  .sun-chip b { color: rgb(var(--holo-ink) / .95); font-weight: 600; }
 
   /* 2. celebration */
   .cele-stage { position: relative; display: grid; place-items: center; height: 230px; }
@@ -344,6 +363,11 @@
   .cread b { color: rgb(var(--holo-beam) / .95); font-weight: 600; }
   .mrow label { display: flex; align-items: center; gap: .5rem; }
   .mrow input[type="range"] { width: 130px; accent-color: rgb(var(--holo-beam)); }
+
+  /* hero landing state: a one shot that settles, per section 7 */
+  header.hero-band { position: relative; padding: 3.4rem 0 2.6rem; }
+  .hero-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+  .hero-fg { position: relative; }
 </style>
 </head>
 <body>
@@ -361,15 +385,18 @@
     <a href="https://github.com/amyleesterling/experimental-UI" rel="noopener">GitHub</a>
   </nav>
 
-  <header>
-    <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">All</p>
-    <h1>Everything, on one page</h1>
-    <p class="lede">
-      The whole set in one scroll: the interaction states, the three motion
-      models, the five paper derived components, the nine models worn as
-      interface, and the EyeWire 2 placements. Every demo pauses while it is
-      off screen, so the page costs what the part you are looking at costs.
-    </p>
+  <header class="hero-band">
+    <canvas class="hero-cv" id="hero-cv" aria-hidden="true"></canvas>
+    <div class="hero-fg">
+      <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">All</p>
+      <h1>Everything, on one page</h1>
+      <p class="lede">
+        The whole set in one scroll: the interaction states, the three motion
+        models, the five paper derived components, the nine models worn as
+        interface, and the EyeWire 2 placements. Every demo pauses while it is
+        off screen, so the page costs what the part you are looking at costs.
+      </p>
+    </div>
   </header>
 
   <div class="grouphead" id="g-interaction">
@@ -552,21 +579,30 @@
 
 <section id="phyllotaxis">
     <p class="eyebrow">Phyllotaxis</p>
-    <h2>A team ring that never needs layout</h2>
+    <h2>A work history that packs itself</h2>
     <p class="note">
-      An invite cluster. Every avatar is placed by the golden angle, so three
-      teammates or sixty pack evenly around the button with no rows, no
-      overflow menu and no hand tuned positions. Press invite a dozen times:
-      each newcomer slots in and the whole ring breathes outward to make room,
-      chasing its new position instead of jumping.
+      A contribution record with no bins and no axes. Every dot is one
+      completed cube, placed in completion order by the golden angle: the
+      first edit sits at the centre, the latest lands on the rim, and the
+      disc packs evenly at forty cubes or four thousand. Colour is what the
+      edit was, brightness is how recent. Complete more work and the whole
+      history breathes outward to make room. Run the pointer over the disc
+      to read any single cube back.
     </p>
     <div class="panel">
-      <div class="ring-stage" id="ring-stage" aria-hidden="true">
-        <span class="ring-core"><button class="mbtn" id="ring-add" type="button" data-holo-tap>+ Invite</button></span>
+      <div class="sun-stage" id="sun-stage">
+        <canvas id="sun-cv" role="img"></canvas>
+        <p class="sun-read" id="sun-read" aria-hidden="true"></p>
+      </div>
+      <div class="sun-legend" aria-label="Edits by kind">
+        <span class="sun-chip"><i style="background:rgb(var(--holo-beam) / .9)"></i> clean pass <b id="sun-n0">0</b></span>
+        <span class="sun-chip"><i style="background:rgb(126 224 176 / .9)"></i> extension found <b id="sun-n1">0</b></span>
+        <span class="sun-chip"><i style="background:rgb(var(--holo-warm) / .9)"></i> merge fixed <b id="sun-n2">0</b></span>
       </div>
       <div class="mrow">
-        <button class="mbtn" id="ring-remove" type="button" data-holo-tap>Remove one</button>
-        <span class="quiet" id="ring-count" role="status"></span>
+        <button class="mbtn" id="sun-one" type="button" data-holo-tap>Complete a cube</button>
+        <button class="mbtn" id="sun-week" type="button" data-holo-tap>Simulate a week</button>
+        <span class="quiet" id="sun-count" role="status"></span>
       </div>
     </div>
   
@@ -1204,69 +1240,138 @@
     return function cancel() { if (raf) cancelAnimationFrame(raf); clearTimeout(backstop); };
   }
 
-  /* ================================================== 1. team ring */
+  /* ================================================== 1. contribution sunflower */
   (function () {
-    var stage = document.getElementById("ring-stage");
-    var countEl = document.getElementById("ring-count");
+    var cv = document.getElementById("sun-cv"), ctx = cv.getContext("2d");
+    var read = document.getElementById("sun-read");
+    var countEl = document.getElementById("sun-count");
+    var chipEls = [document.getElementById("sun-n0"),
+                   document.getElementById("sun-n1"),
+                   document.getElementById("sun-n2")];
     var GOLDEN = 2.399963;
-    var members = [], raf = 0, last = 0;
+    var KIND = [
+      { rgb: MINT, label: "clean pass" },
+      { rgb: GOOD, label: "extension found" },
+      { rgb: WARM, label: "merge fixed" }
+    ];
+    var dots = [], born = [];
+    var packDisp = 0, hoverI = -1;
+    var raf = 0, last = 0, backstop = 0;
+    var rand = rng(20260811);
 
-    function hue(name) { return 165 + (hash(name) % 90); }
-
-    function targetFor(i) {
-      var r = 46 + 15.5 * Math.sqrt(i + 1.2);
-      var a = i * GOLDEN;
-      return { x: Math.cos(a) * r, y: Math.sin(a) * r * 0.82 };
+    function kindFor() {
+      var u = rand();
+      return u < 0.74 ? 0 : u < 0.92 ? 1 : 2;
+    }
+    function packScale() {
+      return Math.min(cv.width, cv.height) * 0.46 / Math.sqrt(Math.max(1, dots.length));
+    }
+    function posFor(i, c) {
+      var r = c * Math.sqrt(i + 0.5), a = i * GOLDEN;
+      return [cv.width / 2 + Math.cos(a) * r, cv.height / 2 + Math.sin(a) * r];
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var N = dots.length;
+      for (var i = 0; i < N; i++) {
+        var p = posFor(i, packDisp);
+        var u = i / Math.max(1, N - 1);
+        var sz = (1.4 + u * 1.5) * dpr * born[i];
+        var alpha = 0.3 + u * 0.62;
+        if (i === hoverI) { sz += 2.2 * dpr; alpha = 1; }
+        ctx.fillStyle = "rgba(" + KIND[dots[i]].rgb + "," + alpha.toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(p[0], p[1], sz, 0, TAU); ctx.fill();
+      }
+      if (hoverI >= 0) {
+        read.innerHTML = "cube <b>" + (hoverI + 1) + "</b> of " + N + ", " + KIND[dots[hoverI]].label;
+      } else {
+        read.innerHTML = "<b>" + N.toLocaleString("en-US") + "</b> cubes, centre first, rim latest";
+      }
+    }
+    function report() {
+      var n = [0, 0, 0];
+      for (var i = 0; i < dots.length; i++) n[dots[i]]++;
+      chipEls[0].textContent = n[0];
+      chipEls[1].textContent = n[1];
+      chipEls[2].textContent = n[2];
+      countEl.textContent = dots.length + " cubes completed";
+      cv.setAttribute("aria-label", dots.length + " completed cubes packed by the golden angle: " +
+        n[0] + " clean passes, " + n[1] + " extensions found, " + n[2] + " merges fixed");
     }
     function frame(now) {
       if (!last) last = now;
       var dt = Math.min((now - last) / 1000, 0.05); last = now;
       var busy = false;
-      members.forEach(function (m, i) {
-        var t = targetFor(i);
-        m.x += (t.x - m.x) * (1 - Math.exp(-dt * 8));
-        m.y += (t.y - m.y) * (1 - Math.exp(-dt * 8));
-        if (Math.abs(t.x - m.x) + Math.abs(t.y - m.y) > 0.4) busy = true;
-        m.el.style.transform = "translate(" + m.x.toFixed(1) + "px," + m.y.toFixed(1) + "px)";
-        m.el.style.opacity = "1";
-      });
-      if (!busy) { raf = 0; return; }
+      var target = packScale();
+      packDisp += (target - packDisp) * (1 - Math.exp(-dt * 7));
+      if (Math.abs(target - packDisp) > 0.02) busy = true; else packDisp = target;
+      for (var i = 0; i < born.length; i++) {
+        if (born[i] < 1) {
+          born[i] = Math.min(1, born[i] + dt * 5);
+          if (born[i] < 1) busy = true;
+        }
+      }
+      paint();
+      if (!busy) { raf = 0; clearTimeout(backstop); return; }
       raf = requestAnimationFrame(frame);
     }
+    function landNow() {
+      packDisp = packScale();
+      for (var i = 0; i < born.length; i++) born[i] = 1;
+      paint();
+    }
     function settle() {
-      if (reduced) {
-        members.forEach(function (m, i) {
-          var t = targetFor(i);
-          m.el.style.transform = "translate(" + t.x + "px," + t.y + "px)";
-          m.el.style.opacity = "1";
-        });
-        return;
+      if (reduced) { landNow(); return; }
+      if (!raf) {
+        last = 0; raf = requestAnimationFrame(frame);
+        clearTimeout(backstop);
+        backstop = setTimeout(function () {
+          if (raf) { cancelAnimationFrame(raf); raf = 0; }
+          landNow();
+        }, 8000);
       }
-      if (!raf) { last = 0; raf = requestAnimationFrame(frame); }
     }
-    function report() {
-      countEl.textContent = members.length + (members.length === 1 ? " teammate" : " teammates");
+    function add(instant) {
+      dots.push(kindFor());
+      born.push(instant ? 1 : 0);
     }
-    function add() {
-      if (members.length >= 54) return;
-      var name = NAMES[members.length % NAMES.length];
-      var el = document.createElement("span");
-      el.className = "ring-avatar";
-      el.style.background = "hsl(" + hue(name + members.length) + " 45% 68%)";
-      el.style.opacity = "0";
-      el.textContent = name[0];
-      stage.appendChild(el);
-      members.push({ el: el, x: 0, y: 0 });
-      report(); settle();
+    /* the record you arrive with, so the packing reads at once */
+    fit(cv);
+    for (var i = 0; i < 460; i++) add(true);
+    packDisp = packScale();
+    report(); paint();
+
+    document.getElementById("sun-one").addEventListener("click", function () {
+      add(reduced); report(); settle();
+    });
+    document.getElementById("sun-week").addEventListener("click", function () {
+      if (reduced) {
+        for (var i = 0; i < 42; i++) add(true);
+        report(); landNow(); return;
+      }
+      var left = 42;
+      var timer = setInterval(function () {
+        add(false); report(); settle();
+        if (--left <= 0) clearInterval(timer);
+      }, 46);
+    });
+    function probe(e) {
+      var r = cv.getBoundingClientRect();
+      var dpr = cv.width / Math.max(1, r.width);
+      var x = (e.clientX - r.left) * dpr, y = (e.clientY - r.top) * dpr;
+      var best = -1, bd = 14 * dpr * 14 * dpr;
+      for (var i = 0; i < dots.length; i++) {
+        var p = posFor(i, packDisp);
+        var dx = p[0] - x, dy = p[1] - y, d = dx * dx + dy * dy;
+        if (d < bd) { bd = d; best = i; }
+      }
+      if (best !== hoverI) { hoverI = best; paint(); }
     }
-    function remove() {
-      var m = members.pop();
-      if (m) m.el.remove();
-      report(); settle();
-    }
-    document.getElementById("ring-add").addEventListener("click", add);
-    document.getElementById("ring-remove").addEventListener("click", remove);
-    for (var i = 0; i < 7; i++) add();
+    cv.addEventListener("pointermove", probe);
+    cv.addEventListener("pointerdown", probe);
+    cv.addEventListener("pointerleave", function () { hoverI = -1; paint(); });
+    new ResizeObserver(function () { packDisp = packScale(); paint(); }).observe(cv);
   })();
 
   /* ================================================== 2. celebration */
@@ -3258,6 +3363,84 @@
     paint();
   })();
 
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var cv = document.getElementById("hero-cv");
+  if (!cv) return;
+  var ctx = cv.getContext("2d");
+  var TAU = Math.PI * 2;
+  function fit() {
+    var dpr = Math.min(devicePixelRatio || 1, 2);
+    var r = cv.getBoundingClientRect();
+    var w = Math.max(1, Math.round(r.width * dpr));
+    var h = Math.max(1, Math.round(r.height * dpr));
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    return dpr;
+  }
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+  /* everything wakes: a front sweeps once and the set stays lit */
+  var N = 230;
+  function dot(i) {
+    var x = (i * 0.7548776662) % 1, y = (i * 0.5698402910) % 1;
+    return [0.02 + x * 0.96, 0.08 + y * 0.84, (i * 0.3819660113) % 1];
+  }
+  function draw(u) {
+    var dpr = fit(), W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    var dim = W < H * 1.3 ? 0.5 : 1;
+    var fx = u * W * 1.18;
+    for (var i = 0; i < N; i++) {
+      var d = dot(i);
+      var x = d[0] * W, y = d[1] * H;
+      var g = clamp01((fx - x) / (W * 0.12));
+      if (g <= 0) continue;
+      var warm = i % 9 === 0;
+      var alpha = ((0.12 + d[2] * 0.22) * g + (1 - g) * 0.5) * dim;
+      ctx.fillStyle = warm
+        ? "rgba(232,169,58," + alpha.toFixed(3) + ")"
+        : "rgba(178,216,248," + alpha.toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.arc(x, y, (1.0 + d[2] * 1.4) * dpr * (0.4 + 0.6 * g), 0, TAU);
+      ctx.fill();
+    }
+    if (u < 1) {
+      var grad = ctx.createLinearGradient(fx - 70 * dpr, 0, fx, 0);
+      grad.addColorStop(0, "rgba(178,216,248,0)");
+      grad.addColorStop(1, "rgba(178,216,248,0.10)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(fx - 70 * dpr, 0, 70 * dpr, H);
+    }
+  }
+  var t = 0, shown = 0, raf = 0, last = 0, backstop = 0, done = false;
+  var DUR = 2.4;
+  function ease(v) { return 1 - Math.pow(1 - v, 3); }
+  function land() {
+    done = true;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    clearTimeout(backstop);
+    shown = 1; draw(1);
+  }
+  function loop(now) {
+    if (!last) last = now;
+    var dt = Math.min((now - last) / 1000, 0.05); last = now;
+    t = Math.min(1, t + dt / DUR);
+    shown = ease(t);
+    draw(shown);
+    if (t >= 1) { land(); return; }
+    raf = requestAnimationFrame(loop);
+  }
+  new ResizeObserver(function () { draw(done ? 1 : shown); }).observe(cv);
+  if (reduced) { land(); }
+  else {
+    backstop = setTimeout(land, DUR * 1000 + 2500);
+    raf = requestAnimationFrame(loop);
+  }
 })();
 </script>
 
