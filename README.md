@@ -56,10 +56,12 @@ and readout is generated for the purpose of moving an interface.
   proofreading wipe, a connectivity table that morphs onto its cell, EM
   sections closing into a volume, and a mapping from every component to a
   named panel in the eyewire-ii-community branch of ng-extend.
-- `components/models.html`, nine borrowed models as live sketches:
-  phyllotaxis, Poisson disc, flow fields, Fourier epicycles, reaction
-  diffusion, diffusion limited aggregation, Voronoi, flocking, and
-  exponential decay.
+- `components/models.html`, nine models worn as interface: a team ring
+  laid out by phyllotaxis, a Poisson seeded celebration, a flow field
+  empty state, a Fourier epicycle loader, avatars grown by reaction
+  diffusion, dendritic progress by DLA, a Voronoi coverage map, batch
+  actions that flock home, and a counter that glides on exponential
+  decay.
 
 ## Using one
 
