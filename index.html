@@ -35,6 +35,68 @@
   }
   .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
 
+  /* ---------- top nav ---------- */
+  .topnav {
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 0 0;
+    font-size: .78rem;
+    letter-spacing: .06em;
+  }
+  .topnav-brand {
+    margin-right: auto;
+    color: rgb(var(--holo-beam) / .95);
+    font-size: .8rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .topnav a { color: rgb(var(--holo-dim) / .95); text-decoration: none; }
+  .topnav a:hover,
+  .topnav a.holo-on,
+  .topnav a:focus-visible { color: rgb(var(--holo-ink) / .98); }
+  .topnav a[aria-current="page"] { color: rgb(var(--holo-ink) / .98); border-bottom: 1px solid rgb(var(--holo-beam) / .6); }
+  .topnav a:focus-visible { outline: 2px solid rgb(var(--holo-beam)); outline-offset: 3px; }
+
+  /* ---------- experiments index ---------- */
+  .expcards { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+  @media (min-width: 46rem) { .expcards { grid-template-columns: 1fr 1fr; } }
+  .expcard {
+    display: grid;
+    gap: .45rem;
+    padding: 1.15rem 1.2rem 1.25rem;
+    border-radius: 14px;
+    background: linear-gradient(158deg, rgb(var(--holo-panel) / .95), rgb(7 10 15 / .96));
+    box-shadow: 0 22px 50px rgb(0 0 0 / .4), inset 0 1px 0 rgb(var(--holo-line) / .1);
+    color: inherit;
+    text-decoration: none;
+    transition: translate .18s ease, box-shadow .18s ease;
+  }
+  .expcard:hover,
+  .expcard.holo-on,
+  .expcard:focus-visible {
+    translate: 0 -3px;
+    box-shadow: 0 28px 60px rgb(0 0 0 / .5), inset 0 1px 0 rgb(var(--holo-line) / .16),
+                0 0 24px rgb(var(--holo-glow) / .1);
+  }
+  .expcard:focus-visible { outline: 2px solid rgb(var(--holo-beam)); outline-offset: 3px; }
+  .expcard .eyebrow { margin: 0; }
+  .expcard strong { font-size: 1.05rem; font-weight: 500; }
+  .expcard p { margin: 0; font-size: .86rem; color: rgb(var(--holo-dim) / .95); }
+  .expcard span.go {
+    margin-top: .3rem;
+    font-size: .7rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgb(var(--holo-beam) / .9);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .expcard { transition: none; }
+    .expcard:hover, .expcard.holo-on, .expcard:focus-visible { translate: none; }
+  }
+
   /* ---------- hero ---------- */
   .hero {
     position: relative;
@@ -102,6 +164,22 @@
     box-shadow: 0 22px 50px rgb(0 0 0 / .4), inset 0 1px 0 rgb(var(--holo-line) / .1);
   }
   .row { display: flex; gap: .7rem; flex-wrap: wrap; align-items: center; }
+  /* utility buttons that are not lifecycle controls still dress for the room */
+  .row > button:not(.holoaction) {
+    border: 1px solid rgb(var(--holo-line) / .25);
+    border-radius: 999px;
+    background: transparent;
+    color: rgb(var(--holo-beam) / .95);
+    font: inherit;
+    font-size: .72rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    padding: .55rem 1.05rem;
+    cursor: pointer;
+  }
+  .row > button:not(.holoaction):hover,
+  .row > button:not(.holoaction).holo-on { background: rgb(var(--holo-beam) / .12); }
+  .row > button:not(.holoaction):focus-visible { outline: 2px solid rgb(var(--holo-beam)); outline-offset: 2px; }
   .stack { display: grid; gap: 1rem; }
 
   /* an inert field. Visual component only: no form, no name, nothing sent. */
@@ -146,6 +224,14 @@
 <body>
 
 <div class="wrap">
+
+  <nav class="topnav" aria-label="Experiments">
+    <a class="topnav-brand" href="index.html">experimental-UI</a>
+    <a href="index.html" aria-current="page">Landing</a>
+    <a href="components/motion.html">Motion</a>
+    <a href="components/spatial.html">Spatial</a>
+    <a href="https://github.com/amyleesterling/experimental-UI" rel="noopener">GitHub</a>
+  </nav>
 
   <!-- ============================================================ hero -->
   <header class="hero" id="hero">
@@ -231,6 +317,35 @@
       <p class="row" style="margin-top:1.1rem">
         <button id="btn-swap">Load the next session</button>
       </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ all experiments -->
+  <section>
+    <p class="eyebrow">All experiments</p>
+    <h2>The other two pages</h2>
+    <p class="note">
+      This page shows the interaction set doing jobs. The models behind the
+      movement, and the five components built from five papers, each have a
+      page of their own with every control exposed.
+    </p>
+    <div class="expcards">
+      <a class="expcard" href="components/motion.html">
+        <p class="eyebrow">Motion</p>
+        <strong>Three models with the controls exposed</strong>
+        <p>The travelling wave, the coupled oscillator cluster with its
+        coupling slider, and the spring with its stiffness, damping and the
+        trace of the path it actually took.</p>
+        <span class="go">Open motion</span>
+      </a>
+      <a class="expcard" href="components/spatial.html">
+        <p class="eyebrow">Spatial</p>
+        <strong>Five components from five papers</strong>
+        <p>A field that folds with its form, the co-registered wipe, the scale
+        bridge, trajectories collapsing into their matrix, and serial sections
+        closing into a volume.</p>
+        <span class="go">Open spatial</span>
+      </a>
     </div>
   </section>
 
