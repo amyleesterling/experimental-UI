@@ -455,6 +455,8 @@
     .pcb-card.pcb-open .pcb-inner > * { animation: none; }
   }
 
+  h2[id] { scroll-margin-top: 1.4rem; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 </style>
 </head>
 <body>
@@ -490,7 +492,7 @@
   <!-- ============================================================ 1 -->
   <section id="phyllotaxis">
     <p class="eyebrow">Phyllotaxis</p>
-    <h2>A work history that packs itself</h2>
+    <h2 id="work-history">A work history that packs itself</h2>
     <p class="note">
       A contribution record with no bins and no axes. Every dot is one
       completed cube, placed in completion order by the golden angle: the
@@ -545,7 +547,7 @@
   <!-- ============================================================ 2 -->
   <section id="poisson">
     <p class="eyebrow">Poisson disc</p>
-    <h2>A celebration that never clumps</h2>
+    <h2 id="celebration">A celebration that never clumps</h2>
     <p class="note">
       A success burst whose particles are seeded by Poisson disc, so no two
       spawn on top of each other and the burst reads as designed rather than
@@ -595,7 +597,7 @@
   <!-- ============================================================ 3 -->
   <section id="flow">
     <p class="eyebrow">Flow fields</p>
-    <h2>An empty state that is quietly alive</h2>
+    <h2 id="empty-state">An empty state that is quietly alive</h2>
     <p class="note">
       Empty states are where interfaces go to die. This one drifts: particles
       ride a noise field behind the copy, slow enough to be furniture, alive
@@ -636,7 +638,7 @@
   <!-- ============================================================ 4 -->
   <section id="fourier">
     <p class="eyebrow">Fourier epicycles</p>
-    <h2>A loader that draws the mark</h2>
+    <h2 id="loader">A loader that draws the mark</h2>
     <p class="note">
       A busy indicator that traces the mark with a chain of rotating circles
       and hands over a solid glyph the instant the work lands. It is a loop
@@ -679,7 +681,7 @@
   <!-- ============================================================ 5 -->
   <section id="reaction">
     <p class="eyebrow">Reaction diffusion</p>
-    <h2>Avatars that are grown, not assigned</h2>
+    <h2 id="grown-avatars">Avatars that are grown, not assigned</h2>
     <p class="note">
       Default profile pictures, each one grown by Gray-Scott from a seed
       derived from the name. No two are alike, none was drawn, and a user's
@@ -718,7 +720,7 @@
   <!-- ============================================================ 6 -->
   <section id="dla">
     <p class="eyebrow">Diffusion limited aggregation</p>
-    <h2>Progress you can see accreting</h2>
+    <h2 id="accreting-progress">Progress you can see accreting</h2>
     <p class="note">
       A processing card where the progress indicator is a dendrite: every unit
       of finished work is one stuck particle, so the structure literally is
@@ -760,7 +762,7 @@
   <!-- ============================================================ 7 -->
   <section id="voronoi">
     <p class="eyebrow">Voronoi</p>
-    <h2>A coverage map that renegotiates around you</h2>
+    <h2 id="coverage-map">A coverage map that renegotiates around you</h2>
     <p class="note">
       Who is working where, as territory. Each teammate holds the region
       nearest to them, boundaries are exactly the points that cannot decide,
@@ -795,7 +797,7 @@
   <!-- ============================================================ 8 -->
   <section id="boids">
     <p class="eyebrow">Flocking</p>
-    <h2>Batch actions that flock home</h2>
+    <h2 id="batch-flock">Batch actions that flock home</h2>
     <p class="note">
       Move twenty four items to the library and they go as a shoal: three
       local rules give the flight its life, a fourth steers it home, and each
@@ -836,7 +838,7 @@
   <!-- ============================================================ 9 -->
   <section id="decay">
     <p class="eyebrow">Exponential decay</p>
-    <h2>A counter that glides to the truth</h2>
+    <h2 id="counter">A counter that glides to the truth</h2>
     <p class="note">
       The humblest one, doing the job it does in every good scoreboard: the
       displayed number chases the true value, so a burst of points reads as
@@ -882,7 +884,7 @@
   <!-- ============================================================ 10 -->
   <section id="mpemba">
     <p class="eyebrow">Quantum Mpemba effect</p>
-    <h2>Two progress traces that cross</h2>
+    <h2 id="two-traces">Two progress traces that cross</h2>
     <p class="note">
       Distance from done is not time to done. Two jobs launch together, and
       the one that starts far behind finishes first, overtaking the nearer
@@ -937,7 +939,7 @@
   <!-- ============================================================ 11 -->
   <section id="chirp">
     <p class="eyebrow">Gravitational wave chirp</p>
-    <h2>A merge that sounds like what it is</h2>
+    <h2 id="merge">A merge that sounds like what it is</h2>
     <p class="note">
       An irreversible combine, staged the way the universe does one: two
       segments inspiral, the orbit tightening and quickening, a merger, then
@@ -978,7 +980,7 @@
   <!-- ============================================================ 12 -->
   <section id="atomarray">
     <p class="eyebrow">Atom array assembly</p>
-    <h2>A grid that heals before it presents</h2>
+    <h2 id="healing-grid">A grid that heals before it presents</h2>
     <p class="note">
       Stochastic loading, guaranteed layout. Results arrive the way tweezer
       arrays load atoms, each slot filling by chance, and instead of showing
@@ -1021,7 +1023,7 @@
   <!-- ============================================================ 13 -->
   <section id="edge">
     <p class="eyebrow">Topological edge states</p>
-    <h2>Progress that survives damage</h2>
+    <h2 id="resilient-progress">Progress that survives damage</h2>
     <p class="note">
       A control whose robustness is demonstrable, not asserted. Progress
       travels the boundary of the panel while the toggle riddles the bulk
@@ -1060,7 +1062,7 @@
   <!-- ============================================================ 14 -->
   <section id="plddt">
     <p class="eyebrow">Predicted confidence</p>
-    <h2>A rendering that carries its own doubt</h2>
+    <h2 id="doubt">A rendering that carries its own doubt</h2>
     <p class="note">
       AlphaFold colours every residue by how much to trust it, and people
       actually read that channel. Here the same move on generated content:
@@ -1103,7 +1105,7 @@
   <!-- ============================================================ 15 -->
   <section id="spindle">
     <p class="eyebrow">Spindle assembly checkpoint</p>
-    <h2>The submit button one field can hold</h2>
+    <h2 id="submit">The submit button one field can hold</h2>
     <p class="note">
       In mitosis a single unattached kinetochore vetoes the entire
       division, and when the last one attaches, release is not gradual, it
@@ -1157,7 +1159,7 @@
   <!-- ============================================================ 16 -->
   <section id="quorum">
     <p class="eyebrow">Quorum sensing</p>
-    <h2>Notifications that wait for consensus</h2>
+    <h2 id="consensus">Notifications that wait for consensus</h2>
     <p class="note">
       Vibrio does not glow until the autoinducer it is releasing crosses a
       threshold, and then every cell lights at once. Batched alerts with
@@ -1199,7 +1201,7 @@
   <!-- ============================================================ 17 -->
   <section id="tumble">
     <p class="eyebrow">Run and tumble</p>
-    <h2>A search that visibly finds</h2>
+    <h2 id="search">A search that visibly finds</h2>
     <p class="note">
       E. coli cannot steer. It runs straight, tumbles to a random heading,
       and simply tumbles less while things are improving, and that bias
@@ -1240,7 +1242,7 @@
   </section>
 
   <section>
-    <h2>A poster that wires its own border</h2>
+    <h2 id="circuit-poster">A poster that wires its own border</h2>
     <p class="note">
       The circuit border on a celebration poster is normally a drawing, so it
       is the same on every poster and the words have to keep out of its way.
