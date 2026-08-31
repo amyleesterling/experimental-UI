@@ -75,6 +75,12 @@
     text-decoration: none;
     transition: translate .18s ease, box-shadow .18s ease;
   }
+  .expcard--new {
+    box-shadow: 0 22px 50px rgb(0 0 0 / .4),
+                inset 0 1px 0 rgb(var(--holo-line) / .1),
+                inset 0 0 0 1px rgb(167 139 250 / .34);
+  }
+  .expcard--new .eyebrow { color: rgb(167 139 250 / .95); }
   .expcard:hover,
   .expcard.holo-on,
   .expcard:focus-visible {
@@ -333,11 +339,20 @@
     <h2>The other pages</h2>
     <p class="note">
       This page shows the interaction set doing jobs. The models behind the
-      movement, the five components built from five papers, and the nine
+      movement, the five components built from five papers, and the eighteen
       borrowed models each have a page of their own with every control
-      exposed.
+      exposed, and every sketch on the models page has its own link.
     </p>
     <div class="expcards">
+      <a class="expcard expcard--new" href="components/models.html#circuit-poster">
+        <p class="eyebrow">Newest</p>
+        <strong>A poster that wires its own border</strong>
+        <p>A congratulations poster whose circuit border is routed rather than
+        drawn. It measures the words it is carrying, then Lee's maze router
+        fills the band around them, so no two posters come out alike. Add the
+        ribbon and the corner it lands in rewires around it.</p>
+        <span class="go">Open the poster</span>
+      </a>
       <a class="expcard" href="components/motion.html">
         <p class="eyebrow">Motion</p>
         <strong>Three models with the controls exposed</strong>
@@ -356,11 +371,11 @@
       </a>
       <a class="expcard" href="components/models.html">
         <p class="eyebrow">Models</p>
-        <strong>Nine models, worn as interface</strong>
-        <p>A team ring, a celebration, an empty state, a loader, grown
-        avatars, dendritic progress, a coverage map, batch actions that
-        flock home, and a counter that glides. Each powered by a named
-        model.</p>
+        <strong>Eighteen models, worn as interface</strong>
+        <p>A work history that packs itself, a celebration that never clumps,
+        grown avatars, a coverage map, a search that visibly finds, a poster
+        that wires its own border, and a dozen more. Each one powered by a
+        named model, each paired with the science it came from.</p>
         <span class="go">Open models</span>
       </a>
       <a class="expcard" href="components/applied.html">
