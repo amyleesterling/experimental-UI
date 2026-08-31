@@ -391,9 +391,7 @@
   .pcb-card {
     position: relative;
     width: 100%;
-    max-width: 30rem;
-    margin: 0 auto;
-    aspect-ratio: 5 / 4;
+    aspect-ratio: 2 / 1;
     border-radius: 14px;
     overflow: hidden;
     background:
@@ -403,7 +401,7 @@
   .pcb-card canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .pcb-inner {
     position: absolute;
-    inset: 21% 15%;
+    inset: 20% 27%;
     display: grid;
     gap: .4rem;
     align-content: center;
@@ -417,13 +415,13 @@
   }
   .pcb-title {
     margin: 0;
-    font-family: Georgia, serif; font-weight: 400; font-size: clamp(1.5rem, 5.4vw, 2.1rem);
+    font-family: Georgia, serif; font-weight: 400; font-size: clamp(1.6rem, 4.4vw, 2.6rem);
     line-height: 1.04; letter-spacing: .01em;
     color: rgb(var(--holo-ink) / .99);
     text-shadow: 0 0 26px rgb(167 139 250 / .35);
   }
   .pcb-body {
-    margin: 0; max-width: 22ch;
+    margin: 0; max-width: 28ch;
     font-size: .76rem; line-height: 1.45;
     color: rgb(var(--holo-ink) / .66);
   }
@@ -449,8 +447,8 @@
     from { opacity: 0; transform: translateY(6px) scale(.985); }
   }
   @media (max-width: 640px) {
-    .pcb-card { aspect-ratio: 1 / 1; }
-    .pcb-inner { inset: 20% 11%; }
+    .pcb-card { aspect-ratio: 4 / 5; }
+    .pcb-inner { inset: 26% 13%; }
     .pcb-body { font-size: .72rem; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -1247,13 +1245,16 @@
       The circuit border on a celebration poster is normally a drawing, so it
       is the same on every poster and the words have to keep out of its way.
       This one is not drawn, it is routed. The poster measures the words it is
-      carrying, marks them as an obstacle, and a maze router lays traces
-      from pad to pad through whatever band is left, three to a corner,
-      outermost ring first. Every trace already laid is an obstacle for the
-      next, which is why the later ones bend further out and why no two
-      posters come out alike, and a corner that runs out of room takes fewer,
-      which the count underneath reports rather than hides. Add the ribbon and
-      watch the corner it lands in rewire around it.
+      carrying, marks them as an obstacle, and a maze router fills the band
+      around them: a hundred and more short nets, a few of them run as
+      parallel bundles the way a bus is, component footprints dropped in as
+      outlines, and a handful of pads that go nowhere because a real board has
+      those too. The copper crowds the edge and thins going inward, so the
+      border reads as a border rather than as wallpaper behind the words.
+      Every trace already laid is an obstacle for the next, which is why no
+      two posters come out alike, and a net with nowhere to go is simply not
+      laid, which the count underneath reports rather than hides. Add the
+      ribbon and watch the corner it lands in rewire around it.
       Visual component only, nothing here submits.
     </p>
     <div class="panel">
@@ -4509,90 +4510,143 @@
     var grow = document.getElementById("pcb-grow");
     var extra = document.getElementById("pcb-extra");
     var read = document.getElementById("pcb-read");
-    var CELL = 7, PER_CORNER = 3, seed = 11, traces = [], t = 0;
+    var CELL = 7, seed = 11, traces = [], parts = [], lone = [], t = 0;
 
     function build() {
       var r = card.getBoundingClientRect();
       if (r.width < 40) return;
-      var cols = Math.max(16, Math.floor(r.width / CELL));
+      /* a finer pitch on a small board, or the same rule draws a handful of
+         traces on a phone and the border stops reading as one */
+      CELL = r.width < 460 ? 5 : 7;
+      var cols = Math.max(20, Math.floor(r.width / CELL));
       var rows = Math.max(16, Math.floor(r.height / CELL));
       var blocked = new Uint8Array(cols * rows);
 
-      /* the poster measures what it is carrying: the words in the middle are
-         the obstacle, and the border band is the only place left to route */
+      /* the poster measures the words it is carrying: they are the obstacle,
+         and the band around them is the only place left to route */
       card.querySelectorAll("[data-pcb-block]").forEach(function (el) {
         if (el.hidden || !el.offsetParent) return;
         var b = el.getBoundingClientRect();
-        var x0 = Math.floor((b.left - r.left) / CELL) - 1;
-        var x1 = Math.ceil((b.right - r.left) / CELL) + 1;
-        var y0 = Math.floor((b.top - r.top) / CELL) - 1;
-        var y1 = Math.ceil((b.bottom - r.top) / CELL) + 1;
+        var pad0 = 3;
+        var x0 = Math.floor((b.left - r.left) / CELL) - pad0;
+        var x1 = Math.ceil((b.right - r.left) / CELL) + pad0;
+        var y0 = Math.floor((b.top - r.top) / CELL) - pad0;
+        var y1 = Math.ceil((b.bottom - r.top) / CELL) + pad0;
         for (var y = Math.max(0, y0); y < Math.min(rows, y1); y++)
           for (var x = Math.max(0, x0); x < Math.min(cols, x1); x++)
             blocked[y * cols + x] = 1;
       });
-
-      /* the outer ring of cells is reserved, so a trace has to break out of
-         its pad into the band instead of running along the edge, which is
-         the one thing a board never does and which walls off every pad
-         behind it */
+      /* nothing sits on the very edge of the board */
       for (var x = 0; x < cols; x++) { blocked[x] = 1; blocked[(rows - 1) * cols + x] = 1; }
       for (var y = 0; y < rows; y++) { blocked[y * cols] = 1; blocked[y * cols + cols - 1] = 1; }
 
-      var rnd = rng(seed), pads = [], nets = [];
-      /* ring by ring rather than corner by corner: laying one corner out
-         completely spends the board on it and starves the corner that goes
-         last, and an ornament with three traces in one corner and one in
-         another reads as broken rather than routed */
-      for (var i = PER_CORNER - 1; i >= 0; i--) {     /* outermost ring first */
-        for (var k = 0; k < 4; k++) {
-          /* rotate which corner goes first on each ring, or the corner that
-             is always last is always the one that runs out of board */
-          var c = (i + k) % 4;
-          var cx = c & 1, cy = c >> 1;
-          var f = (i + 1) / (PER_CORNER + 1);
-          var dx = Math.round(cols * (0.09 + f * 0.30)) + Math.floor(rnd() * 3) - 1;
-          var dy = Math.round(rows * (0.09 + f * 0.30)) + Math.floor(rnd() * 3) - 1;
-          var px = cx ? cols - 2 - dx : 1 + dx;
-          var py = cy ? rows - 2 - dy : 1 + dy;
-          var srow = cy ? rows - 2 : 1, scol = cx ? cols - 2 : 1;
-          px = Math.max(2, Math.min(cols - 3, px));
-          py = Math.max(2, Math.min(rows - 3, py));
-          var src = srow * cols + px, dst = py * cols + scol;
-          pads.push(src, dst);
-          nets.push([src, dst]);
-        }
-      }
-      for (var k = 0; k < pads.length; k++) blocked[pads[k]] = 0;
+      var rnd = rng(seed);
+      var free = [];
+      for (var i = 0; i < blocked.length; i++) if (!blocked[i]) free.push(i);
+      parts = []; lone = []; traces = [];
+      if (free.length < 40) { if (read) read.textContent = "no room to route"; return; }
 
+      function occupied(x0, y0, w, h) {
+        for (var yy = y0 - 1; yy <= y0 + h; yy++)
+          for (var xx = x0 - 1; xx <= x0 + w; xx++) {
+            if (xx < 0 || yy < 0 || xx >= cols || yy >= rows) return true;
+            if (blocked[yy * cols + xx]) return true;
+          }
+        return false;
+      }
+      function fill(x0, y0, w, h) {
+        for (var yy = y0; yy < y0 + h; yy++)
+          for (var xx = x0; xx < x0 + w; xx++) blocked[yy * cols + xx] = 1;
+      }
+
+      /* a few component footprints, drawn as the outlines they are */
+      var wantParts = Math.max(2, Math.round(free.length / 1100));
+      for (var n = 0; n < wantParts * 12 && parts.length < wantParts; n++) {
+        var pw = 4 + Math.floor(rnd() * 4), ph = 3 + Math.floor(rnd() * 3);
+        var px = 2 + Math.floor(rnd() * (cols - 4 - pw));
+        var py = 2 + Math.floor(rnd() * (rows - 4 - ph));
+        if (occupied(px, py, pw, ph)) continue;
+        var dE = Math.min(px, py, cols - 1 - (px + pw), rows - 1 - (py + ph));
+        if (dE > Math.min(cols, rows) * 0.3) continue;
+        parts.push({ x: px, y: py, w: pw, h: ph });
+        fill(px, py, pw, ph);
+      }
+
+      /* Short nets, densely packed, some of them in parallel bundles. The
+         reference this is drawn from is not a few long sweeps, it is a field
+         of short interconnects with a pad at nearly every bend, which is what
+         a fanout region on a real board actually looks like. */
+      var DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];
       var laid = [];
-      for (var n = 0; n < nets.length; n++) {
-        /* clearance from the trace just laid can fall across a pad nothing has
-           used yet. Pads sit in the reserved ring where no trace runs, so
-           re-opening the ones still to come costs nothing. */
-        for (var k = n * 2; k < pads.length; k++) blocked[pads[k]] = 0;
-        var src = nets[n][0], dst = nets[n][1];
-        if (blocked[src] || blocked[dst]) continue;
-        var fl = leeFlood(blocked, cols, rows, src, dst);
-        if (!fl.met) continue;
-        var path = leeBacktrack(fl.dist, cols, rows, src, dst);
-        if (!path) continue;
-        var pts = mitre(cornersOf(path, cols), 2.2);
-        var m = measure(pts);
-        laid.push({ pts: pts, run: m.run, total: m.total, draw: 0,
-                    sig: -0.5 - laid.length * 0.22 });
-        for (var j = 0; j < path.length; j++) {
-          var qx0 = path[j] % cols, qy0 = (path[j] / cols) | 0;
-          for (var k2 = 0; k2 < 5; k2++) {
-            var qx = qx0 + (k2 < 4 ? DX[k2] : 0), qy = qy0 + (k2 < 4 ? DY[k2] : 0);
-            if (qx >= 0 && qy >= 0 && qx < cols && qy < rows) blocked[qy * cols + qx] = 1;
+      var want = Math.round(free.length / 24);
+      var tries = want * 12;
+      /* the copper crowds the edge and thins going in, so the border reads as
+         a border rather than as wallpaper behind the words */
+      var band = Math.max(6, Math.round(Math.min(cols, rows) * 0.30));
+      while (laid.length < want && tries-- > 0) {
+        var a = free[Math.floor(rnd() * free.length)];
+        if (blocked[a]) continue;
+        var ax = a % cols, ay = (a / cols) | 0;
+        var dEdge = Math.min(ax, ay, cols - 1 - ax, rows - 1 - ay);
+        if (rnd() > Math.pow(1 - Math.min(1, dEdge / band), 2.2)) continue;
+        var d = DIRS[Math.floor(rnd() * 4)];
+        var pd = [-d[1], d[0]];
+        var len = 4 + Math.floor(rnd() * 11);
+        var jog = Math.floor(rnd() * 7) - 3;
+        var bx = ax + d[0] * len + pd[0] * jog;
+        var by = ay + d[1] * len + pd[1] * jog;
+        /* a bundle of parallel nets now and then, the way a bus is routed */
+        var bundle = rnd() < 0.34 ? 2 + Math.floor(rnd() * 2) : 1;
+        for (var q = 0; q < bundle; q++) {
+          var ox = pd[0] * q * 2, oy = pd[1] * q * 2;
+          var sx2 = ax + ox, sy2 = ay + oy, tx2 = bx + ox, ty2 = by + oy;
+          if (sx2 < 1 || sy2 < 1 || sx2 >= cols - 1 || sy2 >= rows - 1) continue;
+          if (tx2 < 1 || ty2 < 1 || tx2 >= cols - 1 || ty2 >= rows - 1) continue;
+          var s = sy2 * cols + sx2, e = ty2 * cols + tx2;
+          if (blocked[s] || blocked[e]) continue;
+          var fl = leeFlood(blocked, cols, rows, s, e);
+          if (!fl.met) continue;
+          var path = leeBacktrack(fl.dist, cols, rows, s, e);
+          if (!path || path.length < 3) continue;
+          var pts = mitre(cornersOf(path, cols), 1.5);
+          var m = measure(pts);
+          laid.push({ pts: pts, run: m.run, total: m.total, draw: 0,
+                      sig: -(1 + rnd() * 22) });
+          for (var j = 0; j < path.length; j++) {
+            var qx0 = path[j] % cols, qy0 = (path[j] / cols) | 0;
+            for (var k = 0; k < 5; k++) {
+              var qx = qx0 + (k < 4 ? DIRS[k][0] : 0), qy = qy0 + (k < 4 ? DIRS[k][1] : 0);
+              if (qx >= 0 && qy >= 0 && qx < cols && qy < rows) blocked[qy * cols + qx] = 1;
+            }
           }
         }
       }
+
+      /* a handful of pads that go nowhere, because a real board has them */
+      for (var n2 = 0; n2 < 60 && lone.length < 8; n2++) {
+        var c = free[Math.floor(rnd() * free.length)];
+        if (blocked[c]) continue;
+        lone.push({ x: c % cols, y: (c / cols) | 0 });
+        blocked[c] = 1;
+      }
+
       traces = laid;
       t = 0;
-      if (read) read.textContent = laid.length + " traces routed around the words";
+      if (read) {
+        read.textContent = laid.length + " traces and " + parts.length +
+          " footprints routed around the words";
+      }
       if (reduced) traces.forEach(function (tr) { tr.draw = 1; });
+    }
+
+    function pad(x, y, lit) {
+      ctx.beginPath();
+      ctx.arc(x, y, lit ? 0.62 : 0.44, 0, TAU);
+      ctx.fillStyle = "rgb(9 8 18)";
+      ctx.fill();
+      ctx.lineWidth = 0.2;
+      ctx.strokeStyle = lit ? "rgba(232,224,255,.98)" : "rgba(160,140,228,.72)";
+      ctx.stroke();
     }
 
     function paint() {
@@ -4600,59 +4654,68 @@
       ctx.setTransform(dpr * CELL, 0, 0, dpr * CELL, 0, 0);
       ctx.clearRect(0, 0, cv.width, cv.height);
       ctx.lineJoin = "round"; ctx.lineCap = "round";
-      for (var i = 0; i < traces.length; i++) {
-        var tr = traces[i], upto = tr.draw * tr.total;
+
+      ctx.lineWidth = 0.26;
+      ctx.strokeStyle = "rgba(150,130,220,.5)";
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i];
+        ctx.strokeRect(p.x + 0.5, p.y + 0.5, p.w - 1, p.h - 1);
+      }
+
+      for (var i2 = 0; i2 < traces.length; i2++) {
+        var tr = traces[i2], upto = tr.draw * tr.total;
         if (upto <= 0) continue;
         ctx.beginPath();
         ctx.moveTo(tr.pts[0].x, tr.pts[0].y);
         for (var j = 1; j < tr.pts.length; j++) {
           if (tr.run[j] <= upto) ctx.lineTo(tr.pts[j].x, tr.pts[j].y);
-          else { var p = pointAt(tr.pts, tr.run, upto); ctx.lineTo(p.x, p.y); break; }
+          else { var pp = pointAt(tr.pts, tr.run, upto); ctx.lineTo(pp.x, pp.y); break; }
         }
-        ctx.strokeStyle = "rgba(150,130,220,.55)";
-        ctx.lineWidth = 0.34;
+        ctx.strokeStyle = "rgba(150,130,220,.52)";
+        ctx.lineWidth = 0.26;
         ctx.stroke();
-
         for (var j2 = 0; j2 < tr.pts.length; j2++) {
           if (tr.run[j2] > upto) break;
-          var lit = tr.sig >= 0 && Math.abs(tr.sig * tr.total - tr.run[j2]) < 1.8;
-          ctx.beginPath();
-          ctx.arc(tr.pts[j2].x, tr.pts[j2].y, lit ? 0.62 : 0.42, 0, TAU);
-          ctx.fillStyle = "rgb(7 6 14)";
-          ctx.fill();
-          ctx.lineWidth = 0.22;
-          ctx.strokeStyle = lit ? "rgba(226,218,255,.98)" : "rgba(150,130,220,.66)";
-          ctx.stroke();
+          pad(tr.pts[j2].x, tr.pts[j2].y,
+              tr.sig >= 0 && Math.abs(tr.sig * tr.total - tr.run[j2]) < 1.5);
         }
         if (tr.sig >= 0 && tr.sig <= 1 && tr.draw >= 1) {
           var s = pointAt(tr.pts, tr.run, tr.sig * tr.total);
-          var g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 1.6);
-          g.addColorStop(0, "rgba(232,224,255,.95)");
+          var g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 1.5);
+          g.addColorStop(0, "rgba(236,228,255,.95)");
           g.addColorStop(1, "rgba(167,139,250,0)");
           ctx.fillStyle = g;
-          ctx.beginPath(); ctx.arc(s.x, s.y, 1.6, 0, TAU); ctx.fill();
+          ctx.beginPath(); ctx.arc(s.x, s.y, 1.5, 0, TAU); ctx.fill();
         }
       }
+      for (var l = 0; l < lone.length; l++) pad(lone[l].x + 0.5, lone[l].y + 0.5, false);
     }
 
     function step(dt) {
       t += dt;
       for (var i = 0; i < traces.length; i++) {
         var tr = traces[i];
-        if (t > i * 0.11 && tr.draw < 1) tr.draw = Math.min(1, tr.draw + dt / 0.42);
+        if (t > i * 0.012 && tr.draw < 1) tr.draw = Math.min(1, tr.draw + dt / 0.34);
         if (tr.draw >= 1) {
-          tr.sig += dt / (3.1 + (i % 4) * 0.4);
-          if (tr.sig > 1.25) tr.sig = -0.3 - Math.random() * 0.9;
+          /* only a few carry a signal at any moment, or sixty of them at once
+             is noise rather than a board doing something */
+          tr.sig += dt / 1.7;
+          if (tr.sig > 1.3) tr.sig = -(1 + Math.random() * 22);
         }
       }
     }
 
+    var pending = 0;
     function relayout() { build(); paint(); }
+    function relayoutSoon() {
+      if (pending) cancelAnimationFrame(pending);
+      pending = requestAnimationFrame(function () { pending = 0; relayout(); });
+    }
 
     build();
     paint();
     if (!reduced) ambient(card, function (dt) { step(dt); paint(); });
-    new ResizeObserver(relayout).observe(card);
+    new ResizeObserver(relayoutSoon).observe(card);
 
     if (again) again.addEventListener("click", function () {
       seed = (seed * 1103515245 + 12345) % 2147483647;
