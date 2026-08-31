@@ -4512,7 +4512,7 @@
     var grow = document.getElementById("pcb-grow");
     var extra = document.getElementById("pcb-extra");
     var read = document.getElementById("pcb-read");
-    var CELL = 7, seed = 11, traces = [], parts = [], lone = [], t = 0;
+    var CELL = 7, seed = 11, traces = [], parts = [], lone = [], pins = [], t = 0;
 
     function build() {
       var r = card.getBoundingClientRect();
@@ -4545,7 +4545,7 @@
       var rnd = rng(seed);
       var free = [];
       for (var i = 0; i < blocked.length; i++) if (!blocked[i]) free.push(i);
-      parts = []; lone = []; traces = [];
+      parts = []; lone = []; traces = []; pins = [];
       if (free.length < 40) { if (read) read.textContent = "no room to route"; return; }
 
       function occupied(x0, y0, w, h) {
@@ -4564,7 +4564,7 @@
       /* a few component footprints, drawn as the outlines they are */
       var wantParts = Math.max(2, Math.round(free.length / 1100));
       for (var n = 0; n < wantParts * 12 && parts.length < wantParts; n++) {
-        var pw = 4 + Math.floor(rnd() * 4), ph = 3 + Math.floor(rnd() * 3);
+        var pw = 4 + Math.floor(rnd() * 4), ph = 4 + Math.floor(rnd() * 4);
         var px = 2 + Math.floor(rnd() * (cols - 4 - pw));
         var py = 2 + Math.floor(rnd() * (rows - 4 - ph));
         if (occupied(px, py, pw, ph)) continue;
@@ -4572,7 +4572,19 @@
         if (dE > Math.min(cols, rows) * 0.3) continue;
         parts.push({ x: px, y: py, w: pw, h: ph });
         fill(px, py, pw, ph);
+        /* a footprint exists so that pads sit on it and traces land there.
+           Leads down both long sides, every other row, the way an IC carries
+           them, so the part is something the router connects to rather than
+           only a wall it goes around. */
+        for (var yy = py; yy < py + ph; yy += 2) {
+          var lx = px - 1, rx = px + pw;
+          if (lx > 1 && !blocked[yy * cols + lx])
+            pins.push({ i: yy * cols + lx, x: lx, y: yy, d: [-1, 0] });
+          if (rx < cols - 2 && !blocked[yy * cols + rx])
+            pins.push({ i: yy * cols + rx, x: rx, y: yy, d: [1, 0] });
+        }
       }
+      var pinQueue = pins.slice();
 
       /* Short nets, densely packed, some of them in parallel bundles. The
          reference this is drawn from is not a few long sweeps, it is a field
@@ -4586,19 +4598,30 @@
          a border rather than as wallpaper behind the words */
       var band = Math.max(6, Math.round(Math.min(cols, rows) * 0.30));
       while (laid.length < want && tries-- > 0) {
-        var a = free[Math.floor(rnd() * free.length)];
+        /* a lead off a footprint when there is one going spare, otherwise a
+           start somewhere in the band */
+        var a, d, fromPin = false;
+        if (pinQueue.length && rnd() < 0.6) {
+          var pin = pinQueue.splice(Math.floor(rnd() * pinQueue.length), 1)[0];
+          a = pin.i; d = pin.d; fromPin = true;
+        } else {
+          a = free[Math.floor(rnd() * free.length)];
+          d = DIRS[Math.floor(rnd() * 4)];
+        }
         if (blocked[a]) continue;
         var ax = a % cols, ay = (a / cols) | 0;
-        var dEdge = Math.min(ax, ay, cols - 1 - ax, rows - 1 - ay);
-        if (rnd() > Math.pow(1 - Math.min(1, dEdge / band), 2.2)) continue;
-        var d = DIRS[Math.floor(rnd() * 4)];
+        if (!fromPin) {
+          var dEdge = Math.min(ax, ay, cols - 1 - ax, rows - 1 - ay);
+          if (rnd() > Math.pow(1 - Math.min(1, dEdge / band), 2.2)) continue;
+        }
         var pd = [-d[1], d[0]];
         var len = 4 + Math.floor(rnd() * 11);
         var jog = Math.floor(rnd() * 7) - 3;
         var bx = ax + d[0] * len + pd[0] * jog;
         var by = ay + d[1] * len + pd[1] * jog;
-        /* a bundle of parallel nets now and then, the way a bus is routed */
-        var bundle = rnd() < 0.34 ? 2 + Math.floor(rnd() * 2) : 1;
+        /* a bundle of parallel nets now and then, the way a bus is routed.
+           A lead off a footprint is one wire, so it never bundles. */
+        var bundle = (!fromPin && rnd() < 0.34) ? 2 + Math.floor(rnd() * 2) : 1;
         for (var q = 0; q < bundle; q++) {
           var ox = pd[0] * q * 2, oy = pd[1] * q * 2;
           var sx2 = ax + ox, sy2 = ay + oy, tx2 = bx + ox, ty2 = by + oy;
@@ -4613,7 +4636,7 @@
           var pts = mitre(cornersOf(path, cols), 1.5);
           var m = measure(pts);
           laid.push({ pts: pts, run: m.run, total: m.total, draw: 0,
-                      sig: -(1 + rnd() * 22) });
+                      sig: -(0.1 + rnd() * 11) });
           for (var j = 0; j < path.length; j++) {
             var qx0 = path[j] % cols, qy0 = (path[j] / cols) | 0;
             for (var k = 0; k < 5; k++) {
@@ -4691,18 +4714,20 @@
         }
       }
       for (var l = 0; l < lone.length; l++) pad(lone[l].x + 0.5, lone[l].y + 0.5, false);
+      /* a lead nothing was routed to is still a lead */
+      for (var pn = 0; pn < pins.length; pn++) pad(pins[pn].x, pins[pn].y, false);
     }
 
     function step(dt) {
       t += dt;
       for (var i = 0; i < traces.length; i++) {
         var tr = traces[i];
-        if (t > i * 0.012 && tr.draw < 1) tr.draw = Math.min(1, tr.draw + dt / 0.34);
+        if (t > i * 0.005 && tr.draw < 1) tr.draw = Math.min(1, tr.draw + dt / 0.26);
         if (tr.draw >= 1) {
           /* only a few carry a signal at any moment, or sixty of them at once
              is noise rather than a board doing something */
-          tr.sig += dt / 1.7;
-          if (tr.sig > 1.3) tr.sig = -(1 + Math.random() * 22);
+          tr.sig += dt / 1.5;
+          if (tr.sig > 1.3) tr.sig = -(0.1 + Math.random() * 11);
         }
       }
     }
