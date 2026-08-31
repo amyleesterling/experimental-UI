@@ -387,6 +387,76 @@
     background: rgb(var(--holo-beam) / .09);
     box-shadow: inset 0 0 0 1px rgb(var(--holo-beam) / .5);
   }
+  /* 18. a poster that wires its own border */
+  .pcb-card {
+    position: relative;
+    width: 100%;
+    max-width: 30rem;
+    margin: 0 auto;
+    aspect-ratio: 5 / 4;
+    border-radius: 14px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 50% 42%, rgb(24 18 44 / .96), rgb(6 6 14 / .99) 72%);
+    box-shadow: inset 0 0 0 1px rgb(167 139 250 / .18), 0 18px 50px rgb(0 0 0 / .45);
+  }
+  .pcb-card canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .pcb-inner {
+    position: absolute;
+    inset: 21% 15%;
+    display: grid;
+    gap: .4rem;
+    align-content: center;
+    justify-items: center;
+    text-align: center;
+  }
+  .pcb-kicker {
+    margin: 0;
+    font-size: .6rem; font-weight: 800; letter-spacing: .24em; text-transform: uppercase;
+    color: rgb(167 139 250 / .95);
+  }
+  .pcb-title {
+    margin: 0;
+    font-family: Georgia, serif; font-weight: 400; font-size: clamp(1.5rem, 5.4vw, 2.1rem);
+    line-height: 1.04; letter-spacing: .01em;
+    color: rgb(var(--holo-ink) / .99);
+    text-shadow: 0 0 26px rgb(167 139 250 / .35);
+  }
+  .pcb-body {
+    margin: 0; max-width: 22ch;
+    font-size: .76rem; line-height: 1.45;
+    color: rgb(var(--holo-ink) / .66);
+  }
+  .pcb-badge {
+    position: absolute;
+    right: 1.1rem; top: 1rem;
+    padding: .17rem .55rem;
+    border: 1px solid rgb(232 169 58 / .45);
+    border-radius: 999px;
+    background: rgb(232 169 58 / .1);
+    font-size: .58rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    color: rgb(232 169 58 / .95);
+  }
+  .pcb-badge[hidden] { display: none; }
+  /* the words arrive once, after the border has been laid for them */
+  .pcb-card.pcb-open .pcb-inner > * {
+    animation: pcb-land .5s cubic-bezier(.2, .8, .2, 1) both;
+  }
+  .pcb-card.pcb-open .pcb-title { animation-delay: .1s; }
+  .pcb-card.pcb-open .pcb-body { animation-delay: .18s; }
+  .pcb-card.pcb-open .pcb-badge { animation-delay: .26s; }
+  @keyframes pcb-land {
+    from { opacity: 0; transform: translateY(6px) scale(.985); }
+  }
+  @media (max-width: 640px) {
+    .pcb-card { aspect-ratio: 1 / 1; }
+    .pcb-inner { inset: 20% 11%; }
+    .pcb-body { font-size: .72rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pcb-card.pcb-open .pcb-inner > * { animation: none; }
+  }
+
 </style>
 </head>
 <body>
@@ -1166,6 +1236,62 @@
           <p class="cread" id="rtc-read"></p></div>
         <div class="mrow">
           <button class="mbtn" id="rtc-grad" type="button" data-holo-tap aria-pressed="true">Attractant on</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>A poster that wires its own border</h2>
+    <p class="note">
+      The circuit border on a celebration poster is normally a drawing, so it
+      is the same on every poster and the words have to keep out of its way.
+      This one is not drawn, it is routed. The poster measures the words it is
+      carrying, marks them as an obstacle, and a maze router lays traces
+      from pad to pad through whatever band is left, three to a corner,
+      outermost ring first. Every trace already laid is an obstacle for the
+      next, which is why the later ones bend further out and why no two
+      posters come out alike, and a corner that runs out of room takes fewer,
+      which the count underneath reports rather than hides. Add the ribbon and
+      watch the corner it lands in rewire around it.
+      Visual component only, nothing here submits.
+    </p>
+    <div class="panel">
+      <div class="pcb-card pcb-open" id="pcb-card" role="img"
+           aria-label="A congratulations poster whose circuit border is routed around its own words">
+        <canvas id="pcb-cv" aria-hidden="true"></canvas>
+        <div class="pcb-inner">
+          <p class="pcb-kicker" data-pcb-block>Daily quest</p>
+          <h3 class="pcb-title" data-pcb-block>Congratulations!</h3>
+          <p class="pcb-body" data-pcb-block>Three neurons proofread. The connectome thanks you.</p>
+        </div>
+        <span class="pcb-badge" id="pcb-extra" data-pcb-block hidden>with honours</span>
+      </div>
+      <div class="mrow">
+        <button class="mbtn" id="pcb-again" type="button" data-holo-tap>Route it again</button>
+        <button class="mbtn" id="pcb-grow" type="button" data-holo-tap aria-pressed="false">Add the ribbon</button>
+        <span class="quiet" id="pcb-read" role="status"></span>
+      </div>
+    </div>
+
+    <div class="concept">
+      <p class="concept-title">The concept, live: Lee's maze router, 1961</p>
+      <p class="note">
+        Lee's algorithm floods the board from the source one ring at a time,
+        numbering every cell with its distance, until the wave reaches the
+        target. Walk back down the numbers and you have a shortest path, and
+        because the flood is breadth first it cannot miss one that exists.
+        Watch the ring spread, then the path come back through it. Drag on the
+        grid to build a wall and the flood has to go around, which is the
+        whole reason the router exists. The diagonal corners are the mitre a
+        real board would use, cut into the ninety degree turns after the fact.
+      </p>
+      <div class="panel">
+        <div class="cstage"><canvas id="lee-cv" role="img" aria-label="A breadth first flood spreading across a grid around obstacles, then a shortest path traced back through it"></canvas>
+          <p class="cread" id="lee-read"></p></div>
+        <div class="mrow">
+          <button class="mbtn" id="lee-go" type="button" data-holo-tap>Flood again</button>
+          <button class="mbtn" id="lee-clear" type="button" data-holo-tap>Clear the walls</button>
         </div>
       </div>
     </div>
@@ -4268,6 +4394,403 @@
     } else {
       ambient(cv, function (dt) { step(dt); paint(); });
     }
+  })();
+
+  /* 18. a frame that routes itself, and Lee's router underneath it ---------
+     Lee, C. Y. (1961), An Algorithm for Path Connections and Its
+     Applications. Breadth first flood from the source, numbering every cell
+     with its distance, then a walk back down the numbers for a shortest
+     path. Schematic: the card and its traces are generated, nothing here is
+     a real board. */
+  var DX = [1, 0, -1, 0], DY = [0, 1, 0, -1];
+
+  /* the flood. Returns the distance field, and whether the target was met. */
+  function leeFlood(blocked, cols, rows, src, dst) {
+    var dist = new Int32Array(cols * rows).fill(-1);
+    var q = new Int32Array(cols * rows), head = 0, tail = 0;
+    dist[src] = 0; q[tail++] = src;
+    var met = false;
+    while (head < tail) {
+      var c = q[head++];
+      if (c === dst) { met = true; break; }
+      var x = c % cols, y = (c / cols) | 0, d = dist[c];
+      for (var k = 0; k < 4; k++) {
+        var nx = x + DX[k], ny = y + DY[k];
+        if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+        var n = ny * cols + nx;
+        if (dist[n] !== -1) continue;
+        if (blocked[n] && n !== dst) continue;
+        dist[n] = d + 1;
+        q[tail++] = n;
+      }
+    }
+    return { dist: dist, met: met, visited: tail };
+  }
+
+  /* the walk back, preferring to keep going the way it already is, which is
+     what turns a shortest path into long straight runs rather than a
+     staircase */
+  function leeBacktrack(dist, cols, rows, src, dst) {
+    if (dist[dst] < 0) return null;
+    var path = [dst], cur = dst, dir = -1, guard = cols * rows;
+    while (cur !== src && guard-- > 0) {
+      var x = cur % cols, y = (cur / cols) | 0;
+      var bestK = -1, bestN = -1, bestScore = -1;
+      for (var k = 0; k < 4; k++) {
+        var nx = x + DX[k], ny = y + DY[k];
+        if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+        var n = ny * cols + nx;
+        if (dist[n] !== dist[cur] - 1) continue;
+        var score = (k === dir) ? 2 : 1;
+        if (score > bestScore) { bestScore = score; bestK = k; bestN = n; }
+      }
+      if (bestN < 0) return null;
+      dir = bestK; cur = bestN; path.push(cur);
+    }
+    return path.reverse();
+  }
+
+  /* cells to corner points, then the mitre: every ninety degree turn gets cut
+     back into a forty five, the way a board house would */
+  function cornersOf(path, cols) {
+    var pts = [], prev = -1;
+    for (var i = 0; i < path.length; i++) {
+      var x = path[i] % cols, y = (path[i] / cols) | 0;
+      if (i > 0 && i < path.length - 1) {
+        var px = path[i - 1] % cols, py = (path[i - 1] / cols) | 0;
+        var nx = path[i + 1] % cols, ny = (path[i + 1] / cols) | 0;
+        var d1 = (x - px) + "," + (y - py), d2 = (nx - x) + "," + (ny - y);
+        if (d1 === d2) continue;
+      }
+      pts.push({ x: x, y: y });
+    }
+    return pts;
+  }
+  function mitre(pts, cut) {
+    if (pts.length < 3) return pts.slice();
+    var out = [pts[0]];
+    for (var i = 1; i < pts.length - 1; i++) {
+      var a = pts[i - 1], b = pts[i], c = pts[i + 1];
+      var la = Math.hypot(b.x - a.x, b.y - a.y), lc = Math.hypot(c.x - b.x, c.y - b.y);
+      var m = Math.min(cut, la / 2, lc / 2);
+      if (m < 0.5) { out.push(b); continue; }
+      out.push({ x: b.x + (a.x - b.x) / la * m, y: b.y + (a.y - b.y) / la * m });
+      out.push({ x: b.x + (c.x - b.x) / lc * m, y: b.y + (c.y - b.y) / lc * m });
+    }
+    out.push(pts[pts.length - 1]);
+    return out;
+  }
+  function measure(pts) {
+    var run = [0], total = 0;
+    for (var i = 1; i < pts.length; i++) {
+      total += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+      run.push(total);
+    }
+    return { run: run, total: total };
+  }
+  function pointAt(pts, run, d) {
+    if (d <= 0) return pts[0];
+    for (var i = 1; i < pts.length; i++) {
+      if (run[i] >= d) {
+        var t = (d - run[i - 1]) / Math.max(1e-6, run[i] - run[i - 1]);
+        return { x: pts[i - 1].x + (pts[i].x - pts[i - 1].x) * t,
+                 y: pts[i - 1].y + (pts[i].y - pts[i - 1].y) * t };
+      }
+    }
+    return pts[pts.length - 1];
+  }
+
+  /* ---- the poster ------------------------------------------------------ */
+  (function () {
+    var card = document.getElementById("pcb-card");
+    if (!card) return;
+    var cv = document.getElementById("pcb-cv"), ctx = cv.getContext("2d");
+    var again = document.getElementById("pcb-again");
+    var grow = document.getElementById("pcb-grow");
+    var extra = document.getElementById("pcb-extra");
+    var read = document.getElementById("pcb-read");
+    var CELL = 7, PER_CORNER = 3, seed = 11, traces = [], t = 0;
+
+    function build() {
+      var r = card.getBoundingClientRect();
+      if (r.width < 40) return;
+      var cols = Math.max(16, Math.floor(r.width / CELL));
+      var rows = Math.max(16, Math.floor(r.height / CELL));
+      var blocked = new Uint8Array(cols * rows);
+
+      /* the poster measures what it is carrying: the words in the middle are
+         the obstacle, and the border band is the only place left to route */
+      card.querySelectorAll("[data-pcb-block]").forEach(function (el) {
+        if (el.hidden || !el.offsetParent) return;
+        var b = el.getBoundingClientRect();
+        var x0 = Math.floor((b.left - r.left) / CELL) - 1;
+        var x1 = Math.ceil((b.right - r.left) / CELL) + 1;
+        var y0 = Math.floor((b.top - r.top) / CELL) - 1;
+        var y1 = Math.ceil((b.bottom - r.top) / CELL) + 1;
+        for (var y = Math.max(0, y0); y < Math.min(rows, y1); y++)
+          for (var x = Math.max(0, x0); x < Math.min(cols, x1); x++)
+            blocked[y * cols + x] = 1;
+      });
+
+      /* the outer ring of cells is reserved, so a trace has to break out of
+         its pad into the band instead of running along the edge, which is
+         the one thing a board never does and which walls off every pad
+         behind it */
+      for (var x = 0; x < cols; x++) { blocked[x] = 1; blocked[(rows - 1) * cols + x] = 1; }
+      for (var y = 0; y < rows; y++) { blocked[y * cols] = 1; blocked[y * cols + cols - 1] = 1; }
+
+      var rnd = rng(seed), pads = [], nets = [];
+      /* ring by ring rather than corner by corner: laying one corner out
+         completely spends the board on it and starves the corner that goes
+         last, and an ornament with three traces in one corner and one in
+         another reads as broken rather than routed */
+      for (var i = PER_CORNER - 1; i >= 0; i--) {     /* outermost ring first */
+        for (var k = 0; k < 4; k++) {
+          /* rotate which corner goes first on each ring, or the corner that
+             is always last is always the one that runs out of board */
+          var c = (i + k) % 4;
+          var cx = c & 1, cy = c >> 1;
+          var f = (i + 1) / (PER_CORNER + 1);
+          var dx = Math.round(cols * (0.09 + f * 0.30)) + Math.floor(rnd() * 3) - 1;
+          var dy = Math.round(rows * (0.09 + f * 0.30)) + Math.floor(rnd() * 3) - 1;
+          var px = cx ? cols - 2 - dx : 1 + dx;
+          var py = cy ? rows - 2 - dy : 1 + dy;
+          var srow = cy ? rows - 2 : 1, scol = cx ? cols - 2 : 1;
+          px = Math.max(2, Math.min(cols - 3, px));
+          py = Math.max(2, Math.min(rows - 3, py));
+          var src = srow * cols + px, dst = py * cols + scol;
+          pads.push(src, dst);
+          nets.push([src, dst]);
+        }
+      }
+      for (var k = 0; k < pads.length; k++) blocked[pads[k]] = 0;
+
+      var laid = [];
+      for (var n = 0; n < nets.length; n++) {
+        /* clearance from the trace just laid can fall across a pad nothing has
+           used yet. Pads sit in the reserved ring where no trace runs, so
+           re-opening the ones still to come costs nothing. */
+        for (var k = n * 2; k < pads.length; k++) blocked[pads[k]] = 0;
+        var src = nets[n][0], dst = nets[n][1];
+        if (blocked[src] || blocked[dst]) continue;
+        var fl = leeFlood(blocked, cols, rows, src, dst);
+        if (!fl.met) continue;
+        var path = leeBacktrack(fl.dist, cols, rows, src, dst);
+        if (!path) continue;
+        var pts = mitre(cornersOf(path, cols), 2.2);
+        var m = measure(pts);
+        laid.push({ pts: pts, run: m.run, total: m.total, draw: 0,
+                    sig: -0.5 - laid.length * 0.22 });
+        for (var j = 0; j < path.length; j++) {
+          var qx0 = path[j] % cols, qy0 = (path[j] / cols) | 0;
+          for (var k2 = 0; k2 < 5; k2++) {
+            var qx = qx0 + (k2 < 4 ? DX[k2] : 0), qy = qy0 + (k2 < 4 ? DY[k2] : 0);
+            if (qx >= 0 && qy >= 0 && qx < cols && qy < rows) blocked[qy * cols + qx] = 1;
+          }
+        }
+      }
+      traces = laid;
+      t = 0;
+      if (read) read.textContent = laid.length + " traces routed around the words";
+      if (reduced) traces.forEach(function (tr) { tr.draw = 1; });
+    }
+
+    function paint() {
+      var dpr = fit(cv);
+      ctx.setTransform(dpr * CELL, 0, 0, dpr * CELL, 0, 0);
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.lineJoin = "round"; ctx.lineCap = "round";
+      for (var i = 0; i < traces.length; i++) {
+        var tr = traces[i], upto = tr.draw * tr.total;
+        if (upto <= 0) continue;
+        ctx.beginPath();
+        ctx.moveTo(tr.pts[0].x, tr.pts[0].y);
+        for (var j = 1; j < tr.pts.length; j++) {
+          if (tr.run[j] <= upto) ctx.lineTo(tr.pts[j].x, tr.pts[j].y);
+          else { var p = pointAt(tr.pts, tr.run, upto); ctx.lineTo(p.x, p.y); break; }
+        }
+        ctx.strokeStyle = "rgba(150,130,220,.55)";
+        ctx.lineWidth = 0.34;
+        ctx.stroke();
+
+        for (var j2 = 0; j2 < tr.pts.length; j2++) {
+          if (tr.run[j2] > upto) break;
+          var lit = tr.sig >= 0 && Math.abs(tr.sig * tr.total - tr.run[j2]) < 1.8;
+          ctx.beginPath();
+          ctx.arc(tr.pts[j2].x, tr.pts[j2].y, lit ? 0.62 : 0.42, 0, TAU);
+          ctx.fillStyle = "rgb(7 6 14)";
+          ctx.fill();
+          ctx.lineWidth = 0.22;
+          ctx.strokeStyle = lit ? "rgba(226,218,255,.98)" : "rgba(150,130,220,.66)";
+          ctx.stroke();
+        }
+        if (tr.sig >= 0 && tr.sig <= 1 && tr.draw >= 1) {
+          var s = pointAt(tr.pts, tr.run, tr.sig * tr.total);
+          var g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 1.6);
+          g.addColorStop(0, "rgba(232,224,255,.95)");
+          g.addColorStop(1, "rgba(167,139,250,0)");
+          ctx.fillStyle = g;
+          ctx.beginPath(); ctx.arc(s.x, s.y, 1.6, 0, TAU); ctx.fill();
+        }
+      }
+    }
+
+    function step(dt) {
+      t += dt;
+      for (var i = 0; i < traces.length; i++) {
+        var tr = traces[i];
+        if (t > i * 0.11 && tr.draw < 1) tr.draw = Math.min(1, tr.draw + dt / 0.42);
+        if (tr.draw >= 1) {
+          tr.sig += dt / (3.1 + (i % 4) * 0.4);
+          if (tr.sig > 1.25) tr.sig = -0.3 - Math.random() * 0.9;
+        }
+      }
+    }
+
+    function relayout() { build(); paint(); }
+
+    build();
+    paint();
+    if (!reduced) ambient(card, function (dt) { step(dt); paint(); });
+    new ResizeObserver(relayout).observe(card);
+
+    if (again) again.addEventListener("click", function () {
+      seed = (seed * 1103515245 + 12345) % 2147483647;
+      card.classList.remove("pcb-open");
+      void card.offsetWidth;
+      card.classList.add("pcb-open");
+      relayout();
+    });
+    if (grow) grow.addEventListener("click", function () {
+      var on = grow.getAttribute("aria-pressed") === "true";
+      grow.setAttribute("aria-pressed", String(!on));
+      grow.textContent = on ? "Add the ribbon" : "Remove the ribbon";
+      extra.hidden = on;
+      requestAnimationFrame(function () { requestAnimationFrame(relayout); });
+    });
+  })();
+
+  /* ---- the concept: the flood itself ----------------------------------- */
+  (function () {
+    var cv = document.getElementById("lee-cv");
+    if (!cv) return;
+    var ctx = cv.getContext("2d");
+    var read = document.getElementById("lee-read");
+    var go = document.getElementById("lee-go");
+    var clear = document.getElementById("lee-clear");
+    var COLS = 46, ROWS = 30;
+    var blocked = new Uint8Array(COLS * ROWS);
+    var src = 4 * COLS + 3, dst = (ROWS - 5) * COLS + (COLS - 4);
+    var field = null, ring = 0, path = null, pathDraw = 0, cancel = null;
+
+    function walls() {
+      blocked.fill(0);
+      for (var y = 6; y < 22; y++) blocked[y * COLS + 16] = 1;
+      for (var y = 10; y < ROWS - 3; y++) blocked[y * COLS + 29] = 1;
+      blocked[src] = 0; blocked[dst] = 0;
+    }
+    function run() {
+      if (cancel) cancel();
+      field = leeFlood(blocked, COLS, ROWS, src, dst);
+      path = field.met ? leeBacktrack(field.dist, COLS, ROWS, src, dst) : null;
+      ring = 0; pathDraw = 0;
+      var maxD = field.dist[dst] >= 0 ? field.dist[dst] : 0;
+      if (reduced) { ring = maxD; pathDraw = 1; paint(); report(); return; }
+      cancel = oneshot(function (dt) {
+        if (ring < maxD) { ring += dt * 46; paint(); return true; }
+        ring = maxD;
+        if (pathDraw < 1) { pathDraw = Math.min(1, pathDraw + dt * 1.5); paint(); return true; }
+        return false;
+      }, function () { ring = maxD; pathDraw = 1; paint(); report(); }, 9000);
+      report();
+    }
+    function report() {
+      if (!read) return;
+      read.textContent = field && field.met
+        ? "flood reached the target in " + field.dist[dst] + " steps, " + field.visited + " cells visited"
+        : "no path, the target is walled off";
+    }
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      var S = Math.min(W / COLS, H / ROWS);
+      var ox = (W - S * COLS) / 2, oy = (H - S * ROWS) / 2;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      ctx.save();
+      ctx.translate(ox, oy);
+      for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) {
+        var i = y * COLS + x;
+        if (blocked[i]) {
+          ctx.fillStyle = "rgba(150,130,220,.22)";
+          ctx.fillRect(x * S + S * .12, y * S + S * .12, S * .76, S * .76);
+          continue;
+        }
+        var d = field ? field.dist[i] : -1;
+        if (d >= 0 && d <= ring) {
+          var a = 0.05 + 0.3 * (1 - d / Math.max(1, ring));
+          ctx.fillStyle = "rgba(167,139,250," + a.toFixed(3) + ")";
+          ctx.fillRect(x * S + S * .18, y * S + S * .18, S * .64, S * .64);
+        }
+      }
+      if (path && pathDraw > 0) {
+        var pts = mitre(cornersOf(path, COLS), 2);
+        var m = measure(pts), upto = pathDraw * m.total;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x * S + S / 2, pts[0].y * S + S / 2);
+        for (var j = 1; j < pts.length; j++) {
+          if (m.run[j] <= upto) ctx.lineTo(pts[j].x * S + S / 2, pts[j].y * S + S / 2);
+          else { var p = pointAt(pts, m.run, upto); ctx.lineTo(p.x * S + S / 2, p.y * S + S / 2); break; }
+        }
+        ctx.strokeStyle = "rgba(226,218,255,.95)";
+        ctx.lineWidth = Math.max(1.4, S * .22);
+        ctx.lineJoin = "round"; ctx.lineCap = "round";
+        ctx.stroke();
+      }
+      [[src, "rgba(126,224,176,.98)"], [dst, "rgba(232,169,58,.98)"]].forEach(function (pair) {
+        var x = pair[0] % COLS, y = (pair[0] / COLS) | 0;
+        ctx.beginPath();
+        ctx.arc(x * S + S / 2, y * S + S / 2, S * .34, 0, TAU);
+        ctx.fillStyle = pair[1];
+        ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    /* drag to build a wall, which is the only reason a router is interesting */
+    var painting = false;
+    function cellAt(ev) {
+      var r = cv.getBoundingClientRect();
+      var dpr = 1, W = r.width, H = r.height;
+      var S = Math.min(W / COLS, H / ROWS);
+      var ox = (W - S * COLS) / 2, oy = (H - S * ROWS) / 2;
+      var x = Math.floor((ev.clientX - r.left - ox) / S);
+      var y = Math.floor((ev.clientY - r.top - oy) / S);
+      if (x < 0 || y < 0 || x >= COLS || y >= ROWS) return -1;
+      return y * COLS + x;
+    }
+    cv.style.touchAction = "none";
+    cv.addEventListener("pointerdown", function (e) {
+      var i = cellAt(e);
+      if (i < 0 || i === src || i === dst) return;
+      painting = true; cv.setPointerCapture(e.pointerId);
+      blocked[i] = 1; run();
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (!painting) return;
+      var i = cellAt(e);
+      if (i < 0 || i === src || i === dst || blocked[i]) return;
+      blocked[i] = 1; run();
+    });
+    ["pointerup", "pointercancel"].forEach(function (t) {
+      cv.addEventListener(t, function () { painting = false; });
+    });
+
+    if (go) go.addEventListener("click", run);
+    if (clear) clear.addEventListener("click", function () { walls(); run(); });
+
+    walls();
+    run();
+    new ResizeObserver(paint).observe(cv);
   })();
 
 })();
