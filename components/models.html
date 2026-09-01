@@ -1263,11 +1263,13 @@
       <p class="note">
         A dish of cells doing only runs and tumbles. With the attractant on
         they pile up at the source without one of them ever turning toward
-        it. Take the gradient away and the same rule scatters them, which
-        is the honest control.
+        it. Move the pointer over the dish and you are carrying the
+        attractant: they follow you, and still none of them steers. Take the
+        gradient away and the same rule scatters them, which is the honest
+        control.
       </p>
       <div class="panel">
-        <div class="cstage"><canvas id="rtc-cv" role="img"></canvas>
+        <div class="cstage grabby"><canvas id="rtc-cv" role="img"></canvas>
           <p class="cread" id="rtc-read"></p></div>
         <div class="mrow">
           <button class="mbtn" id="rtc-grad" type="button" data-holo-tap aria-pressed="true">Attractant on</button>
@@ -4364,21 +4366,46 @@
     var read = document.getElementById("rtc-read");
     var gradBtn = document.getElementById("rtc-grad");
     var rand = rng(2200);
-    var SRC = [0.72, 0.5];
+    /* Where the attractant sits when nobody is holding it, where it is being
+       asked to go, and where it actually is. The third eases toward the
+       second: a source that teleports would swamp the only signal a cell
+       has, which is whether it is nearer than it was a moment ago. */
+    /* Both axes are measured in widths, not one in widths and one in
+       heights. On a wide dish a per axis normalisation makes a cell cross the
+       long way three times faster than the short way and squashes the pile
+       into an ellipse, when the whole point is that a cell has one speed and
+       no sense of direction. */
+    function aspect() { return cv.width ? cv.height / cv.width : 0.4; }
+    var REST_X = 0.72;
+    var aim = [REST_X, aspect() / 2];
+    var SRC = [aim[0], aim[1]];
+    var carried = false;
     var cells = [];
-    for (var i = 0; i < 26; i++) {
-      cells.push({ x: rand(), y: rand(), a: rand() * TAU, pd: 1 });
+    for (var i = 0; i < 40; i++) {
+      cells.push({ x: rand(), y: rand() * aspect(), a: rand() * TAU, pd: 1 });
     }
     function gradOn() { return gradBtn.getAttribute("aria-pressed") === "true"; }
+    function aimAt(ev) {
+      var r = cv.getBoundingClientRect();
+      if (!r.width) return;
+      aim[0] = clamp01((ev.clientX - r.left) / r.width);
+      aim[1] = Math.max(0, Math.min(aspect(), (ev.clientY - r.top) / r.width));
+    }
     function step(dt) {
       var g = gradOn();
+      var ar = aspect(), m = 0.02;
+      if (!carried) { aim[0] = REST_X; aim[1] = ar / 2; }
+      var k = Math.min(1, dt * 7);
+      SRC[0] += (aim[0] - SRC[0]) * k;
+      SRC[1] += (aim[1] - SRC[1]) * k;
       for (var i = 0; i < cells.length; i++) {
         var c = cells[i];
         c.x += Math.cos(c.a) * 0.09 * dt;
         c.y += Math.sin(c.a) * 0.09 * dt;
-        if (c.x < 0.02 || c.x > 0.98) c.a = Math.PI - c.a;
-        if (c.y < 0.04 || c.y > 0.96) c.a = -c.a;
-        c.x = clamp01(c.x); c.y = clamp01(c.y);
+        if (c.x < m || c.x > 1 - m) c.a = Math.PI - c.a;
+        if (c.y < m || c.y > ar - m) c.a = -c.a;
+        c.x = Math.max(m, Math.min(1 - m, c.x));
+        c.y = Math.max(m, Math.min(ar - m, c.y));
         var d = Math.hypot(c.x - SRC[0], c.y - SRC[1]);
         var improving = d < c.pd;
         c.pd = d;
@@ -4390,7 +4417,7 @@
       var dpr = fit(cv), W = cv.width, H = cv.height;
       ctx.clearRect(0, 0, W, H);
       if (gradOn()) {
-        var glow = ctx.createRadialGradient(SRC[0] * W, SRC[1] * H, 0, SRC[0] * W, SRC[1] * H, W * 0.3);
+        var glow = ctx.createRadialGradient(SRC[0] * W, SRC[1] * W, 0, SRC[0] * W, SRC[1] * W, W * 0.3);
         glow.addColorStop(0, "rgba(" + WARM + ",0.16)");
         glow.addColorStop(1, "rgba(" + WARM + ",0)");
         ctx.fillStyle = glow;
@@ -4400,15 +4427,20 @@
       for (var i = 0; i < cells.length; i++) {
         mean += cells[i].pd;
         ctx.save();
-        ctx.translate(cells[i].x * W, cells[i].y * H);
+        ctx.translate(cells[i].x * W, cells[i].y * W);
         ctx.rotate(cells[i].a);
+        /* a dart rather than a blob, because the whole claim is that a cell
+           never points at the source: you can only see that if you can see
+           where it is pointing */
         ctx.beginPath();
-        ctx.ellipse(0, 0, 3.6 * dpr, 1.8 * dpr, 0, 0, TAU);
-        ctx.fillStyle = "rgba(" + MINT + ",0.8)";
+        ctx.moveTo(5 * dpr, 0); ctx.lineTo(-3.4 * dpr, 2.5 * dpr); ctx.lineTo(-3.4 * dpr, -2.5 * dpr);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(" + MINT + ",0.82)";
         ctx.fill();
         ctx.restore();
       }
-      read.innerHTML = (gradOn() ? "attractant on" : "no gradient") +
+      read.innerHTML = (gradOn() ? (carried ? "you are the attractant" : "attractant on")
+                                 : "no gradient") +
         ", mean distance to source <b>" + (mean / cells.length).toFixed(2) + "</b>";
       cv.setAttribute("aria-label", read.textContent);
     }
@@ -4422,9 +4454,22 @@
       if (reduced) settleNow();
     });
     if (reduced) {
+      /* no chase to watch, so the source is placed by a tap and the dish is
+         run forward to where that rule puts it */
+      cv.addEventListener("pointerdown", function (ev) {
+        if (!gradOn()) return;
+        carried = true; aimAt(ev);
+        SRC[0] = aim[0]; SRC[1] = aim[1];
+        settleNow();
+      });
       settleNow();
       new ResizeObserver(paint).observe(cv);
     } else {
+      cv.addEventListener("pointermove", function (ev) {
+        if (!gradOn()) return;
+        carried = true; aimAt(ev);
+      });
+      cv.addEventListener("pointerleave", function () { carried = false; });
       ambient(cv, function (dt) { step(dt); paint(); });
     }
   })();
