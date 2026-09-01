@@ -6,6 +6,18 @@
 <title>experimental-UI models: nine models, worn as interface</title>
 
 <style>
+  /* Every stage is sized against the window rather than against the column,
+     so the demonstration and the controls that drive it land in one screen.
+     A stage that fills a wide column pushes its own controls and readouts
+     below the fold, and a demo you have to scroll to operate is a demo you
+     cannot see working. svh rather than vh so a phone's collapsing toolbar
+     does not resize the board mid interaction; the vh line above it is the
+     fallback for engines without svh. */
+  :root {
+    --demo-h: clamp(170px, 38vh, 420px);
+    --demo-h: clamp(170px, 38svh, 420px);
+  }
+
   .topnav {
     display: flex;
     align-items: baseline;
@@ -117,7 +129,7 @@
   .sun-stage {
     position: relative;
     width: 100%;
-    max-width: 27rem;
+    max-width: min(27rem, var(--demo-h));
     margin: 0 auto;
     aspect-ratio: 1;
     border-radius: 12px;
@@ -150,14 +162,14 @@
   .sun-chip b { color: rgb(var(--holo-ink) / .95); font-weight: 600; }
 
   /* 2. celebration */
-  .cele-stage { position: relative; display: grid; place-items: center; height: 230px; }
+  .cele-stage { position: relative; display: grid; place-items: center; height: min(230px, var(--demo-h)); }
   .cele-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .cele-copy { position: relative; z-index: 1; display: grid; justify-items: center; gap: .6rem; text-align: center; }
   .cele-copy strong { font-size: 1.05rem; font-weight: 500; }
 
   /* 3. empty state */
   .empty-stage {
-    position: relative; height: 250px; border-radius: 10px; overflow: hidden;
+    position: relative; height: min(250px, var(--demo-h)); border-radius: 10px; overflow: hidden;
     background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
     box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
   }
@@ -201,7 +213,7 @@
 
   /* 7. coverage */
   .cov-stage {
-    position: relative; height: 260px; border-radius: 10px; overflow: hidden;
+    position: relative; height: min(260px, var(--demo-h)); border-radius: 10px; overflow: hidden;
     box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
     cursor: crosshair; touch-action: none;
   }
@@ -219,7 +231,7 @@
   .cov-chip b { color: rgb(var(--holo-ink) / .92); font-weight: 600; }
 
   /* 8. collect */
-  .col-stage { position: relative; height: 250px; }
+  .col-stage { position: relative; height: min(250px, var(--demo-h)); }
   .col-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .col-target {
     position: absolute; right: .8rem; top: .8rem; z-index: 1;
@@ -286,8 +298,13 @@
     background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
     box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
     aspect-ratio: 16 / 9;
+    width: min(100%, calc(var(--demo-h) * 16 / 9));
+    margin-inline: auto;
   }
-  .cstage.tall { aspect-ratio: 4 / 3; }
+  .cstage.tall {
+    aspect-ratio: 4 / 3;
+    width: min(100%, calc(var(--demo-h) * 4 / 3));
+  }
   .cstage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .cstage.grabby { cursor: crosshair; touch-action: none; }
   .cread {
@@ -317,6 +334,8 @@
     background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
     box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
     aspect-ratio: 16 / 7;
+    width: min(100%, calc(var(--demo-h) * 16 / 7));
+    margin-inline: auto;
   }
   .mstage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .mp-jobs { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
@@ -388,9 +407,18 @@
     box-shadow: inset 0 0 0 1px rgb(var(--holo-beam) / .5);
   }
   /* 18. a poster that wires its own border */
+  /* The poster is the one stage that wants the whole column, because the
+     border only reads as a border when there is enough copper to crowd the
+     edge with. It gets a larger share of the window than the other stages
+     rather than the shared budget, sized so the card and the two buttons
+     under it still land together, and it reaches full width on a tall
+     window. */
   .pcb-card {
     position: relative;
-    width: 100%;
+    --poster-h: clamp(200px, 58vh, 505px);
+    --poster-h: clamp(200px, 58svh, 505px);
+    width: min(100%, calc(var(--poster-h) * 2));
+    margin-inline: auto;
     aspect-ratio: 2 / 1;
     border-radius: 14px;
     overflow: hidden;
@@ -447,7 +475,10 @@
     from { opacity: 0; transform: translateY(6px) scale(.985); }
   }
   @media (max-width: 640px) {
-    .pcb-card { aspect-ratio: 4 / 5; }
+    .pcb-card {
+      aspect-ratio: 6 / 5;
+      width: min(100%, calc(var(--poster-h) * 6 / 5));
+    }
     .pcb-inner { inset: 26% 13%; }
     .pcb-body { font-size: .72rem; }
   }
@@ -1244,20 +1275,15 @@
   <section>
     <h2 id="circuit-poster">A poster that wires its own border</h2>
     <p class="note">
-      The circuit border on a celebration poster is normally a drawing, so it
-      is the same on every poster and the words have to keep out of its way.
-      This one is not drawn, it is routed. The poster measures the words it is
-      carrying, marks them as an obstacle, and a maze router fills the band
-      around them: a hundred and more short nets, a few of them run as
-      parallel bundles the way a bus is, component footprints dropped in as
-      outlines, and a handful of pads that go nowhere because a real board has
-      those too. The copper crowds the edge and thins going inward, so the
-      border reads as a border rather than as wallpaper behind the words.
-      Every trace already laid is an obstacle for the next, which is why no
-      two posters come out alike, and a net with nowhere to go is simply not
-      laid, which the count underneath reports rather than hides. Add the
-      ribbon and watch the corner it lands in rewire around it.
-      Visual component only, nothing here submits.
+      The circuit border on a celebration poster is normally a drawing, the
+      same on every poster. This one is routed. The poster measures its own
+      words, marks them as an obstacle, and a maze router fills the band
+      around them, crowding the edge and thinning inward so it reads as a
+      border rather than as wallpaper. Every trace laid is an obstacle for the
+      next, so no two posters come out alike, and a net with nowhere to go is
+      not laid, which the count underneath reports. Add the badge in the corner
+      and watch that corner rewire around it. Visual component only, nothing
+      here submits.
     </p>
     <div class="panel">
       <div class="pcb-card pcb-open" id="pcb-card" role="img"
@@ -1272,7 +1298,7 @@
       </div>
       <div class="mrow">
         <button class="mbtn" id="pcb-again" type="button" data-holo-tap>Route it again</button>
-        <button class="mbtn" id="pcb-grow" type="button" data-holo-tap aria-pressed="false">Add the ribbon</button>
+        <button class="mbtn" id="pcb-grow" type="button" data-holo-tap aria-pressed="false">Add the badge</button>
         <span class="quiet" id="pcb-read" role="status"></span>
       </div>
     </div>
@@ -4483,6 +4509,29 @@
     out.push(pts[pts.length - 1]);
     return out;
   }
+  /* The same mitre, but it also reports which points belong to which
+     original corner. A pad marks a place something connects: a lead, a via,
+     the end of a run. The two points a mitre leaves behind are one corner,
+     not two, so a caller that puts a pad on a corner can put one there. */
+  function mitreMarked(pts, cut) {
+    var out = [pts[0]], corners = [[0, 0]], i;
+    if (pts.length < 3) {
+      for (i = 1; i < pts.length; i++) { out.push(pts[i]); corners.push([i, i]); }
+      return { pts: out, corners: corners };
+    }
+    for (i = 1; i < pts.length - 1; i++) {
+      var a = pts[i - 1], b = pts[i], c = pts[i + 1];
+      var la = Math.hypot(b.x - a.x, b.y - a.y), lc = Math.hypot(c.x - b.x, c.y - b.y);
+      var m = Math.min(cut, la / 2, lc / 2);
+      if (m < 0.5) { out.push(b); corners.push([out.length - 1, out.length - 1]); continue; }
+      out.push({ x: b.x + (a.x - b.x) / la * m, y: b.y + (a.y - b.y) / la * m });
+      out.push({ x: b.x + (c.x - b.x) / lc * m, y: b.y + (c.y - b.y) / lc * m });
+      corners.push([out.length - 2, out.length - 1]);
+    }
+    out.push(pts[pts.length - 1]);
+    corners.push([out.length - 1, out.length - 1]);
+    return { pts: out, corners: corners };
+  }
   function measure(pts) {
     var run = [0], total = 0;
     for (var i = 1; i < pts.length; i++) {
@@ -4561,6 +4610,23 @@
           for (var xx = x0; xx < x0 + w; xx++) blocked[yy * cols + xx] = 1;
       }
 
+      /* No two pads may overlap: on a real board pad to pad clearance is a
+         rule the fabricator checks, and copper that close is a short waiting
+         to happen. A pad claims its cell and the eight around it, so the
+         closest two pads can sit is two cells, which is wider than a pad. */
+      var padGrid = new Uint8Array(cols * rows);
+      function padFree(x, y) {
+        x = Math.round(x); y = Math.round(y);
+        if (x < 0 || y < 0 || x >= cols || y >= rows) return false;
+        return !padGrid[y * cols + x];
+      }
+      function padClaim(x, y) {
+        x = Math.round(x); y = Math.round(y);
+        for (var yy = y - 1; yy <= y + 1; yy++)
+          for (var xx = x - 1; xx <= x + 1; xx++)
+            if (xx >= 0 && yy >= 0 && xx < cols && yy < rows) padGrid[yy * cols + xx] = 1;
+      }
+
       /* a few component footprints, drawn as the outlines they are */
       var wantParts = Math.max(2, Math.round(free.length / 1100));
       for (var n = 0; n < wantParts * 12 && parts.length < wantParts; n++) {
@@ -4578,10 +4644,14 @@
            only a wall it goes around. */
         for (var yy = py; yy < py + ph; yy += 2) {
           var lx = px - 1, rx = px + pw;
-          if (lx > 1 && !blocked[yy * cols + lx])
+          if (lx > 1 && !blocked[yy * cols + lx] && padFree(lx, yy)) {
+            padClaim(lx, yy);
             pins.push({ i: yy * cols + lx, x: lx, y: yy, d: [-1, 0] });
-          if (rx < cols - 2 && !blocked[yy * cols + rx])
+          }
+          if (rx < cols - 2 && !blocked[yy * cols + rx] && padFree(rx, yy)) {
+            padClaim(rx, yy);
             pins.push({ i: yy * cols + rx, x: rx, y: yy, d: [1, 0] });
+          }
         }
       }
       var pinQueue = pins.slice();
@@ -4633,9 +4703,22 @@
           if (!fl.met) continue;
           var path = leeBacktrack(fl.dist, cols, rows, s, e);
           if (!path || path.length < 3) continue;
-          var pts = mitre(cornersOf(path, cols), 1.5);
+          var mk = mitreMarked(cornersOf(path, cols), 1.5);
+          var pts = mk.pts;
           var m = measure(pts);
-          laid.push({ pts: pts, run: m.run, total: m.total, draw: 0,
+          /* one pad per corner, at the corner, and only where the lattice has
+             room for it. A bend that has to give its pad up is still a bend:
+             the copper turns, there is simply no via on it. */
+          var padsOn = [];
+          for (var c2 = 0; c2 < mk.corners.length; c2++) {
+            var pr = mk.corners[c2];
+            var cxp = (pts[pr[0]].x + pts[pr[1]].x) / 2;
+            var cyp = (pts[pr[0]].y + pts[pr[1]].y) / 2;
+            if (!padFree(cxp, cyp)) continue;
+            padClaim(cxp, cyp);
+            padsOn.push({ x: cxp, y: cyp, at: (m.run[pr[0]] + m.run[pr[1]]) / 2 });
+          }
+          laid.push({ pts: pts, pads: padsOn, run: m.run, total: m.total, draw: 0,
                       sig: -(0.1 + rnd() * 11) });
           for (var j = 0; j < path.length; j++) {
             var qx0 = path[j] % cols, qy0 = (path[j] / cols) | 0;
@@ -4648,10 +4731,13 @@
       }
 
       /* a handful of pads that go nowhere, because a real board has them */
-      for (var n2 = 0; n2 < 60 && lone.length < 8; n2++) {
+      for (var n2 = 0; n2 < 200 && lone.length < 8; n2++) {
         var c = free[Math.floor(rnd() * free.length)];
         if (blocked[c]) continue;
-        lone.push({ x: c % cols, y: (c / cols) | 0 });
+        var lx2 = c % cols, ly2 = (c / cols) | 0;
+        if (!padFree(lx2, ly2)) continue;
+        padClaim(lx2, ly2);
+        lone.push({ x: lx2, y: ly2 });
         blocked[c] = 1;
       }
 
@@ -4699,10 +4785,10 @@
         ctx.strokeStyle = "rgba(150,130,220,.52)";
         ctx.lineWidth = 0.26;
         ctx.stroke();
-        for (var j2 = 0; j2 < tr.pts.length; j2++) {
-          if (tr.run[j2] > upto) break;
-          pad(tr.pts[j2].x, tr.pts[j2].y,
-              tr.sig >= 0 && Math.abs(tr.sig * tr.total - tr.run[j2]) < 1.5);
+        for (var j2 = 0; j2 < tr.pads.length; j2++) {
+          var pdd = tr.pads[j2];
+          if (pdd.at > upto) break;
+          pad(pdd.x, pdd.y, tr.sig >= 0 && Math.abs(tr.sig * tr.total - pdd.at) < 1);
         }
         if (tr.sig >= 0 && tr.sig <= 1 && tr.draw >= 1) {
           var s = pointAt(tr.pts, tr.run, tr.sig * tr.total);
@@ -4713,7 +4799,7 @@
           ctx.beginPath(); ctx.arc(s.x, s.y, 1.5, 0, TAU); ctx.fill();
         }
       }
-      for (var l = 0; l < lone.length; l++) pad(lone[l].x + 0.5, lone[l].y + 0.5, false);
+      for (var l = 0; l < lone.length; l++) pad(lone[l].x, lone[l].y, false);
       /* a lead nothing was routed to is still a lead */
       for (var pn = 0; pn < pins.length; pn++) pad(pins[pn].x, pins[pn].y, false);
     }
@@ -4754,7 +4840,7 @@
     if (grow) grow.addEventListener("click", function () {
       var on = grow.getAttribute("aria-pressed") === "true";
       grow.setAttribute("aria-pressed", String(!on));
-      grow.textContent = on ? "Add the ribbon" : "Remove the ribbon";
+      grow.textContent = on ? "Add the badge" : "Remove the badge";
       extra.hidden = on;
       requestAnimationFrame(function () { requestAnimationFrame(relayout); });
     });
