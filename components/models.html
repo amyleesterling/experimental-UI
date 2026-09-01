@@ -17,6 +17,15 @@
     --demo-h: clamp(170px, 38vh, 420px);
     --demo-h: clamp(170px, 38svh, 420px);
   }
+  /* a phone spends more of its window on the panel's own chrome, because the
+     controls that sit in a row on a desktop stack into columns, so the stage
+     takes a smaller share of it */
+  @media (max-width: 640px) {
+    :root {
+      --demo-h: clamp(150px, 30vh, 300px);
+      --demo-h: clamp(150px, 30svh, 300px);
+    }
+  }
 
   .topnav {
     display: flex;
@@ -130,7 +139,7 @@
     position: relative;
     width: 100%;
     max-width: min(27rem, var(--demo-h));
-    margin: 0 auto;
+    margin: 0 auto 0 0;
     aspect-ratio: 1;
     border-radius: 12px;
     overflow: hidden;
@@ -297,14 +306,10 @@
     overflow: hidden;
     background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
     box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
-    aspect-ratio: 16 / 9;
-    width: min(100%, calc(var(--demo-h) * 16 / 9));
-    margin-inline: auto;
+    width: 100%;
+    height: var(--demo-h);
   }
-  .cstage.tall {
-    aspect-ratio: 4 / 3;
-    width: min(100%, calc(var(--demo-h) * 4 / 3));
-  }
+  .cstage.tall { height: calc(var(--demo-h) * 1.16); }
   .cstage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .cstage.grabby { cursor: crosshair; touch-action: none; }
   .cread {
@@ -333,9 +338,8 @@
     overflow: hidden;
     background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
     box-shadow: inset 0 0 0 1px rgb(var(--holo-line) / .1);
-    aspect-ratio: 16 / 7;
-    width: min(100%, calc(var(--demo-h) * 16 / 7));
-    margin-inline: auto;
+    width: 100%;
+    height: calc(var(--demo-h) * 0.86);
   }
   .mstage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .mp-jobs { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
@@ -4566,9 +4570,11 @@
     function build() {
       var r = card.getBoundingClientRect();
       if (r.width < 40) return;
-      /* a finer pitch on a small board, or the same rule draws a handful of
-         traces on a phone and the border stops reading as one */
-      CELL = r.width < 460 ? 5 : 7;
+      /* The pitch follows the card rather than the card following the pitch.
+         A fixed pitch means a shorter window gets a smaller grid and a
+         thinner border, which is backwards: the border should read the same
+         at every size, so the grid stays the same and the cells get finer. */
+      CELL = Math.max(4, Math.min(7, r.width / 144));
       var cols = Math.max(20, Math.floor(r.width / CELL));
       var rows = Math.max(16, Math.floor(r.height / CELL));
       var blocked = new Uint8Array(cols * rows);
@@ -4614,17 +4620,23 @@
          rule the fabricator checks, and copper that close is a short waiting
          to happen. A pad claims its cell and the eight around it, so the
          closest two pads can sit is two cells, which is wider than a pad. */
-      var padGrid = new Uint8Array(cols * rows);
+      var MINPAD = 1.7;                       /* a lit pad is 1.48 across */
+      var padAt = new Map();
       function padFree(x, y) {
-        x = Math.round(x); y = Math.round(y);
         if (x < 0 || y < 0 || x >= cols || y >= rows) return false;
-        return !padGrid[y * cols + x];
+        var gx = Math.round(x), gy = Math.round(y);
+        for (var dy = -2; dy <= 2; dy++) for (var dx = -2; dx <= 2; dx++) {
+          var arr = padAt.get((gx + dx) + "," + (gy + dy));
+          if (!arr) continue;
+          for (var i = 0; i < arr.length; i++)
+            if (Math.hypot(x - arr[i][0], y - arr[i][1]) < MINPAD) return false;
+        }
+        return true;
       }
       function padClaim(x, y) {
-        x = Math.round(x); y = Math.round(y);
-        for (var yy = y - 1; yy <= y + 1; yy++)
-          for (var xx = x - 1; xx <= x + 1; xx++)
-            if (xx >= 0 && yy >= 0 && xx < cols && yy < rows) padGrid[yy * cols + xx] = 1;
+        var k = Math.round(x) + "," + Math.round(y);
+        if (!padAt.has(k)) padAt.set(k, []);
+        padAt.get(k).push([x, y]);
       }
 
       /* a few component footprints, drawn as the outlines they are */
@@ -4662,7 +4674,7 @@
          a fanout region on a real board actually looks like. */
       var DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];
       var laid = [];
-      var want = Math.round(free.length / 24);
+      var want = Math.round(free.length / 21);
       var tries = want * 12;
       /* the copper crowds the edge and thins going in, so the border reads as
          a border rather than as wallpaper behind the words */
@@ -4752,7 +4764,7 @@
 
     function pad(x, y, lit) {
       ctx.beginPath();
-      ctx.arc(x, y, lit ? 0.62 : 0.44, 0, TAU);
+      ctx.arc(x, y, lit ? 0.74 : 0.56, 0, TAU);
       ctx.fillStyle = "rgb(9 8 18)";
       ctx.fill();
       ctx.lineWidth = 0.2;
