@@ -4400,8 +4400,8 @@
       SRC[1] += (aim[1] - SRC[1]) * k;
       for (var i = 0; i < cells.length; i++) {
         var c = cells[i];
-        c.x += Math.cos(c.a) * 0.09 * dt;
-        c.y += Math.sin(c.a) * 0.09 * dt;
+        c.x += Math.cos(c.a) * 0.24 * dt;
+        c.y += Math.sin(c.a) * 0.24 * dt;
         if (c.x < m || c.x > 1 - m) c.a = Math.PI - c.a;
         if (c.y < m || c.y > ar - m) c.a = -c.a;
         c.x = Math.max(m, Math.min(1 - m, c.x));
@@ -4409,7 +4409,14 @@
         var d = Math.hypot(c.x - SRC[0], c.y - SRC[1]);
         var improving = d < c.pd;
         c.pd = d;
-        var rate = g ? (improving ? 0.55 : 4.5) : 2.2;
+        /* The drift of a run and tumble population goes as the run speed
+           squared over the tumble rate, so the pace of the whole thing lives
+           in these three numbers. At the pace it had, carrying the source
+           moved the pile three percent of a dish in the first two seconds:
+           correct, and indistinguishable from a dish that ignores you. Faster
+           runs and a sharper contrast between improving and not, which is the
+           same rule turned up, not a different one. */
+        var rate = g ? (improving ? 0.25 : 8) : 2.8;
         if (rand() < rate * dt) c.a = rand() * TAU;
       }
     }
@@ -4453,23 +4460,43 @@
       gradBtn.textContent = gradOn() ? "Attractant on" : "Gradient off";
       if (reduced) settleNow();
     });
+    /* The pointer carries the source under either motion preference. What
+       changes is what you are shown: the chase itself, or the dish already
+       arrived where the rule puts it. Reduced motion asking for no animation
+       is not the same as asking for no interaction. */
+    function grab(ev) {
+      if (!gradOn()) return;
+      carried = true;
+      aimAt(ev);
+    }
+    cv.addEventListener("pointerdown", grab);
+    cv.addEventListener("pointermove", grab);
+    cv.addEventListener("pointerleave", function () {
+      carried = false;
+      aim[0] = REST_X; aim[1] = aspect() / 2;
+    });
+
     if (reduced) {
-      /* no chase to watch, so the source is placed by a tap and the dish is
-         run forward to where that rule puts it */
-      cv.addEventListener("pointerdown", function (ev) {
-        if (!gradOn()) return;
-        carried = true; aimAt(ev);
-        SRC[0] = aim[0]; SRC[1] = aim[1];
-        settleNow();
-      });
+      /* re-settled at most once a frame, and only once the source has
+         actually moved, so a drag across the dish is a handful of settles
+         rather than one per pointer event */
+      var queued = 0, lastX = -9, lastY = -9;
+      function resettleSoon() {
+        if (queued) return;
+        queued = requestAnimationFrame(function () {
+          queued = 0;
+          if (Math.abs(aim[0] - lastX) < 0.01 && Math.abs(aim[1] - lastY) < 0.01) return;
+          lastX = aim[0]; lastY = aim[1];
+          SRC[0] = aim[0]; SRC[1] = aim[1];
+          settleNow();
+        });
+      }
+      cv.addEventListener("pointerdown", resettleSoon);
+      cv.addEventListener("pointermove", resettleSoon);
+      cv.addEventListener("pointerleave", resettleSoon);
       settleNow();
       new ResizeObserver(paint).observe(cv);
     } else {
-      cv.addEventListener("pointermove", function (ev) {
-        if (!gradOn()) return;
-        carried = true; aimAt(ev);
-      });
-      cv.addEventListener("pointerleave", function () { carried = false; });
       ambient(cv, function (dt) { step(dt); paint(); });
     }
   })();
