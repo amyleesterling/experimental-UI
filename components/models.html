@@ -419,8 +419,8 @@
      window. */
   .pcb-card {
     position: relative;
-    --poster-h: clamp(200px, 58vh, 505px);
-    --poster-h: clamp(200px, 58svh, 505px);
+    --poster-h: clamp(200px, 56vh, 505px);
+    --poster-h: clamp(200px, 56svh, 505px);
     width: min(100%, calc(var(--poster-h) * 2));
     margin-inline: auto;
     aspect-ratio: 2 / 1;
@@ -459,13 +459,20 @@
   }
   .pcb-badge {
     position: absolute;
-    right: 1.1rem; top: 1rem;
-    padding: .17rem .55rem;
-    border: 1px solid rgb(232 169 58 / .45);
-    border-radius: 999px;
-    background: rgb(232 169 58 / .1);
-    font-size: .58rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
-    color: rgb(232 169 58 / .95);
+    left: 50%;
+    top: .55rem;
+    transform: translateX(-50%);
+    width: min(24%, 168px);
+    line-height: 0;
+  }
+  .pcb-badge img {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* The render is a bright cell on true black, so screen drops the black
+       to nothing against the poster's own ground and leaves the cell. The
+       asset is used as it was rendered, with no recut and no matte. */
+    mix-blend-mode: screen;
   }
   .pcb-badge[hidden] { display: none; }
   /* the words arrive once, after the border has been laid for them */
@@ -1287,8 +1294,8 @@
       around them, crowding the edge and thinning inward so it reads as a
       border rather than as wallpaper. Every trace laid is an obstacle for the
       next, so no two posters come out alike, and a net with nowhere to go is
-      not laid, which the count underneath reports. Add the badge in the corner
-      and watch that corner rewire around it. Visual component only, nothing
+      not laid, which the count underneath reports. Add the icon, a real render
+      of the CT1 pair, and watch the top of the border rewire around it. Visual component only, nothing
       here submits.
     </p>
     <div class="panel">
@@ -1300,11 +1307,15 @@
           <h3 class="pcb-title" data-pcb-block>Congratulations!</h3>
           <p class="pcb-body" data-pcb-block>Three neurons proofread.<br>The connectome thanks you.</p>
         </div>
-        <span class="pcb-badge" id="pcb-extra" data-pcb-block hidden>with honours</span>
+        <span class="pcb-badge" id="pcb-extra" data-pcb-block hidden>
+          <img src="../media/flywire-ct1-pair.webp" width="560" height="373"
+               alt="With honours, badged with a render of the CT1 neuron pair,
+                    one cell per optic lobe">
+        </span>
       </div>
       <div class="mrow">
         <button class="mbtn" id="pcb-again" type="button" data-holo-tap>Route it again</button>
-        <button class="mbtn" id="pcb-grow" type="button" data-holo-tap aria-pressed="false">Add the badge</button>
+        <button class="mbtn" id="pcb-grow" type="button" data-holo-tap aria-pressed="false">Add icon</button>
         <span class="quiet" id="pcb-read" role="status"></span>
       </div>
     </div>
@@ -4924,7 +4935,7 @@
     if (grow) grow.addEventListener("click", function () {
       var on = grow.getAttribute("aria-pressed") === "true";
       grow.setAttribute("aria-pressed", String(!on));
-      grow.textContent = on ? "Add the badge" : "Remove the badge";
+      grow.textContent = on ? "Add icon" : "Remove icon";
       extra.hidden = on;
       requestAnimationFrame(function () { requestAnimationFrame(relayout); });
     });
