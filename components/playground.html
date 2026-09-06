@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>experimental-UI playground: interaction experiments</title>
+
+<style>
+  .topnav {
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 0 0;
+    font-size: .78rem;
+    letter-spacing: .06em;
+  }
+  .topnav-brand {
+    margin-right: auto;
+    color: rgb(var(--holo-beam, 178 216 248) / .95);
+    font-size: .8rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .topnav a { color: rgb(var(--holo-dim, 154 162 177) / .95); text-decoration: none; }
+  .topnav a:hover,
+  .topnav a.holo-on,
+  .topnav a:focus-visible { color: rgb(var(--holo-ink, 239 244 251) / .98); }
+  .topnav a[aria-current="page"] { color: rgb(var(--holo-ink, 239 244 251) / .98); border-bottom: 1px solid rgb(var(--holo-beam, 178 216 248) / .6); }
+  .topnav a:focus-visible { outline: 2px solid rgb(var(--holo-beam, 178 216 248)); outline-offset: 3px; }
+
+  /* Page chrome, the same as the models page. Everything on this page is an
+     interaction experiment, so the experiments share the page's stylesheet.
+     One that earns reuse gets promoted to a real component pair, per
+     AGENTS.md. */
+  :root {
+    --holo-line: 196 228 255;
+    --holo-beam: 178 216 248;
+    --holo-glow:  74 150 224;
+    --holo-warm: 232 169  58;
+    --holo-good: 126 224 176;
+    --holo-ink:  239 244 251;
+    --holo-dim:  154 162 177;
+    --holo-panel: 15 18 24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0 0 6rem;
+    background:
+      radial-gradient(ellipse 120% 70% at 50% 0%, rgb(16 30 54 / .8), transparent 70%),
+      #05070c;
+    color: rgb(var(--holo-ink) / .9);
+    font: 400 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
+  h1 {
+    margin: 0 0 .6rem;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 300;
+    letter-spacing: .01em;
+  }
+  .lede { margin: 0 0 1rem; max-width: 46rem; color: rgb(var(--holo-ink) / .58); }
+  section { padding: 2.6rem 0 0; }
+  h2 { margin: 0 0 .35rem; font-size: 1.15rem; font-weight: 500; letter-spacing: .02em; }
+  h2[id] { scroll-margin-top: 1.4rem; }
+  .eyebrow {
+    margin: 0 0 .5rem;
+    font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+    color: rgb(var(--holo-warm) / .85);
+  }
+  .note { margin: 0 0 1.2rem; max-width: 46rem; font-size: .9rem; color: rgb(var(--holo-dim) / .95); }
+  .note b { color: rgb(var(--holo-ink) / .9); font-weight: 600; }
+  .note a { color: rgb(var(--holo-beam) / .95); }
+  .quiet { font-size: .72rem; letter-spacing: .05em; color: rgb(var(--holo-dim) / .8); }
+  header.hero-band { position: relative; padding: 3.4rem 0 2.6rem; }
+  .hero-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+  .hero-fg { position: relative; }
+  footer { margin-top: 4rem; font-size: .8rem; color: rgb(var(--holo-dim) / .8); }
+  footer a { color: rgb(var(--holo-beam) / .9); }
+
+  /* ================================================== 1. solo control
+     The stage is the demonstration and there are no controls under it, the
+     controls are the demonstration, so it takes a larger share of the window
+     than a models stage does. svh so a phone's collapsing toolbar does not
+     resize it mid drag; the vh line is the fallback. */
+  .solo-stage {
+    position: relative;
+    height: clamp(340px, 64vh, 580px);
+    height: clamp(340px, 64svh, 580px);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #04060b;
+    box-shadow: 0 22px 50px rgb(0 0 0 / .4), inset 0 0 0 1px rgb(var(--holo-line) / .1);
+  }
+  @media (max-width: 640px) {
+    .solo-stage { height: clamp(300px, 56vh, 580px); height: clamp(300px, 56svh, 580px); }
+  }
+  .solo-scene, .solo-layer {
+    position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+    pointer-events: none;
+  }
+  /* brightness, contrast and saturation are one filter on the canvas, set from
+     the sliders; the three overlays are toggled and scaled the same way */
+  .solo-scene { filter: brightness(var(--solo-bri, 1)) contrast(var(--solo-con, 1)) saturate(var(--solo-sat, 1)); }
+  .solo-layer--vignette {
+    background: radial-gradient(ellipse 70% 62% at 50% 50%, transparent 40%, rgb(0 0 0 / .92) 100%);
+    opacity: var(--solo-vig, .5);
+  }
+  .solo-layer--grid {
+    background:
+      repeating-linear-gradient(90deg, rgb(var(--holo-line) / .07) 0 1px, transparent 1px 48px),
+      repeating-linear-gradient(0deg,  rgb(var(--holo-line) / .07) 0 1px, transparent 1px 48px);
+  }
+  .solo-layer--scan {
+    background: repeating-linear-gradient(0deg, rgb(0 0 0 / .18) 0 1px, transparent 1px 3px);
+  }
+  .solo-layer[hidden] { display: none; }
+
+  /* The panel. A dark translucent card over the scene, which is exactly the
+     problem it exists to solve: while you are changing the scene it is the
+     one thing you should not be looking at. */
+  .solo {
+    position: absolute;
+    top: .9rem; right: .9rem;
+    width: min(300px, calc(100% - 1.8rem));
+    max-height: calc(100% - 1.8rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--holo-line) / .25) transparent;
+    padding: .55rem .55rem .7rem;
+    border-radius: 14px;
+    background: rgb(var(--holo-panel) / .74);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 18px 40px rgb(0 0 0 / .45), inset 0 0 0 1px rgb(var(--holo-line) / .12);
+    transition: background-color .32s ease, box-shadow .32s ease;
+  }
+  .solo-head {
+    margin: .3rem .5rem .55rem;
+    font-size: .66rem; letter-spacing: .16em; text-transform: uppercase;
+    color: rgb(var(--holo-dim) / .9);
+    display: flex; justify-content: space-between; align-items: baseline;
+    transition: opacity .32s ease;
+  }
+  .solo-head + .solo-head { margin-top: .9rem; }
+  .solo-head small { letter-spacing: .05em; text-transform: none; color: rgb(var(--holo-dim) / .6); }
+
+  .solo-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.1rem 1fr auto;
+    grid-template-areas: "icon label value" "ctl ctl ctl";
+    column-gap: .55rem;
+    row-gap: .3rem;
+    align-items: center;
+    padding: .5rem .55rem .55rem;
+    border-radius: 11px;
+    font-size: .76rem;
+    color: rgb(var(--holo-ink) / .88);
+    transition: opacity .32s ease, transform .32s ease, background-color .32s ease, box-shadow .32s ease;
+  }
+  .solo-row--switch {
+    grid-template-columns: 1.1rem 1fr auto;
+    grid-template-areas: "icon label ctl";
+    padding-block: .42rem;
+  }
+  .solo-row svg { grid-area: icon; width: 1.05rem; height: 1.05rem; stroke: rgb(var(--holo-beam) / .9); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .solo-row label { grid-area: label; cursor: pointer; }
+  .solo-row output {
+    grid-area: value;
+    font-variant-numeric: tabular-nums;
+    font-size: .72rem; letter-spacing: .04em;
+    color: rgb(var(--holo-ink) / .7);
+  }
+  .solo-row input[type="range"] {
+    grid-area: ctl;
+    width: 100%; margin: 0; height: 22px;
+    background: transparent;
+    -webkit-appearance: none; appearance: none;
+    cursor: pointer;
+    touch-action: pan-y;
+  }
+  .solo-row input[type="range"]::-webkit-slider-runnable-track {
+    height: 2px; border-radius: 1px;
+    background: linear-gradient(90deg, rgb(var(--holo-ink) / .9) var(--solo-fill, 50%), rgb(var(--holo-line) / .22) var(--solo-fill, 50%));
+  }
+  .solo-row input[type="range"]::-moz-range-track {
+    height: 2px; border-radius: 1px; background: rgb(var(--holo-line) / .22);
+  }
+  .solo-row input[type="range"]::-moz-range-progress { height: 2px; background: rgb(var(--holo-ink) / .9); }
+  .solo-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; margin-top: -6px; border-radius: 50%;
+    background: rgb(var(--holo-ink));
+    box-shadow: 0 1px 6px rgb(0 0 0 / .5);
+    transition: transform .18s ease;
+  }
+  .solo-row input[type="range"]::-moz-range-thumb {
+    width: 14px; height: 14px; border: 0; border-radius: 50%;
+    background: rgb(var(--holo-ink));
+    box-shadow: 0 1px 6px rgb(0 0 0 / .5);
+    transition: transform .18s ease;
+  }
+  .solo-row input[type="range"]:focus-visible { outline: 2px solid rgb(var(--holo-beam)); outline-offset: 2px; border-radius: 4px; }
+
+  /* the switch is a checkbox drawn as one */
+  .solo-switch { grid-area: ctl; position: relative; width: 30px; height: 16px; }
+  .solo-switch input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .solo-switch i {
+    position: absolute; inset: 0; border-radius: 999px;
+    pointer-events: none;
+    background: rgb(var(--holo-line) / .22);
+    transition: background-color .2s ease;
+  }
+  .solo-switch i::after {
+    content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%;
+    background: rgb(var(--holo-ink));
+    transition: translate .2s ease;
+  }
+  .solo-switch input:checked + i { background: rgb(var(--holo-beam) / .85); }
+  .solo-switch input:checked + i::after { translate: 14px 0; }
+  .solo-switch input:focus-visible + i { outline: 2px solid rgb(var(--holo-beam)); outline-offset: 2px; }
+
+  /* Solo. Take hold of any control and everything else leaves: the card, its
+     headings, every other row. What stays is the row you are holding, at
+     its own place over the scene it changes, on its own small piece of the
+     card's surface, with the value live. Leaving is quick, because it is in
+     the way; coming back is slower, because that is a settle. Letting go
+     brings it all back. */
+  .solo.is-solo {
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    scrollbar-color: transparent transparent;
+    transition-duration: .18s;
+  }
+  .solo.is-solo .solo-head { opacity: 0; transition-duration: .18s; }
+  .solo.is-solo .solo-row:not(.is-live) {
+    opacity: 0;
+    transform: translateY(3px);
+    pointer-events: none;
+    transition-duration: .18s;
+  }
+  .solo-row.is-live {
+    background: rgb(var(--holo-panel) / .82);
+    box-shadow: 0 14px 34px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(var(--holo-line) / .16);
+    color: rgb(var(--holo-ink) / .98);
+  }
+  .solo-row.is-live output { color: rgb(var(--holo-ink) / .95); }
+  .solo-row.is-live input[type="range"]::-webkit-slider-thumb { transform: scale(1.45); }
+  .solo-row.is-live input[type="range"]::-moz-range-thumb { transform: scale(1.45); }
+
+  /* Reduced motion keeps the behaviour and drops the movement: the other
+     rows are information you asked to see past, so they still go, they just
+     go at once. */
+  @media (prefers-reduced-motion: reduce) {
+    .solo, .solo-head, .solo-row, .solo-switch i, .solo-switch i::after { transition: none; }
+    /* one rule per vendor pseudo element: an engine that does not know one
+       of them drops the whole selector list it appears in */
+    .solo-row input[type="range"]::-webkit-slider-thumb { transition: none; }
+    .solo-row input[type="range"]::-moz-range-thumb { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <nav class="topnav" aria-label="Experiments">
+    <a class="topnav-brand" href="../index.html">experimental-UI</a>
+    <a href="all.html">All</a>
+    <a href="../index.html">Landing</a>
+    <a href="motion.html">Motion</a>
+    <a href="spatial.html">Spatial</a>
+    <a href="models.html">Models</a>
+    <a href="applied.html">Applied</a>
+    <a href="playground.html" aria-current="page">Playground</a>
+    <a href="https://github.com/amyleesterling/experimental-UI" rel="noopener">GitHub</a>
+  </nav>
+
+  <header class="hero-band">
+    <canvas class="hero-cv" id="hero-cv" aria-hidden="true"></canvas>
+    <div class="hero-fg">
+      <p class="eyebrow" style="color:rgb(var(--holo-glow) / .9)">Playground</p>
+      <h1>Interaction experiments</h1>
+      <p class="lede">
+        The other pages are about models: movement computed from a real system
+        rather than drawn as a curve. This page is about how a control
+        behaves in the hand. Each experiment is one idea about the moment of
+        use, built small enough to feel and honest enough to test. Everything
+        here is original. Where an idea came from someone else's work, that
+        work is named.
+      </p>
+    </div>
+  </header>
+
+  <!-- ============================================================ 1 -->
+  <section id="solo-control">
+    <p class="eyebrow">Adjusting</p>
+    <h2 id="solo">Adjust one thing, see the whole picture</h2>
+    <p class="note">
+      A settings panel exists to change what is behind it, and while you are
+      changing it the panel is the one thing you should not be looking at.
+      Take hold of any control here and every other control leaves. What
+      stays is the one you are holding, at its own place, over the scene it
+      is changing, with its value live. Let go and the panel comes back. It
+      works the same for a switch as for a slider, and from the keyboard.
+      The scene is generated, a stand in for whatever a real panel would
+      change.
+    </p>
+
+    <div class="solo-stage">
+      <canvas class="solo-scene" id="solo-scene" role="img" aria-label="A drifting field of glowing motes, changed by the controls over it"></canvas>
+      <div class="solo-layer solo-layer--grid" id="solo-grid" hidden></div>
+      <div class="solo-layer solo-layer--scan" id="solo-scan" hidden></div>
+      <div class="solo-layer solo-layer--vignette" id="solo-vig"></div>
+
+      <form class="solo" id="solo-panel" aria-label="Display settings">
+        <p class="solo-head">Display <small>3 layers</small></p>
+
+        <div class="solo-row solo-row--switch">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h18M3 12h18M3 16h18M8 3v18M16 3v18"/></svg>
+          <label for="solo-t-grid">Grid</label>
+          <span class="solo-switch"><input type="checkbox" id="solo-t-grid" data-layer="solo-grid"><i></i></span>
+        </div>
+        <div class="solo-row solo-row--switch">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+          <label for="solo-t-scan">Scanlines</label>
+          <span class="solo-switch"><input type="checkbox" id="solo-t-scan" data-layer="solo-scan"><i></i></span>
+        </div>
+        <div class="solo-row solo-row--switch">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16c4-9 8 1 12-8M4 20h16"/></svg>
+          <label for="solo-t-trails">Trails</label>
+          <span class="solo-switch"><input type="checkbox" id="solo-t-trails" data-param="trails"><i></i></span>
+        </div>
+
+        <p class="solo-head">Scene <small>x is a multiplier</small></p>
+
+        <div class="solo-row">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="8" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="12" cy="14" r="1.6"/><circle cx="6" cy="17" r="1.6"/><circle cx="18" cy="16" r="1.6"/></svg>
+          <label for="solo-s-density">Density</label>
+          <output for="solo-s-density">180</output>
+          <input type="range" id="solo-s-density" data-param="density" data-fmt="int" min="40" max="420" step="10" value="180">
+        </div>
+        <div class="solo-row">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h13M12 7l5 5-5 5"/></svg>
+          <label for="solo-s-drift">Drift</label>
+          <output for="solo-s-drift">x1.00</output>
+          <input type="range" id="solo-s-drift" data-param="drift" data-fmt="x" min="0" max="2.5" step="0.05" value="1">
+        </div>
+        <div class="solo-row">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M5.6 18.4l2.2-2.2M16.2 7.8l2.2-2.2"/></svg>
+          <label for="solo-s-glow">Glow</label>
+          <output for="solo-s-glow">x1.00</output>
+          <input type="range" id="solo-s-glow" data-param="glow" data-fmt="x" min="0" max="2.5" step="0.05" value="1">
+        </div>
+        <div class="solo-row">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="12" r="5"/><circle cx="16" cy="12" r="5" stroke-dasharray="2 2"/></svg>
+          <label for="solo-s-blur">Depth blur</label>
+          <output for="solo-s-blur">x0.75</output>
+          <input type="range" id="solo-s-blur" data-param="blur" data-fmt="x" min="0" max="3" step="0.05" value="0.75">
+        </div>
+        <div class="solo-row">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="5"/></svg>
+          <label for="solo-s-vig">Vignette</label>
+          <output for="solo-s-vig">0.50</output>
+          <input type="range" id="solo-s-vig" data-param="vig" data-fmt="2" min="0" max="1" step="0.01" value="0.5">
+        </div>
+
+        <p class="solo-head">Lighting</p>
+
+        <div class="solo-row">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+          <label for="solo-s-bri">Brightness</label>
+          <output for="solo-s-bri">1.00</output>
+          <input type="range" id="solo-s-bri" data-param="bri" data-fmt="2" min="0.4" max="1.6" step="0.01" value="1">
+        </div>
+        <div class="solo-row">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none" opacity=".8"/></svg>
+          <label for="solo-s-con">Contrast</label>
+          <output for="solo-s-con">1.00</output>
+          <input type="range" id="solo-s-con" data-param="con" data-fmt="2" min="0.5" max="1.6" step="0.01" value="1">
+        </div>
+        <div class="solo-row">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/></svg>
+          <label for="solo-s-sat">Saturation</label>
+          <output for="solo-s-sat">1.00</output>
+          <input type="range" id="solo-s-sat" data-param="sat" data-fmt="2" min="0" max="2" step="0.01" value="1">
+        </div>
+      </form>
+    </div>
+    <p class="quiet" id="solo-read" role="status" style="margin-top:.7rem"></p>
+    <p class="quiet" style="margin-top:.35rem">
+      After an interaction Masataka Hakozaki
+      <a href="https://x.com/m_hakozaki/status/2040585453427159255" rel="noopener" style="color:rgb(var(--holo-beam) / .9)">showed in April 2026</a>:
+      the rest of the UI hidden while a display setting is adjusted, so the
+      adjustment is made while looking at the screen. The idea is his, the
+      build here is original.
+    </p>
+  </section>
+
+  <footer>
+    <p>Created by Amy Sterling
+      <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a>.
+      Everything here is original and experimental. Its sibling
+      <a href="https://github.com/amyleesterling/scifi-ui" rel="noopener">scifi-ui</a>
+      holds the components carried across from software that ships.</p>
+  </footer>
+
+</div>
+
+<script src="../hologram-tap.js"></script>
+<script>
+(function () {
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var TAU = Math.PI * 2;
+
+  function fit(cv) {
+    var dpr = Math.min(devicePixelRatio || 1, 2);
+    var r = cv.getBoundingClientRect();
+    var w = Math.max(1, Math.round(r.width * dpr));
+    var h = Math.max(1, Math.round(r.height * dpr));
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    return dpr;
+  }
+  function rng(seed) {
+    return function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+  }
+  function ambient(el, frame) {
+    var raf = 0, last = 0;
+    function loop(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      frame(dt);
+      raf = requestAnimationFrame(loop);
+    }
+    var io = new IntersectionObserver(function (en) {
+      var vis = en[en.length - 1].isIntersecting;
+      if (vis && !raf) { last = 0; raf = requestAnimationFrame(loop); }
+      else if (!vis && raf) { cancelAnimationFrame(raf); raf = 0; }
+    });
+    io.observe(el);
+  }
+
+  /* ---- the scene: a drifting field of motes with depth ------------------
+     Generated, and standing in for whatever a real panel would be changing.
+     Each mote has a depth z, near is 1. Near motes are larger, brighter and
+     faster, and depth blur softens the far ones, which is the one effect
+     here that has to be drawn rather than set as a filter. */
+  var COLS = ["178,216,248", "178,216,248", "178,216,248", "126,224,176", "232,169,58"];
+  function makeField(seed, n) {
+    var rand = rng(seed), motes = [];
+    function mote() {
+      var z = rand();
+      return { x: rand(), y: rand(), z: z, a: rand() * TAU,
+               v: 0.010 + 0.035 * z, c: COLS[Math.floor(rand() * COLS.length)], tw: rand() * TAU };
+    }
+    return {
+      motes: motes, rand: rand,
+      size: function (count) {
+        while (motes.length < count) motes.push(mote());
+        motes.length = count;
+      },
+      step: function (dt, drift) {
+        for (var i = 0; i < motes.length; i++) {
+          var m = motes[i];
+          m.a += (rand() - 0.5) * 0.9 * dt;
+          m.x += Math.cos(m.a) * m.v * drift * dt;
+          m.y += Math.sin(m.a) * m.v * drift * dt;
+          m.tw += dt * (0.6 + m.z);
+          if (m.x < -0.05) m.x += 1.1; if (m.x > 1.05) m.x -= 1.1;
+          if (m.y < -0.05) m.y += 1.1; if (m.y > 1.05) m.y -= 1.1;
+        }
+      },
+      draw: function (ctx, W, H, dpr, p, reveal) {
+        var S = Math.min(W, H);
+        for (var i = 0; i < motes.length; i++) {
+          var m = motes[i];
+          var far = 1 - m.z;
+          var soft = 1 + p.blur * far * 2.6;                     /* far motes spread */
+          var r = (0.45 + m.z * 1.9) * dpr * (S / 380) * soft;
+          var alpha = (0.22 + m.z * 0.62) / (1 + p.blur * far * 1.4);
+          alpha *= 0.75 + 0.25 * Math.sin(m.tw);
+          alpha *= reveal;
+          var x = m.x * W, y = m.y * H;
+          if (p.glow > 0) {
+            var gr = r * (2.2 + p.glow * 4.5);
+            var g = ctx.createRadialGradient(x, y, 0, x, y, gr);
+            g.addColorStop(0, "rgba(" + m.c + "," + (alpha * 0.32 * Math.min(1, p.glow)).toFixed(3) + ")");
+            g.addColorStop(1, "rgba(" + m.c + ",0)");
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(x, y, gr, 0, TAU); ctx.fill();
+          }
+          ctx.fillStyle = "rgba(" + m.c + "," + alpha.toFixed(3) + ")";
+          ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+        }
+      }
+    };
+  }
+
+  /* ================================================== hero landing state
+     The same field, blooming in once behind the title and landing still. */
+  (function () {
+    var cv = document.getElementById("hero-cv");
+    if (!cv) return;
+    var ctx = cv.getContext("2d");
+    var field = makeField(7, 0); field.size(150);
+    var P = { blur: 0.9, glow: 0.8 };
+    function draw(u) {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      var dim = W < H * 1.3 ? 0.4 : 1;
+      field.draw(ctx, W, H, dpr, P, u * dim);
+    }
+    var t = 0, shown = 0, raf = 0, last = 0, backstop = 0, done = false, DUR = 2.2;
+    function ease(v) { return 1 - Math.pow(1 - v, 3); }
+    function land() {
+      done = true;
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      clearTimeout(backstop);
+      shown = 1; draw(1);
+    }
+    function loop(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 1000, 0.05); last = now;
+      field.step(dt, 1);
+      t = Math.min(1, t + dt / DUR);
+      shown = ease(t);
+      draw(shown);
+      if (t >= 1) { land(); return; }
+      raf = requestAnimationFrame(loop);
+    }
+    new ResizeObserver(function () { draw(done ? 1 : shown); }).observe(cv);
+    if (reduced) { land(); }
+    else {
+      backstop = setTimeout(land, DUR * 1000 + 2500);
+      raf = requestAnimationFrame(loop);
+    }
+  })();
+
+  /* ================================================== 1. solo control */
+  (function () {
+    var cv = document.getElementById("solo-scene");
+    if (!cv) return;
+    var ctx = cv.getContext("2d");
+    var stage = cv.parentNode;
+    var panel = document.getElementById("solo-panel");
+    var read = document.getElementById("solo-read");
+    var field = makeField(2026, 0);
+
+    /* the truth: one object the sliders write and the scene reads */
+    var P = { density: 180, drift: 1, glow: 1, blur: 0.75, vig: 0.5, bri: 1, con: 1, sat: 1, trails: false };
+    field.size(P.density);
+
+    function fmt(v, kind) {
+      if (kind === "int") return String(Math.round(v));
+      if (kind === "x") return "x" + Number(v).toFixed(2);
+      return Number(v).toFixed(2);
+    }
+    function applyRange(input) {
+      var v = parseFloat(input.value), key = input.dataset.param;
+      P[key] = v;
+      var out = input.parentNode.querySelector("output");
+      var text = fmt(v, input.dataset.fmt);
+      if (out) out.textContent = text;
+      input.setAttribute("aria-valuetext", text);
+      var f = (v - input.min) / (input.max - input.min) * 100;
+      input.style.setProperty("--solo-fill", f.toFixed(2) + "%");
+      if (key === "density") field.size(Math.round(v));
+      if (key === "vig") stage.style.setProperty("--solo-vig", v);
+      if (key === "bri") stage.style.setProperty("--solo-bri", v);
+      if (key === "con") stage.style.setProperty("--solo-con", v);
+      if (key === "sat") stage.style.setProperty("--solo-sat", v);
+    }
+    function applySwitch(input) {
+      if (input.dataset.layer) document.getElementById(input.dataset.layer).hidden = !input.checked;
+      if (input.dataset.param) P[input.dataset.param] = input.checked;
+    }
+    var ranges = panel.querySelectorAll('input[type="range"]');
+    var switches = panel.querySelectorAll('input[type="checkbox"]');
+    ranges.forEach(applyRange);
+    switches.forEach(applySwitch);
+
+    panel.addEventListener("input", function (e) {
+      var t = e.target;
+      if (t.type === "range") applyRange(t);
+      else if (t.type === "checkbox") applySwitch(t);
+      if (live) say(live);
+      if (reduced) paint();
+    });
+    panel.addEventListener("submit", function (e) { e.preventDefault(); });
+
+    /* ---- the solo itself --------------------------------------------------
+       One row is live at a time. A pointer holds it from pointerdown to the
+       pointerup that ends the drag, wherever that lands, so the listener for
+       letting go is on the window. The keyboard holds it for as long as the
+       keys keep coming, and a short quiet after the last one lets go. */
+    var live = null, keyTimer = 0, held = false;
+    var HOLD_KEYS = { ArrowLeft: 1, ArrowRight: 1, ArrowUp: 1, ArrowDown: 1,
+                      Home: 1, End: 1, PageUp: 1, PageDown: 1, " ": 1, Enter: 1 };
+    function say(row) {
+      var label = row.querySelector("label"), out = row.querySelector("output");
+      read.textContent = "holding " + label.textContent.toLowerCase() +
+        (out ? ", " + out.textContent : "") + ", everything else is out of the way";
+    }
+    function solo(row) {
+      if (live && live !== row) live.classList.remove("is-live");
+      live = row;
+      row.classList.add("is-live");
+      panel.classList.add("is-solo");
+      say(row);
+    }
+    function release() {
+      held = false;
+      if (!live) return;
+      live.classList.remove("is-live");
+      live = null;
+      panel.classList.remove("is-solo");
+      read.textContent = "let go, the panel is back";
+    }
+    panel.addEventListener("pointerdown", function (e) {
+      var row = e.target.closest(".solo-row");
+      if (!row) return;
+      held = true;
+      solo(row);
+    });
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    panel.addEventListener("keydown", function (e) {
+      if (!HOLD_KEYS[e.key]) return;
+      var row = e.target.closest(".solo-row");
+      if (!row) return;
+      solo(row);
+      clearTimeout(keyTimer);
+      keyTimer = setTimeout(release, 900);
+    });
+    panel.addEventListener("focusout", function (e) {
+      if (held) return;
+      if (!panel.contains(e.relatedTarget)) { clearTimeout(keyTimer); release(); }
+    });
+
+    /* ---- painting -------------------------------------------------------- */
+    function paint() {
+      var dpr = fit(cv), W = cv.width, H = cv.height;
+      if (P.trails && !reduced) {
+        ctx.fillStyle = "rgba(4,6,11,0.16)";
+        ctx.fillRect(0, 0, W, H);
+      } else {
+        ctx.clearRect(0, 0, W, H);
+      }
+      field.draw(ctx, W, H, dpr, P, 1);
+    }
+    if (reduced) {
+      /* nothing drifts, so the scene is drawn once and again on each change */
+      for (var s = 0; s < 120; s++) field.step(1 / 60, 1);
+      paint();
+      new ResizeObserver(paint).observe(cv);
+    } else {
+      ambient(cv, function (dt) { field.step(dt, P.drift); paint(); });
+    }
+    read.textContent = "take hold of any control";
+  })();
+})();
+</script>
+</body>
+</html>

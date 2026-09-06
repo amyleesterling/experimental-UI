@@ -25,6 +25,12 @@ pushing `main`.
   the travelling wave once was. Sketches still follow every behaviour rule:
   ambient loops only in view, one shots with backstops, reduced motion lands
   true, hover ships its tap path.
+- `components/playground.html`: interaction experiments. Where the models
+  page is about movement computed from a system, this page is about how a
+  control behaves in the hand. Same sketch rules as the models page, same
+  promotion path, and one more: an experiment that follows someone else's
+  idea names them and links the source in its note. The idea is theirs, the
+  build is original, and both facts are stated.
 - `hologram-tap.js`: taken unchanged from scifi-ui, see section 4.
 
 ## 2. The claim this repo makes, and the one it does not
@@ -266,6 +272,21 @@ its container must always carry the CSS that pins it back to that
 container, and a section lifted onto another page must bring that CSS
 along. That is also why the concept panes use `.cstage` and `.cread`
 rather than the `.stage` and `.readout` the applied page already claims.
+
+Version 6, 2026-09-06. The playground page, and its first experiment: a
+settings panel that hides everything but the control being held, so the
+scene is adjusted while looking at the scene. Two lessons about seeing a
+reference you were handed as a link. An x.com post returns 402 to every
+fetch, including its oembed endpoint, but the syndication endpoint
+`cdn.syndication.twimg.com/tweet-result?id=<id>&token=x` returns the tweet
+as JSON with the text and every video variant URL, so the reference can be
+read and downloaded without an account. And Playwright's Chromium is the
+open source build with no H.264, so an mp4 will not decode in it; the quick
+route to frames is the static ffmpeg that `pip install imageio-ffmpeg`
+carries, which runs anywhere and decodes everything, though its `drawtext`
+filter is missing, so label frames by grid position rather than burnt in
+text. A contact sheet at 1.9s intervals and two at 10fps around one
+interaction were enough to build from with confidence.
 
 Version 5, 2026-08-11. Every demo page now opens with a hero landing state,
 a one shot canvas behind the header that settles to a still final frame,
