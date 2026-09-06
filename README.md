@@ -69,6 +69,11 @@ and readout is generated for the purpose of moving an interface.
   and a run and tumble search. Under each element the original concept
   runs live, so every section pairs the UI with an interactive of the
   science behind it.
+- `components/playground.html`, interaction experiments: ideas about how a
+  control behaves in the hand rather than about a model. The first is a
+  settings panel that gets out of its own way, after an interaction Masataka
+  Hakozaki showed: take hold of any control and every other control leaves,
+  so the scene is adjusted while looking at the scene.
 - `components/all.html`, everything on one page: the interaction states,
   the three motion models, the five spatial components, the seventeen
   model elements and the three applied mockups, in one scroll.
