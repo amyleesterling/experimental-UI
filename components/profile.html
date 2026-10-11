@@ -252,6 +252,32 @@
   }
   .nge-track-achievements .nge-profile-badges-grid { max-width: 440px; }
   .nge-track-row--rest .nge-track-feature { visibility: hidden; }
+  .nge-track-stats .nge-profile-section--windows > .nge-profile-section-label { display: none; }
+  /* the row's head: the label, a circuit trace in the layer tabs' language,
+     lit as far as the count has come toward the next tier, and the count */
+  @property --nge-track-run { syntax: '<number>'; inherits: false; initial-value: 1; }
+  .nge-track-head { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .nge-track-head .nge-profile-section-label { margin-bottom: 0; white-space: nowrap; color: var(--track); }
+  .nge-track-line {
+    flex: 1 1 0; min-width: 40px; height: 9px;
+    --nge-track-run: 1;
+    --pad: color-mix(in srgb, var(--track) 70%, transparent);
+    background:
+      radial-gradient(circle at calc(100% - 4px) 50%, #0a1223 0 0.9px, var(--pad) 1.3px 2.1px, transparent 2.5px),
+      linear-gradient(var(--track), var(--track)) left 50% / calc((100% - 10px) * var(--frac, 1) * var(--nge-track-run)) 1.4px no-repeat,
+      linear-gradient(rgba(201, 228, 255, 0.14), rgba(201, 228, 255, 0.14)) left 50% / calc(100% - 10px) 1.4px no-repeat;
+    animation: ngeTrackRun 720ms cubic-bezier(0.3, 0, 0.2, 1) 1 both;
+  }
+  .nge-track-row--edits .nge-track-line { animation-delay: 120ms; }
+  .nge-track-row--days .nge-track-line { animation-delay: 240ms; }
+  @keyframes ngeTrackRun { 0% { --nge-track-run: 0; } 100% { --nge-track-run: 1; } }
+  @media (prefers-reduced-motion: reduce) { .nge-track-line { animation: none; } }
+  .nge-track-count {
+    font-family: ui-monospace, 'Cascadia Code', monospace; font-variant-numeric: tabular-nums;
+    font-weight: 700; font-size: 1.05em; white-space: nowrap; color: var(--track); cursor: help;
+  }
+  .nge-track-count-next { font-weight: 600; opacity: 0.6; }
+  .nge-profile-career-note--foot { margin: 10px 0 0; }
   /* tabs other than Overview are not built on this page */
   .nge-profile-tab[aria-disabled="true"] { cursor: default; }
 
@@ -444,7 +470,7 @@
     <h2>What would change in Pyr</h2>
     <ul class="changes">
       <li><b>The profile is full screen on desktop</b>, with 40 pixels of room at the sides. The shell fills the window on every tab; the Datasets, Settings and Admin Hub bodies keep their widths, centred. The middle column keeps its width so the achievement tiles stay close; the left and right columns take the room.</li>
-      <li><b>One row per track</b> across the old left and middle columns: the latest Achievement at the left, the stats and curve beside it, the other Achievements won on the same line. Cells, then edits, then days. The username is the title.</li>
+      <li><b>One row per track</b> across the old left and middle columns: the latest Achievement at the left, the stats and curve beside it, the other Achievements won on the same line. Cells, then edits, then days. The username is the title. Each row has one head: its label, a circuit trace in the language of the layer tabs that draws out along the top and is lit as far as the count has come toward the next tier, and the count at its end, instead of a second header on the right.</li>
       <li><b>Cells completed gets today, past 7 days and all time</b>, per dataset like edits, read from the completions list with each cell's completion time.</li>
       <li><b>A curve of the running total above each</b>, from the player's first day on that dataset to today, drawn once on open, with the past 7 days and today marked on it.</li>
       <li><b>Days helping science in Pyr</b> shows the latest Days Achievement beside the total; streak and best streak stay on the right under Streak. Annotations are a column of the Scout report, not a row of their own. Achievement names are tooltips, not labels, and the featured one is left out of its row.</li>
@@ -585,24 +611,18 @@
           <div class="nge-track-rows">
 
             <!-- row 1: cells -->
-            <div class="nge-track-row">
+            <div class="nge-track-row nge-track-row--cells">
+              <div class="nge-track-head" style="--track: #90fff2; --frac: 0.590">
+                <div class="nge-profile-section-label">▌ Cells completed</div>
+                <div class="nge-track-line" aria-hidden="true"></div>
+                <div class="nge-track-count" title="118 on every dataset, 82 to go to the next Achievement"><span class="nge-roll" data-roll="118">0</span><span class="nge-track-count-next"> / 200</span></div>
+              </div>
               <div class="nge-track-feature" title="Cairn, earned for 100 cells completed">
                 <div class="nge-track-feature-eyebrow">Latest</div>
                 <img src="../media/badges/exploration/cairn.png" alt="" class="nge-track-feature-icon">
               </div>
               <div class="nge-track-stats" id="row-cells-stats"></div>
               <div class="nge-track-achievements">
-                <div class="nge-profile-career-note">Totals and achievements here count every dataset</div>
-                <div class="nge-profile-track-head">
-                  <div class="nge-profile-section-label" style="color: #90fff2;">▌ Cell Completions</div>
-                  <div class="nge-profile-track-total" style="--track: #90fff2;" title="Every cell completed, on every dataset">
-                    <b><span class="nge-roll" data-roll="118">0</span></b> cells completed
-                  </div>
-                </div>
-                <div class="nge-profile-countdown-inline">
-                  <div class="nge-profile-countdown-row"><div class="nge-profile-countdown-remaining">82 cells to go</div></div>
-                  <div class="nge-profile-countdown-track"><div class="nge-profile-countdown-fill nge-profile-countdown-fill--exploration" style="width: 59%"></div></div>
-                </div>
                 <div class="nge-profile-badges-grid">
                   <div class="nge-profile-badge nge-profile-badge--exploration" title="Sundial"><div class="nge-profile-badge-img"><img src="../media/badges/exploration/sundial.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Sundial</div></div>
                   <div class="nge-profile-badge nge-profile-badge--exploration" title="Astrolabe"><div class="nge-profile-badge-img"><img src="../media/badges/exploration/astrolabe.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Astrolabe</div></div>
@@ -614,23 +634,18 @@
             </div>
 
             <!-- row 2: edits -->
-            <div class="nge-track-row">
+            <div class="nge-track-row nge-track-row--edits">
+              <div class="nge-track-head" style="--track: #ffd08a; --frac: 0.953">
+                <div class="nge-profile-section-label">▌ Edits in Pyr</div>
+                <div class="nge-track-line" aria-hidden="true"></div>
+                <div class="nge-track-count" title="715 on every dataset, 35 to go to the next Achievement"><span class="nge-roll" data-roll="715">0</span><span class="nge-track-count-next"> / 750</span></div>
+              </div>
               <div class="nge-track-feature" title="Wrench, earned for 700 edits">
                 <div class="nge-track-feature-eyebrow">Latest</div>
                 <img src="../media/badges/building/wrench.png" alt="" class="nge-track-feature-icon">
               </div>
               <div class="nge-track-stats" id="row-edits-stats"></div>
               <div class="nge-track-achievements">
-                <div class="nge-profile-track-head">
-                  <div class="nge-profile-section-label" style="color: #ffd08a;">▌ Editor Achievements</div>
-                  <div class="nge-profile-track-total" style="--track: #ffd08a;" title="Every merge and cut made in Pyr, on every dataset">
-                    <b><span class="nge-roll" data-roll="715">0</span></b> edits
-                  </div>
-                </div>
-                <div class="nge-profile-countdown-inline">
-                  <div class="nge-profile-countdown-row"><div class="nge-profile-countdown-remaining">35 edits to go</div></div>
-                  <div class="nge-profile-countdown-track"><div class="nge-profile-countdown-fill nge-profile-countdown-fill--building" style="width: 95.3%"></div></div>
-                </div>
                 <div class="nge-profile-badges-grid">
                   <div class="nge-profile-badge nge-profile-badge--building" title="Chisel"><div class="nge-profile-badge-img"><img src="../media/badges/building/chisel.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Chisel</div></div>
                   <div class="nge-profile-badge nge-profile-badge--building" title="Hammer"><div class="nge-profile-badge-img"><img src="../media/badges/building/hammer.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Hammer</div></div>
@@ -642,14 +657,18 @@
             </div>
 
             <!-- row 3: days -->
-            <div class="nge-track-row">
+            <div class="nge-track-row nge-track-row--days">
+              <div class="nge-track-head" style="--track: #c9a8ff; --frac: 0.880">
+                <div class="nge-profile-section-label">▌ Days helping science in Pyr</div>
+                <div class="nge-track-line" aria-hidden="true"></div>
+                <div class="nge-track-count" title="44 on every dataset, 6 to go to the next Achievement"><span class="nge-roll" data-roll="44">0</span><span class="nge-track-count-next"> / 50</span></div>
+              </div>
               <div class="nge-track-feature" title="Forty Days, earned for 40 days of science">
                 <div class="nge-track-feature-eyebrow">Latest</div>
                 <img src="../media/badges/loyalty/golden-orbit.png" alt="" class="nge-track-feature-icon">
               </div>
               <div class="nge-track-stats">
                 <div class="nge-profile-section nge-profile-section--days">
-                  <div class="nge-profile-section-label">▌ Days helping science in Pyr</div>
                   <div class="nge-profile-stat-row">
                     <div class="nge-profile-stat-col" title="Every day you have shown up, ever. This never resets.">
                       <div class="nge-profile-stat-label">Total days</div>
@@ -660,13 +679,6 @@
                 </div>
               </div>
               <div class="nge-track-achievements">
-                <div class="nge-profile-track-head">
-                  <div class="nge-profile-section-label" style="color: #c9a8ff;">▌ Loyalty Achievements</div>
-                </div>
-                <div class="nge-profile-countdown-inline">
-                  <div class="nge-profile-countdown-row"><div class="nge-profile-countdown-remaining">6 days to go</div></div>
-                  <div class="nge-profile-countdown-track"><div class="nge-profile-countdown-fill nge-profile-countdown-fill--loyalty" style="width: 40%"></div></div>
-                </div>
                 <div class="nge-profile-badges-grid">
                   <div class="nge-profile-badge" title="One Month"><div class="nge-profile-badge-img"><img src="../media/badges/loyalty/constellation.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">One Month</div></div>
                   <div class="nge-profile-badge" title="Three Weeks"><div class="nge-profile-badge-img"><img src="../media/badges/loyalty/steady-signal.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Three Weeks</div></div>
@@ -729,6 +741,7 @@
               </div>
             </div>
 
+            <div class="nge-profile-career-note nge-profile-career-note--foot">The counts beside the Achievements are for every dataset.</div>
           </div>
         </div>
 
