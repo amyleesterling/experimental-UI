@@ -151,6 +151,9 @@
     border-radius: 20px;
   }
   .nge-profile-modal .nge-overlay::-webkit-scrollbar { width: 0; }
+  /* a size up now that the window is the frame ("the text is all a bit small") */
+  dialog.nge-profile-modal { font-size: 1.05rem; }
+  @media (max-width: 760px) { dialog.nge-profile-modal { font-size: 0.9rem; } }
 
   /* ======================= THE PROPOSAL, part 1: full screen ===============
      The frame fills the window. The three columns keep their proportions
@@ -204,10 +207,33 @@
   .nge-track-feature-icon { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 0 12px rgba(74, 158, 255, 0.35)); }
   /* names are tooltips, not labels (Ames 2026-10-11); the rows shrink to the art */
   .nge-profile-modal .nge-profile-badge .nge-profile-badge-name { display: none; }
-  .nge-profile-modal .nge-profile-badges-grid {
-    grid-auto-rows: 58px;
-    background-image: repeating-linear-gradient(to bottom, transparent 0px 54px, rgba(130, 190, 255, 0.30) 54px 55px, rgba(130, 190, 255, 0.08) 55px 57px, transparent 57px 70px);
+  .nge-profile-modal .nge-profile-badges-grid { grid-auto-rows: 56px; background-image: none; }
+  /* View all: a round button with a drawn arrow */
+  .nge-profile-modal .nge-profile-badge--viewall,
+  .nge-profile-modal .nge-profile-badge--viewall:hover,
+  .nge-profile-modal .nge-profile-badge--viewall.holo-on { background: none; border: none; transform: none; }
+  .nge-profile-modal .nge-profile-badge--viewall .nge-profile-badge-img {
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid rgba(140, 195, 255, 0.35);
+    background: rgba(74, 158, 255, 0.06);
+    color: rgba(170, 210, 255, 0.9);
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s, color 0.15s;
   }
+  .nge-profile-modal .nge-profile-badge--viewall:hover .nge-profile-badge-img,
+  .nge-profile-modal .nge-profile-badge--viewall.holo-on .nge-profile-badge-img {
+    border-color: rgba(170, 210, 255, 0.9);
+    background: rgba(74, 158, 255, 0.14);
+    box-shadow: 0 0 14px rgba(74, 158, 255, 0.35);
+    color: #fff;
+  }
+  .nge-profile-modal .nge-profile-badge-viewall-icon { width: 20px; height: 20px; opacity: 1; transition: transform 0.15s; }
+  .nge-profile-modal .nge-profile-badge--viewall:hover .nge-profile-badge-viewall-icon,
+  .nge-profile-modal .nge-profile-badge--viewall.holo-on .nge-profile-badge-viewall-icon { transform: translateX(2px); }
+  /* the track colours, one per block: cells sky blue, edits gold, days purple */
+  .nge-profile-modal .nge-profile-section--completions > .nge-profile-section-label { color: #90fff2; }
+  .nge-profile-modal .nge-profile-section--edits > .nge-profile-section-label { color: #ffd08a; }
+  .nge-profile-modal .nge-profile-section--days > .nge-profile-section-label { color: #c9a8ff; }
+  .nge-profile-modal .nge-profile-section--days .nge-profile-stat-val--hero { color: #c9a8ff; text-shadow: 0 0 20px rgba(201, 168, 255, 0.3); }
   /* the right column's sections share one left edge */
   .nge-profile-modal .nge-profile-col--right > .nge-profile-section--podium,
   .nge-profile-modal .nge-profile-col--right > .nge-profile-section--streak,
@@ -288,9 +314,13 @@
      Completions track, the cells pill on a dataset card); the 14 day chart
      was the one place they were amber. Same colour, one quantity. */
   .nge-profile-modal .nge-profile-chart-bar--completion {
-    background: linear-gradient(to top, rgba(95, 227, 245, 0.45), rgba(95, 227, 245, 0.85));
+    background: linear-gradient(to top, rgba(144, 255, 242, 0.45), rgba(144, 255, 242, 0.85));
   }
-  .nge-profile-modal .nge-profile-chart-legend-dot--completion { background: rgba(95, 227, 245, 0.7); }
+  .nge-profile-modal .nge-profile-chart-legend-dot--completion { background: rgba(144, 255, 242, 0.7); }
+  .nge-profile-modal .nge-profile-chart-bar--edit {
+    background: linear-gradient(to top, rgba(255, 208, 138, 0.5), rgba(255, 208, 138, 0.85));
+  }
+  .nge-profile-modal .nge-profile-chart-legend-dot--edit { background: rgba(255, 208, 138, 0.7); }
 
   /* ---- the standalone block in section 2 ------------------------------- */
   .pyr-inline {
@@ -306,6 +336,8 @@
   }
   .pyr-inline.is-narrow .nge-profile-col { width: min(460px, 100%); }
   .pyr-inline .nge-profile-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 4px; }
+  .pyr-inline .nge-profile-section--completions > .nge-profile-section-label { color: #90fff2; }
+  .pyr-inline .nge-profile-section--edits > .nge-profile-section-label { color: #ffd08a; }
 </style>
 </head>
 <body>
@@ -415,7 +447,7 @@
       <li><b>A curve of the running total above each</b>, from the player's first day on that dataset to today, drawn once on open, with the past 7 days and today marked on it.</li>
       <li><b>Days helping science in Pyr</b> shows the latest Days Achievement beside the total; streak and best streak stay on the right under Streak. Annotations are a column of the Scout report, not a row of their own. Achievement names are tooltips, not labels, and the featured one is left out of its row.</li>
       <li><b>The recent cells list</b> keeps the browser's own history; when that is empty (a new device, a test build on another address) it lists the cells completed on this dataset from the server, the same rows as the numbers.</li>
-      <li><b>Completions are teal on the 14 day chart</b>, matching the Cell Completions track and the cells pill, instead of amber.</li>
+      <li><b>One colour key.</b> Cells are sky blue, edits gold and days purple, the colours of their Achievement sections, on the labels, the curves and the Last 14 Days chart. The View all tile is a round button with a drawn arrow, and the shelf line under the tiles is gone.</li>
       <li><b>Two words fixed on the way</b>: "Edits in EyeWire II" becomes "Edits in Pyr", and "Favorite Badge" becomes "Favorite Achievement".</li>
     </ul>
   </section>
@@ -444,7 +476,7 @@
     <div class="nge-profile-section-label"
          title="Cells you proofread all the way to completion in Pyr on this dataset. A cell completed again after an edit counts once.">▌ Cells completed</div>
     <div class="nge-profile-windows">
-      <figure class="nge-effort" data-series="cells" style="--c: 95 227 245" aria-label="Cells completed over time">
+      <figure class="nge-effort" data-series="cells" style="--c: 144 255 242" aria-label="Cells completed over time">
         <figcaption class="nge-effort-cap"><span data-cap="start"></span><span>Today</span></figcaption>
       </figure>
       <div class="nge-profile-stat-row">
@@ -468,7 +500,7 @@
     <div class="nge-profile-section-label"
          title="Splits and merges you made in Pyr on this dataset. Edits made in other tools, or before you joined, are not counted.">▌ Edits in Pyr</div>
     <div class="nge-profile-windows">
-      <figure class="nge-effort" data-series="edits" style="--c: 74 158 255" aria-label="Edits over time">
+      <figure class="nge-effort" data-series="edits" style="--c: 255 208 138" aria-label="Edits over time">
         <figcaption class="nge-effort-cap"><span data-cap="start"></span><span>Today</span></figcaption>
       </figure>
       <div class="nge-profile-stat-row">
@@ -574,7 +606,7 @@
                   <div class="nge-profile-badge nge-profile-badge--exploration" title="Astrolabe"><div class="nge-profile-badge-img"><img src="../media/badges/exploration/astrolabe.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Astrolabe</div></div>
                   <div class="nge-profile-badge nge-profile-badge--exploration" title="Sextant"><div class="nge-profile-badge-img"><img src="../media/badges/exploration/sextant.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Sextant</div></div>
                   <div class="nge-profile-badge nge-profile-badge--locked" title="Next: complete more cells to unlock!"><div class="nge-profile-badge-img"><div class="nge-profile-badge-mystery"><span class="nge-profile-badge-mystery-q">?</span></div></div></div>
-                  <div class="nge-profile-badge nge-profile-badge--viewall" title="View all in the Trophy Case"><div class="nge-profile-badge-img"><div class="nge-profile-badge-viewall-icon">→</div></div><div class="nge-profile-badge-name">View all</div></div>
+                  <div class="nge-profile-badge nge-profile-badge--viewall" title="View all in the Trophy Case"><div class="nge-profile-badge-img"><svg class="nge-profile-badge-viewall-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="nge-profile-badge-name">View all</div></div>
                 </div>
               </div>
             </div>
@@ -602,7 +634,7 @@
                   <div class="nge-profile-badge nge-profile-badge--building" title="Hammer"><div class="nge-profile-badge-img"><img src="../media/badges/building/hammer.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Hammer</div></div>
                   <div class="nge-profile-badge nge-profile-badge--building" title="Awl"><div class="nge-profile-badge-img"><img src="../media/badges/building/awl.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Awl</div></div>
                   <div class="nge-profile-badge nge-profile-badge--locked" title="Next: make more edits to unlock!"><div class="nge-profile-badge-img"><div class="nge-profile-badge-mystery"><span class="nge-profile-badge-mystery-q">?</span></div></div></div>
-                  <div class="nge-profile-badge nge-profile-badge--viewall" title="View all in the Trophy Case"><div class="nge-profile-badge-img"><div class="nge-profile-badge-viewall-icon">→</div></div><div class="nge-profile-badge-name">View all</div></div>
+                  <div class="nge-profile-badge nge-profile-badge--viewall" title="View all in the Trophy Case"><div class="nge-profile-badge-img"><svg class="nge-profile-badge-viewall-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="nge-profile-badge-name">View all</div></div>
                 </div>
               </div>
             </div>
@@ -638,7 +670,7 @@
                   <div class="nge-profile-badge" title="Three Weeks"><div class="nge-profile-badge-img"><img src="../media/badges/loyalty/steady-signal.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Three Weeks</div></div>
                   <div class="nge-profile-badge" title="Two Weeks"><div class="nge-profile-badge-img"><img src="../media/badges/loyalty/double-orbit.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Two Weeks</div></div>
                   <div class="nge-profile-badge nge-profile-badge--locked" title="Next: 50 days of science"><div class="nge-profile-badge-img"><div class="nge-profile-badge-mystery"><span class="nge-profile-badge-mystery-q">?</span></div></div></div>
-                  <div class="nge-profile-badge nge-profile-badge--viewall" title="View all in the Trophy Case"><div class="nge-profile-badge-img"><div class="nge-profile-badge-viewall-icon">→</div></div><div class="nge-profile-badge-name">View all</div></div>
+                  <div class="nge-profile-badge nge-profile-badge--viewall" title="View all in the Trophy Case"><div class="nge-profile-badge-img"><svg class="nge-profile-badge-viewall-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="nge-profile-badge-name">View all</div></div>
                 </div>
               </div>
             </div>
