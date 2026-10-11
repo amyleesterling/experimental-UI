@@ -202,7 +202,17 @@
   }
   .nge-track-feature-eyebrow { font-size: 0.62em; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(120, 180, 255, 0.6); margin-bottom: 4px; }
   .nge-track-feature-icon { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 0 12px rgba(74, 158, 255, 0.35)); }
-  .nge-track-feature-name { font-size: 0.76em; color: #cfd8e8; margin-top: 5px; line-height: 1.2; }
+  /* names are tooltips, not labels (Ames 2026-10-11); the rows shrink to the art */
+  .nge-profile-modal .nge-profile-badge .nge-profile-badge-name { display: none; }
+  .nge-profile-modal .nge-profile-badges-grid {
+    grid-auto-rows: 58px;
+    background-image: repeating-linear-gradient(to bottom, transparent 0px 54px, rgba(130, 190, 255, 0.30) 54px 55px, rgba(130, 190, 255, 0.08) 55px 57px, transparent 57px 70px);
+  }
+  /* the right column's sections share one left edge */
+  .nge-profile-modal .nge-profile-col--right > .nge-profile-section--podium,
+  .nge-profile-modal .nge-profile-col--right > .nge-profile-section--streak,
+  .nge-profile-modal .nge-profile-col--right > .nge-profile-right-divider { align-self: stretch; }
+  .nge-profile-modal .nge-profile-col--right .nge-profile-activity-chart { max-width: 340px; }
   .nge-track-stats { min-width: 0; }
   .nge-track-stats > .nge-profile-section,
   .nge-track-achievements > .nge-profile-section { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
@@ -403,7 +413,7 @@
       <li><b>One row per track</b> across the old left and middle columns: the latest Achievement at the left, the stats and curve beside it, the other Achievements won on the same line. Cells, then edits, then days. The username is the title.</li>
       <li><b>Cells completed gets today, past 7 days and all time</b>, per dataset like edits, read from the completions list with each cell's completion time.</li>
       <li><b>A curve of the running total above each</b>, from the player's first day on that dataset to today, drawn once on open, with the past 7 days and today marked on it.</li>
-      <li><b>Days as a citizen scientist</b> shows the latest Days Achievement beside the total; streak and best streak stay on the right under Streak. Annotations are a column of the Scout report, not a row of their own.</li>
+      <li><b>Days helping science in Pyr</b> shows the latest Days Achievement beside the total; streak and best streak stay on the right under Streak. Annotations are a column of the Scout report, not a row of their own. Achievement names are tooltips, not labels, and the featured one is left out of its row.</li>
       <li><b>The recent cells list</b> keeps the browser's own history; when that is empty (a new device, a test build on another address) it lists the cells completed on this dataset from the server, the same rows as the numbers.</li>
       <li><b>Completions are teal on the 14 day chart</b>, matching the Cell Completions track and the cells pill, instead of amber.</li>
       <li><b>Two words fixed on the way</b>: "Edits in EyeWire II" becomes "Edits in Pyr", and "Favorite Badge" becomes "Favorite Achievement".</li>
@@ -545,7 +555,6 @@
               <div class="nge-track-feature" title="Cairn, earned for 100 cells completed">
                 <div class="nge-track-feature-eyebrow">Latest</div>
                 <img src="../media/badges/exploration/cairn.png" alt="" class="nge-track-feature-icon">
-                <div class="nge-track-feature-name">Cairn</div>
               </div>
               <div class="nge-track-stats" id="row-cells-stats"></div>
               <div class="nge-track-achievements">
@@ -575,7 +584,6 @@
               <div class="nge-track-feature" title="Wrench, earned for 700 edits">
                 <div class="nge-track-feature-eyebrow">Latest</div>
                 <img src="../media/badges/building/wrench.png" alt="" class="nge-track-feature-icon">
-                <div class="nge-track-feature-name">Wrench</div>
               </div>
               <div class="nge-track-stats" id="row-edits-stats"></div>
               <div class="nge-track-achievements">
@@ -604,11 +612,10 @@
               <div class="nge-track-feature" title="Forty Days, earned for 40 days of science">
                 <div class="nge-track-feature-eyebrow">Latest</div>
                 <img src="../media/badges/loyalty/golden-orbit.png" alt="" class="nge-track-feature-icon">
-                <div class="nge-track-feature-name">Forty Days</div>
               </div>
               <div class="nge-track-stats">
                 <div class="nge-profile-section nge-profile-section--days">
-                  <div class="nge-profile-section-label">▌ Days as a citizen scientist</div>
+                  <div class="nge-profile-section-label">▌ Days helping science in Pyr</div>
                   <div class="nge-profile-stat-row">
                     <div class="nge-profile-stat-col" title="Every day you have shown up, ever. This never resets.">
                       <div class="nge-profile-stat-label">Total days</div>
