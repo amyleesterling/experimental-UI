@@ -158,10 +158,13 @@
      scrolls on its own. The orbiting edge light now runs round the edge of
      the screen. Phones already do this (mobile.css), so this is the desktop
      change only. */
-  .nge-profile-modal .nge-overlay { width: 100vw; height: 100vh; border-radius: 0; }
+  .nge-profile-modal .nge-overlay { width: 100vw; height: 100vh; border-radius: 0; padding: 22px 40px 26px; }
   .nge-profile-modal .nge-profile-shell { width: 100%; height: 100%; max-height: 100vh; }
   .nge-profile-modal .nge-profile-col--left   { flex: 46 1 0px; }
-  .nge-profile-modal .nge-profile-col--center { flex: 46 1 0px; }
+  /* the middle column keeps its old width: five achievement tiles spread
+     across a wider column drifted apart. The left and right columns take
+     the room instead. */
+  .nge-profile-modal .nge-profile-col--center { flex: 0 1 460px; }
   .nge-profile-modal .nge-profile-col--right  { flex: 36 1 0px; }
   @media (prefers-reduced-motion: reduce) {
     .nge-profile-modal .nge-overlay { animation: none; }
@@ -170,6 +173,7 @@
      body as one page (body.nge-mobile rules); carried here as a width query,
      since this page has no device gate */
   @media (max-width: 760px) {
+    .nge-profile-modal .nge-overlay { padding: 0; }
     .nge-profile-modal .nge-profile-body { flex-direction: column; overflow-y: auto; }
     .nge-profile-modal .nge-profile-col {
       width: 100%; flex: none; overflow-y: visible;
@@ -187,7 +191,8 @@
      not disagree. In a wide column the numbers sit beside the curve; in a
      narrow one the curve drops below them. */
   .nge-profile-section--windows { container-type: inline-size; }
-  .nge-profile-section--completions { animation: ngeSectionRollIn 0.2s ease-out 0.24s both; }
+  .nge-profile-section--completions { animation: ngeSectionRollIn 0.2s ease-out 0.16s both; }
+  .nge-profile-section--annotations { animation: ngeSectionRollIn 0.2s ease-out 0.22s both; }
   .nge-profile-windows { display: grid; gap: 10px 18px; min-width: 0; }
   @container (min-width: 560px) {
     .nge-profile-windows {
@@ -291,7 +296,11 @@
       window, the left column gives cells completed the same today, past
       7 days and all time windows that edits already have, and each of the
       two gets a small curve of the running total since the player's first
-      day, drawn once when the profile opens.
+      day, drawn once when the profile opens. Second round, after Ames tried
+      it in the game: room at the edges, cells before edits to match the
+      middle column, the Days row as three plain columns, the second Cells
+      block renamed Annotations, and the middle column kept at its old width
+      so the achievement tiles stay close together.
     </p>
     <p class="note">
       What is real here: the stylesheet is the game's own, carried across
@@ -310,9 +319,9 @@
     <h2>Open the profile</h2>
     <p class="note">
       The frame takes the whole window instead of a 1280 pixel box in the
-      middle of it. The three columns keep the game's proportions and grow
-      with the window, each scrolling on its own, and the orbiting edge
-      light runs round the edge of the screen. Escape or the cross closes
+      middle of it, with room at its edges. The left and right columns grow
+      with the window, the middle one keeps its width, each scrolls on its
+      own, and the orbiting edge light runs round the edge of the screen. Escape or the cross closes
       it. The numbers roll up and the curves draw once, on open, as they
       would in the game.
     </p>
@@ -357,10 +366,12 @@
     <p class="eyebrow">For the game</p>
     <h2>What would change in Pyr</h2>
     <ul class="changes">
-      <li><b>The profile is full screen on desktop.</b> The shell fills the window on every tab; the Datasets, Settings and Admin Hub bodies keep their widths, centred.</li>
+      <li><b>The profile is full screen on desktop</b>, with 40 pixels of room at the sides. The shell fills the window on every tab; the Datasets, Settings and Admin Hub bodies keep their widths, centred. The middle column keeps its width so the achievement tiles stay close; the left and right columns take the room.</li>
+      <li><b>Cells first, then edits</b> in the left column, the order of the middle column.</li>
       <li><b>Cells completed gets today, past 7 days and all time</b>, per dataset like edits, read from the completions list with each cell's completion time.</li>
       <li><b>A curve of the running total under each</b>, from the player's first day on that dataset to today, drawn once on open, with the past 7 days and today marked on it.</li>
-      <li><b>The Completed tile in the Cells block goes</b>, since the all time window above it is the same number from a better source. Identified, Total and Annotations stay.</li>
+      <li><b>The old Cells block becomes Annotations</b>: its Completed, Identified and Total tiles go (the all time window above is the completed count from a better source), the annotations number stays. The Days row is three plain columns, no boxes.</li>
+      <li><b>The recent cells list</b> keeps the browser's own history; when that is empty (a new device, a test build on another address) it lists the cells completed on this dataset from the server, the same rows as the numbers.</li>
       <li><b>Completions are teal on the 14 day chart</b>, matching the Cell Completions track and the cells pill, instead of amber.</li>
       <li><b>Two words fixed on the way</b>: "Edits in EyeWire II" becomes "Edits in Pyr", and "Favorite Badge" becomes "Favorite Achievement".</li>
     </ul>
@@ -386,6 +397,30 @@
 
 <!-- ---- the two window blocks, stamped into the dialog and into section 2 -->
 <template id="tpl-windows">
+  <div class="nge-profile-section nge-profile-section--completions nge-profile-section--windows">
+    <div class="nge-profile-section-label"
+         title="Cells you proofread all the way to completion in Pyr on this dataset. A cell completed again after an edit counts once.">▌ Cells completed</div>
+    <div class="nge-profile-windows">
+      <div class="nge-profile-stat-row">
+        <div class="nge-profile-stat-col">
+          <div class="nge-profile-stat-label">Today</div>
+          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="cells.today">0</span></div>
+        </div>
+        <div class="nge-profile-stat-col">
+          <div class="nge-profile-stat-label">Past 7d</div>
+          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="cells.week">0</span></div>
+        </div>
+        <div class="nge-profile-stat-col">
+          <div class="nge-profile-stat-label">All Time</div>
+          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="cells.all">0</span></div>
+        </div>
+      </div>
+      <figure class="nge-effort" data-series="cells" style="--c: 95 227 245" aria-label="Cells completed over time">
+        <figcaption class="nge-effort-cap"><span data-cap="start"></span><span>Today</span></figcaption>
+      </figure>
+    </div>
+  </div>
+
   <div class="nge-profile-section nge-profile-section--edits nge-profile-section--windows">
     <div class="nge-profile-section-label"
          title="Splits and merges you made in Pyr on this dataset. Edits made in other tools, or before you joined, are not counted.">▌ Edits in Pyr</div>
@@ -417,30 +452,6 @@
         </div>
       </div>
       <figure class="nge-effort" data-series="edits" style="--c: 74 158 255" aria-label="Edits over time">
-        <figcaption class="nge-effort-cap"><span data-cap="start"></span><span>Today</span></figcaption>
-      </figure>
-    </div>
-  </div>
-
-  <div class="nge-profile-section nge-profile-section--completions nge-profile-section--windows">
-    <div class="nge-profile-section-label"
-         title="Cells you proofread all the way to completion in Pyr on this dataset. A cell completed again after an edit counts once.">▌ Cells completed</div>
-    <div class="nge-profile-windows">
-      <div class="nge-profile-stat-row">
-        <div class="nge-profile-stat-col">
-          <div class="nge-profile-stat-label">Today</div>
-          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="cells.today">0</span></div>
-        </div>
-        <div class="nge-profile-stat-col">
-          <div class="nge-profile-stat-label">Past 7d</div>
-          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="cells.week">0</span></div>
-        </div>
-        <div class="nge-profile-stat-col">
-          <div class="nge-profile-stat-label">All Time</div>
-          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="cells.all">0</span></div>
-        </div>
-      </div>
-      <figure class="nge-effort" data-series="cells" style="--c: 95 227 245" aria-label="Cells completed over time">
         <figcaption class="nge-effort-cap"><span data-cap="start"></span><span>Today</span></figcaption>
       </figure>
     </div>
@@ -490,8 +501,39 @@
             <div class="nge-profile-bio">Tai chi and neuroscience. I built Pyr, the EyeWire II game!</div>
           </div>
 
-          <!-- the two window blocks are stamped in here, before Building Pyr -->
-          <div class="nge-profile-section nge-profile-section--building" id="dialog-building">
+          <!-- the two window blocks are stamped in here, before Annotations -->
+          <div class="nge-profile-section nge-profile-section--annotations" id="dialog-annotations">
+            <div class="nge-profile-section-label">▌ Annotations</div>
+            <div class="nge-profile-stat-row">
+              <div class="nge-profile-stat-col" title="Points, lines and boxes you placed in annotation layers, on every dataset">
+                <div class="nge-profile-stat-label">All Time</div>
+                <div class="nge-profile-stat-val" style="color: #c9a0ff; text-shadow: 0 0 14px rgba(201, 160, 255, 0.35);"><span class="nge-roll" data-roll="2424">0</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--days">
+            <div class="nge-profile-section-label">▌ Days as a citizen scientist</div>
+            <div class="nge-profile-stat-row">
+              <div class="nge-profile-stat-col" title="Every day you have shown up, ever. This never resets.">
+                <div class="nge-profile-stat-label">Total days</div>
+                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="44">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col" title="Days in a row right now, on your own calendar">
+                <div class="nge-profile-stat-label">Streak</div>
+                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="8">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col" title="The longest run of days in a row">
+                <div class="nge-profile-stat-label">Best streak</div>
+                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="13">0</span></div>
+              </div>
+            </div>
+            <div class="nge-days-ladder" title="Next milestone: day 50">
+              <div class="nge-days-next">6 days to day 50</div>
+            </div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--building">
             <div class="nge-profile-section-label">▌ Building Pyr</div>
             <div class="nge-profile-stat-row nge-profile-stat-row--tiles">
               <div class="nge-profile-stat-col nge-profile-stat-tile nge-profile-stat-tile--build" title="Changes saved to Pyr's code">
@@ -505,45 +547,8 @@
             </div>
           </div>
 
-          <div class="nge-profile-section nge-profile-section--days">
-            <div class="nge-profile-section-label">▌ Days as a citizen scientist</div>
-            <div class="nge-profile-stat-row nge-profile-stat-row--tiles">
-              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Every day you have shown up, ever. This never resets.">
-                <div class="nge-profile-stat-label">Total days</div>
-                <div class="nge-profile-stat-val nge-profile-stat-val--hero"><span class="nge-roll" data-roll="44">0</span></div>
-              </div>
-              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Days in a row right now, on your own calendar">
-                <div class="nge-profile-stat-label">Streak</div>
-                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="8">0</span></div>
-              </div>
-              <div class="nge-profile-stat-col nge-profile-stat-tile" title="The longest run of days in a row">
-                <div class="nge-profile-stat-label">Best streak</div>
-                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="13">0</span></div>
-              </div>
-            </div>
-            <div class="nge-days-ladder" title="Next milestone: day 50">
-              <div class="nge-days-next">6 days to day 50</div>
-            </div>
-          </div>
-
           <div class="nge-profile-section nge-profile-section--cells">
-            <div class="nge-profile-section-label">▌ Cells</div>
-            <div class="nge-profile-stat-row nge-profile-stat-row--tiles">
-              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Cells you identified (typed) without proofreading edits">
-                <div class="nge-profile-stat-label">Identified</div>
-                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="2">0</span></div>
-              </div>
-              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Every cell you have worked on in any way">
-                <div class="nge-profile-stat-label">Total</div>
-                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="18">0</span></div>
-              </div>
-              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Points, lines and boxes you placed in annotation layers, on every dataset">
-                <div class="nge-profile-stat-label">Annotations</div>
-                <div class="nge-profile-stat-val" style="color: #c9a0ff; text-shadow: 0 0 14px rgba(201, 160, 255, 0.35);"><span class="nge-roll" data-roll="2424">0</span></div>
-              </div>
-            </div>
-
-            <div class="nge-profile-section-label" style="margin-top: 12px;">▌ Scout Report</div>
+            <div class="nge-profile-section-label">▌ Scout Report</div>
             <div class="nge-profile-stat-row nge-profile-stat-row--scout" style="margin-bottom: 12px;">
               <div class="nge-profile-stat-col" title="Tags you placed for others to fix">
                 <div class="nge-profile-stat-label">Tags Placed</div>
@@ -952,7 +957,7 @@
   /* ---- the dialog ---------------------------------------------------------- */
   var dlg = document.getElementById("pyr-profile");
   var dialogWindows = dlg.querySelector(".nge-profile-col--left");
-  stampWindows(dialogWindows, document.getElementById("dialog-building"));
+  stampWindows(dialogWindows, document.getElementById("dialog-annotations"));
 
   // recent cells, as the game lists them
   var CELLS = [
