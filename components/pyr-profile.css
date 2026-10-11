@@ -1,0 +1,2142 @@
+/* ---- the Pyr profile's own stylesheet, carried across ---------------------
+   This is the <style> block of ng-extend/src/components/UserProfilePanel.vue
+   (branch eyewire-ii-community, 2026-10-11), with only two mechanical
+   changes: Vue's :deep() wrappers removed, since there is no scoping here,
+   and the Orbitron @import dropped, because this repo loads nothing from a
+   CDN (the hero numbers fall back to the next font in each stack).
+
+   It is here so the test page in profile.html is judged in the game's real
+   material: the columns, tabs, tiles, achievement grid and streak block are
+   the live game's, not a drawing of them. Everything NEW on that page (the
+   edits and cells windows, the effort curves, the full screen shell) lives
+   in profile.html, marked as the proposal. */
+
+.nge-profile-modal { font-size: 0.9em; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OPEN ANIMATION — panel materializes fast, then sections stagger in
+───────────────────────────────────────────────────────────────────────────── */
+
+/* NOTE: NO position:relative here. Neuroglancer's .overlay-content already
+   has position:absolute; top:50%; left:50%; transform:translate(-50%,-50%).
+   Adding position:relative would override that and break centering.          */
+.nge-profile-modal .nge-overlay {
+  /* visible, !important: ng-override.css forces overflow:auto !important on
+     every .nge-overlay.modal.overlay-content, and this box's content is 1px
+     larger than it, which drew scrollbars around the whole profile. Visible
+     never draws scrollbars, and the shell is height-capped with each tab body
+     scrolling on its own, so nothing escapes. NOT hidden: hidden clipped the
+     orbiting edge glow (::before, inset -1px) along the straight edges but only
+     partly at the rounded corners, so the corner looked sharp as the light
+     passed it (Amy 2026-09-28). */
+  overflow: visible !important;
+}
+/* Out-specifies ng-override's 0,3,0 !important rule regardless of load order. */
+.nge-profile-modal .nge-overlay.modal.overlay-content {
+  overflow: visible !important;
+}
+/* ── Holographic edge glow: soft lights orbiting the frame ──
+   Painted as the panel's own background: the fill covers the padding box and
+   the orbiting conic shows only under the 1px border, so the light follows
+   the rounded corner by construction. It used to be a ::before ring cut out
+   with mask-composite; on GPU Chrome that drew seams across the corners and a
+   lit curve that didn't sit on the panel's curve as the light passed (Ames
+   2026-09-29, screen recording). Stop alphas are the old ones x 0.7, the
+   ring's former opacity. */
+.nge-profile-modal .nge-overlay {
+  animation: ngeProfileMaterialize 0.28s cubic-bezier(0.16, 1, 0.3, 1) both, ngeHoloEdgeSpin 8s linear infinite;
+  background:
+    linear-gradient(135deg, rgba(4, 6, 14, 0.97) 0%, rgba(8, 12, 24, 0.95) 50%, rgba(4, 8, 18, 0.97) 100%) padding-box,
+    conic-gradient(
+      from var(--nge-holo-angle, 0deg),
+      transparent 0%,
+      rgba(74, 158, 255, 0.0) 10%,
+      rgba(74, 158, 255, 0.245) 14%,
+      rgba(0, 210, 255, 0.105) 18%,
+      transparent 22%,
+      transparent 35%,
+      rgba(160, 120, 255, 0.175) 39%,
+      rgba(120, 80, 220, 0.07) 43%,
+      transparent 47%,
+      transparent 60%,
+      rgba(0, 255, 200, 0.14) 64%,
+      rgba(74, 158, 255, 0.056) 68%,
+      transparent 72%,
+      transparent 85%,
+      rgba(74, 158, 255, 0.105) 89%,
+      transparent 93%
+    ) border-box !important;
+}
+
+@property --nge-holo-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes ngeHoloEdgeSpin {
+  to { --nge-holo-angle: 360deg; }
+}
+
+/* Scanline removed — holographic border glow handled by ModalOverlay */
+
+/* Close animation — overrides materialize with higher specificity */
+.nge-profile-closing.nge-profile-modal .nge-overlay {
+  animation: ngeProfileCollapse 0.15s ease-in both;
+}
+
+@keyframes ngeProfileMaterialize {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.97); filter: blur(10px) brightness(2.5); box-shadow: 0 0 80px rgba(0,180,255,0.5); }
+  30%  { opacity: 0.8; transform: translate(-50%,-50%) scale(1.003); filter: blur(1px) brightness(1.2); }
+  60%  { opacity: 1; transform: translate(-50%,-50%) scale(0.998); filter: blur(0) brightness(1.05); }
+  100% { opacity: 1; transform: translate(-50%,-50%); filter: blur(0) brightness(1); box-shadow: none; }
+}
+
+@keyframes ngeProfileCollapse {
+  0%   { opacity: 1; transform: translate(-50%,-50%) scale(1); filter: blur(0) brightness(1); }
+  50%  { filter: blur(0) brightness(1.3); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(0.94); filter: blur(10px) brightness(2); }
+}
+
+/* (scanline keyframe removed — using ModalOverlay holographic effects) */
+
+/* Staggered section roll-in */
+@keyframes ngeSectionRollIn {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SHELL
+───────────────────────────────────────────────────────────────────────────── */
+.nge-profile-shell {
+  display: flex;
+  flex-direction: column;
+  /* Never taller than the viewport, whatever a tab's content does. The
+     plain 90vh clamp still let content escape on short windows because
+     ModalOverlay's overlay-content is overflow: visible; the hard cap plus
+     overflow hidden means nothing can render past the shell edge, and each
+     tab body scrolls internally. */
+  max-height: min(90vh, calc(100vh - 32px));
+  overflow: hidden;
+  transition: width 0.25s ease;
+}
+.nge-profile-shell--trophy {
+  width: 85vw;
+  max-width: 1200px;
+}
+.nge-profile-shell--admin {
+  width: 720px;
+  max-width: 90vw;
+}
+/* Give Week in Science a real, consistent width instead of letting the shell
+   shrink to the recap's old fixed content width (which read as a tiny box). */
+.nge-profile-shell--week {
+  /* Wide enough for the recap's three columns to fit without scrolling. */
+  width: 1180px;
+  max-width: 94vw;
+}
+.nge-profile-shell--dstats {
+  /* Wide enough for the three columns of dataset stats. */
+  width: 1180px;
+  max-width: 94vw;
+}
+.nge-profile-body--dstats {
+  display: block;
+  padding: 0;
+  max-height: calc(90vh - 100px);
+  overflow-y: auto;
+}
+.nge-profile-shell--datasets {
+  width: 640px;
+  max-width: 90vw;
+}
+.nge-profile-shell--settings {
+  /* Full profile size with three columns (Ames 2026-09-29). */
+  width: 1120px;
+  max-width: 94vw;
+  height: min(760px, calc(100vh - 32px));
+}
+.nge-profile-body--settings {
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Datasets tab ── */
+.nge-profile-body--datasets {
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 18px 22px 26px;
+  gap: 12px;
+}
+/* More datasets: one toggle row per optional volume */
+/* A block, not the profile body's row: as a row its title, intro and
+   toggles sat side by side in thin columns. */
+.nge-profile-body.nge-ds-more { display: block; flex: none; padding: 4px 22px 20px; max-height: 38vh; overflow-y: auto; }
+.nge-ds-more-title { font-size: 0.78em; letter-spacing: 0.12em; text-transform: uppercase; color: #8fb8e8; font-weight: 700; margin-bottom: 4px; }
+.nge-ds-more-intro { font-size: 0.86em; color: #9fb0c8; line-height: 1.45; margin-bottom: 10px; }
+.nge-ds-more-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; margin-bottom: 6px; cursor: pointer; }
+.nge-ds-more-row:hover { border-color: rgba(100, 200, 255, 0.25); background: rgba(100, 200, 255, 0.04); }
+.nge-ds-more-row input { width: 16px; height: 16px; accent-color: #4a9eff; cursor: pointer; flex: none; }
+.nge-ds-more-icon { font-size: 1.2em; flex: none; }
+.nge-ds-more-text { display: flex; flex-direction: column; min-width: 0; }
+.nge-ds-more-label { color: #e6eefc; font-weight: 600; font-size: 0.92em; }
+.nge-ds-more-desc { color: rgba(255, 255, 255, 0.5); font-size: 0.82em; line-height: 1.35; }
+
+.nge-ds-tab-intro {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.nge-ds-tab-progress {
+  align-self: flex-start;
+  padding: 7px 12px;
+  font-size: 12px;
+  color: rgb(126, 224, 255);
+  background: rgba(126, 224, 255, 0.06);
+  border: 1px solid rgba(126, 224, 255, 0.28);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.nge-ds-tab-progress:hover { background: rgba(126, 224, 255, 0.14); color: #fff; }
+.nge-ds-tab-loading {
+  font-size: 12px;
+  color: rgba(100, 200, 255, 0.7);
+}
+.nge-ds-tab-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nge-ds-tab-card {
+  position: relative;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.nge-ds-tab-card:hover:not(.nge-ds-tab-card--active) {
+  background: rgba(100, 200, 255, 0.06);
+  border-color: rgba(100, 200, 255, 0.2);
+}
+.nge-ds-tab-card--active {
+  background: rgba(100, 200, 255, 0.1);
+  border-color: rgba(100, 200, 255, 0.4);
+  cursor: default;
+}
+.nge-ds-tab-card--switching {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.nge-ds-tab-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nge-ds-tab-species { font-size: 16px; line-height: 1; }
+/* Cards with a render get it as a small 16:9 thumbnail on the left. */
+.nge-ds-tab-card--thumb {
+  display: grid;
+  grid-template-columns: 124px 1fr;
+  gap: 14px;
+  align-items: center;
+}
+.nge-ds-tab-card-body { min-width: 0; }
+/* With a thumbnail there is no species icon, so the description and stats
+   line up under the name instead of keeping the icon's 24px indent. */
+.nge-ds-tab-card--thumb .nge-ds-tab-desc,
+.nge-ds-tab-card--thumb .nge-ds-tab-stats { margin-left: 0; }
+/* The week tab fits its content; on a short window it still scrolls, just
+   without a visible bar. */
+.nge-profile-body--week { scrollbar-width: none; }
+.nge-profile-body--week::-webkit-scrollbar { display: none; }
+.nge-profile-body--week * { scrollbar-width: none; }
+.nge-ds-tab-thumb {
+  width: 124px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+@media (max-width: 520px) {
+  .nge-ds-tab-card--thumb { grid-template-columns: 84px 1fr; gap: 10px; }
+  .nge-ds-tab-thumb { width: 84px; }
+}
+.nge-ds-tab-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  flex: 1;
+}
+.nge-ds-tab-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64c8ff;
+  background: rgba(100, 200, 255, 0.12);
+  padding: 1px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.03em;
+}
+.nge-ds-tab-switch {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+.nge-ds-tab-card:hover .nge-ds-tab-switch { color: #64c8ff; }
+.nge-ds-tab-desc {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 4px 0 8px 24px;
+  line-height: 1.35;
+}
+.nge-ds-tab-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-left: 24px;
+}
+.nge-ds-tab-stat {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+.nge-ds-tab-stat b {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 600;
+}
+/* Cells proofread is the headline of a card once there are some. */
+.nge-ds-tab-stats { align-items: baseline; }
+.nge-ds-tab-stat--cells {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(66, 213, 236, 0.12);
+  border: 1px solid rgba(66, 213, 236, 0.35);
+}
+.nge-ds-tab-stat--cells b {
+  color: #5fe3f5;
+  font-weight: 800;
+  font-size: 14px;
+}
+.nge-ds-tab-stat--none {
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+}
+
+/* ── Topbar ── */
+.nge-profile-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+  background: rgba(74, 158, 255, 0.04);
+}
+
+.nge-profile-topbar-label {
+  font-size: 0.65em;
+  letter-spacing: 0.18em;
+  color: rgba(74, 158, 255, 0.55);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+/* Dataset scope, in the bar's own lettering. */
+.nge-profile-topbar-scope {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.nge-profile-topbar-sep { margin: 0 0.5em; }
+.nge-profile-topbar-scope-icon { font-size: 1.5em; letter-spacing: 0; vertical-align: -1px; margin: 0 0.15em 0 0.3em; }
+.nge-profile-topbar-scope-name { color: #7ff0e0; border-bottom: 1px dotted rgba(127, 240, 224, 0.4); }
+.nge-profile-topbar-scope:hover { color: rgba(140, 195, 255, 0.95); }
+.nge-profile-topbar-scope:hover .nge-profile-topbar-scope-name { color: #fff; border-bottom-color: #fff; }
+.nge-profile-topbar-scope--fallback .nge-profile-topbar-scope-name { color: #f5a623; }
+
+.nge-profile-exit {
+  background: none; border: none;
+  color: #666; font-size: 1.5em; cursor: pointer; line-height: 1; padding: 0;
+}
+.nge-profile-exit:hover { color: #fff; }
+
+/* ── Three-column body ── */
+.nge-profile-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Shared column base ── */
+.nge-profile-col {
+  overflow-y: auto;
+  /* macOS hides overlay scrollbars until you scroll, which made a clipped
+     column and a scrollable one look identical. A slim always-there thumb
+     says "there's more". */
+  scrollbar-gutter: stable;
+  padding: 20px 24px 32px;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 158, 255, 0.2) rgba(255, 255, 255, 0.03);
+}
+.nge-profile-col::-webkit-scrollbar        { width: 4px; }
+.nge-profile-col::-webkit-scrollbar-track  { background: rgba(255, 255, 255, 0.02); }
+.nge-profile-col::-webkit-scrollbar-thumb  { background: rgba(74, 158, 255, 0.2); border-radius: 2px; }
+.nge-profile-col::-webkit-scrollbar-thumb:hover { background: rgba(74, 158, 255, 0.4); }
+
+/* Left: stats + recent cells */
+/* Column sizes: ideal 460 / 460 / 360 (1280 total), but each may shrink to a
+   minimum. They were fixed-width and unshrinkable, so any window narrower
+   than about 1310px cut the right column off the profile (fit audit,
+   Amy 2026-09-28: 13" laptops and non-full-screen windows). */
+.nge-profile-col--left {
+  flex: 0 1 460px;
+  min-width: 300px;
+}
+
+/* Center: badges + streak + countdown */
+.nge-profile-col--center {
+  flex: 0 1 460px;
+  min-width: 330px;
+  overflow-x: hidden;
+  border-left: 1px solid rgba(74, 158, 255, 0.08);
+  border-right: 1px solid rgba(74, 158, 255, 0.08);
+  background: rgba(74, 158, 255, 0.01);
+}
+
+/* Very narrow windows (below the three columns' minimums): the right column
+   drops under the other two and the body scrolls as one. */
+@media (max-width: 960px) {
+  body:not(.nge-mobile) .nge-profile-body:has(> .nge-profile-col--right) {
+    flex-wrap: wrap;
+    overflow-y: auto;
+  }
+  body:not(.nge-mobile) .nge-profile-body > .nge-profile-col--right {
+    flex: 1 1 100%;
+    overflow-y: visible;
+    border-top: 1px solid rgba(74, 158, 255, 0.08);
+  }
+}
+
+/* Right: latest badge / badge detail */
+.nge-profile-col--right {
+  flex: 0 1 360px;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: rgba(74, 158, 255, 0.015);
+  /* Was overflow: hidden, which silently clipped Favorite Badge / Top of the
+     Week on short windows while the sibling columns scrolled (the recurring
+     "a rule was written but never applied" trap, in reverse: a rule applied
+     that never should have been). */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   HEADER
+───────────────────────────────────────────────────────────────────────────── */
+.nge-profile-header {
+  padding-bottom: 22px;
+  margin-bottom: 6px;
+  animation: ngeSectionRollIn 0.2s ease-out 0.12s both;
+}
+
+.nge-profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+/* Flag + inline picker */
+.nge-profile-flag-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Flag images (cross-platform — Windows doesn't render flag emoji) */
+.nge-flag-img { width: 24px; height: 18px; object-fit: cover; border-radius: 2px; vertical-align: middle; }
+.nge-flag-img.nge-pyr-icon { width: 22px; height: 22px; object-fit: contain; border-radius: 0; }
+.nge-flag-img--picker { width: 28px; height: 20px; }
+
+.nge-profile-flag {
+  background: none; border: none;
+  font-size: 1.55em; line-height: 1; cursor: pointer; padding: 2px;
+  border-radius: 4px;
+  transition: background 0.12s, transform 0.12s;
+}
+.nge-profile-flag:hover            { background: rgba(255,255,255,0.08); transform: scale(1.1); }
+.nge-profile-flag--active          { background: rgba(74,158,255,0.15); }
+
+.nge-profile-flag-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 200;
+  background: #1c1e26;
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 8px;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 158, 255, 0.3) transparent;
+}
+
+.nge-profile-flag-opt {
+  background: none; border: none;
+  font-size: 1.3em; padding: 4px; border-radius: 4px; cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+  line-height: 1;
+}
+.nge-profile-flag-opt:hover          { background: rgba(255,255,255,0.1); transform: scale(1.15); }
+.nge-profile-flag-opt--active        { background: rgba(74,158,255,0.18); }
+
+/* Picker transition */
+.nge-flag-picker-enter-active  { transition: all 0.14s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.nge-flag-picker-leave-active  { transition: all 0.1s ease-in; }
+.nge-flag-picker-enter-from,
+.nge-flag-picker-leave-to      { opacity: 0; transform: translateY(-6px) scale(0.96); }
+
+/* Name */
+.nge-profile-name {
+  font-size: 1.45em;
+  font-weight: 700;
+  color: #eef0f4;
+  letter-spacing: -0.01em;
+  text-shadow: 0 0 28px rgba(74, 158, 255, 0.28);
+  flex: 1;
+}
+
+/* Edit button */
+.nge-profile-edit-btn {
+  background: none; border: none;
+  color: rgba(74, 158, 255, 0.4);
+  font-size: 1em; cursor: pointer; padding: 2px 4px; border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.nge-profile-edit-btn:hover {
+  color: rgba(74, 158, 255, 0.9);
+  background: rgba(74, 158, 255, 0.1);
+}
+
+/* The chat handle. Monospace and accented so it reads as an identifier rather
+   than more grey metadata like the email below it. */
+.nge-profile-username {
+  font-family: 'Consolas', 'Monaco', monospace;
+  color: #9db8ff;
+  font-size: 1.12em;
+  font-weight: 600;
+  margin: 2px 0 4px;
+}
+
+.nge-profile-email {
+  font-style: italic;
+  color: rgba(158, 158, 158, 0.7);
+  font-size: 0.82em;
+  margin-bottom: 4px;
+}
+
+.nge-profile-bio {
+  font-size: 0.82em;
+  color: #aaa;
+  line-height: 1.45;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.nge-profile-bio-add {
+  background: none; border: none;
+  font-size: 0.78em;
+  color: rgba(74, 158, 255, 0.45);
+  cursor: pointer; padding: 0; margin-top: 4px;
+  transition: color 0.15s;
+  font-style: italic;
+}
+.nge-profile-bio-add:hover { color: rgba(74, 158, 255, 0.8); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTIONS (shared layout)
+───────────────────────────────────────────────────────────────────────────── */
+.nge-profile-section {
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nge-profile-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+/* Section label: "▌ EDITS" style */
+.nge-profile-section-label {
+  font-size: 0.78em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: rgba(120, 180, 255, 0.95);
+  margin-bottom: 12px;
+}
+
+.nge-profile-section-label--amber { color: rgba(255, 195, 110, 0.95); }
+
+.nge-profile-section-label--green { color: rgba(160, 255, 175, 0.95); }
+
+/* Section roll-in delays */
+.nge-profile-section--edits     { animation: ngeSectionRollIn 0.2s ease-out 0.18s both; }
+.nge-profile-section--cells     { animation: ngeSectionRollIn 0.2s ease-out 0.24s both; }
+.nge-profile-section--streak    { animation: ngeSectionRollIn 0.2s ease-out 0.29s both; }
+.nge-profile-section--badges    { animation: ngeSectionRollIn 0.2s ease-out 0.33s both; }
+.nge-profile-section--countdown { animation: ngeSectionRollIn 0.2s ease-out 0.37s both; }
+
+/* ── Achievement countdown ── */
+.nge-profile-countdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.nge-profile-countdown-name { font-weight: 400; color: rgba(255,255,255,0.5); font-size: 0.82em; font-style: italic; }
+.nge-profile-countdown-remaining { font-size: 0.86em; color: #cde; }
+.nge-profile-countdown-track {
+  height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 3px; overflow: hidden;
+}
+.nge-profile-countdown-fill {
+  height: 100%; background: linear-gradient(90deg, #7f8, #4a9eff); border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nge-profile-countdown-labels {
+  display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.68em; color: #555;
+}
+.nge-profile-countdown-inline { margin-bottom: 10px; }
+.nge-profile-countdown-fill--building { background: linear-gradient(90deg, #ffd08a, #f5a623); }
+.nge-profile-countdown-fill--exploration { background: linear-gradient(90deg, #90fff2, #4ae5d5); }
+.nge-profile-countdown-fill--loyalty { background: linear-gradient(90deg, #c9a8ff, #f0c869); }
+
+/* ── Stat row ── */
+/* Days track: the stretch of the milestone ladder around today. */
+.nge-days-ladder { margin: 10px 0 12px; }
+.nge-days-steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.nge-days-step { min-width: 34px; padding: 3px 8px; border-radius: 999px; text-align: center; font-size: 0.8em; font-variant-numeric: tabular-nums;
+  color: rgba(200, 215, 240, 0.55); background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(140, 170, 220, 0.3); }
+.nge-days-step--reached { color: #0a1424; font-weight: 700; background: #7fd4ff; border: 1px solid #7fd4ff; }
+.nge-days-step--big { border-color: rgba(255, 205, 100, 0.75); color: rgba(255, 215, 130, 0.9); }
+.nge-days-step--big.nge-days-step--reached { color: #1c1200; background: #ffcd64; border-color: #ffcd64; }
+.nge-days-bar { height: 4px; margin-top: 9px; border-radius: 2px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.nge-days-bar-fill { height: 100%; border-radius: 2px; background: #7fd4ff; transition: width 0.5s ease; }
+.nge-days-next { margin-top: 5px; font-size: 0.8em; color: rgba(200, 215, 240, 0.7); }
+
+.nge-profile-stat-row {
+  display: flex;
+  gap: 16px;
+}
+
+.nge-profile-stat-col {
+  flex: 1;
+}
+
+.nge-profile-stat-label {
+  font-size: 0.78em;
+  color: #9bb;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.nge-profile-stat-val {
+  font-size: 1.2em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  color: #d8dde8;
+  letter-spacing: -0.02em;
+}
+
+.nge-profile-stat-val--hero {
+  font-size: 1.6em;
+  color: rgba(120, 200, 255, 0.9);
+  text-shadow: 0 0 20px rgba(74, 158, 255, 0.3);
+}
+
+.nge-profile-stat-sub {
+  font-size: 0.78em;
+  color: #aab;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nge-profile-stat-breakdown {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.nge-profile-stat-bp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.92em;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-variant-numeric: tabular-nums;
+  color: #889;
+}
+
+.nge-profile-stat-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.nge-profile-stat-icon--merge { color: rgba(120, 200, 255, 0.9); }
+.nge-profile-stat-icon--split { color: rgba(255, 160, 100, 0.9); }
+
+/* ── Weekly Podium (🥇/🥈/🥉) ── */
+.nge-profile-section--podium {
+  margin-bottom: 14px;
+}
+.nge-profile-podium-metric {
+  margin-top: 6px;
+}
+.nge-profile-podium-metric:first-of-type {
+  margin-top: 0;
+}
+.nge-profile-podium-metric-label {
+  font-size: 0.68em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(180, 195, 215, 0.55);
+  margin-bottom: 2px;
+}
+.nge-profile-podium-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.nge-profile-podium-tile {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-family: 'Orbitron', 'Rajdhani', sans-serif;
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.nge-profile-podium-medal {
+  font-size: 1.25em;
+  line-height: 1;
+}
+.nge-profile-podium-count {
+  font-weight: 700;
+}
+.nge-profile-podium-tile--gold {
+  background: linear-gradient(135deg, rgba(255, 215, 100, 0.14), rgba(255, 180, 60, 0.08));
+  border: 1px solid rgba(255, 215, 100, 0.45);
+  color: #ffd964;
+  box-shadow: 0 0 10px rgba(255, 215, 100, 0.18);
+}
+.nge-profile-podium-tile--silver {
+  background: linear-gradient(135deg, rgba(220, 230, 240, 0.12), rgba(180, 200, 220, 0.06));
+  border: 1px solid rgba(220, 230, 240, 0.35);
+  color: #dde6f0;
+}
+.nge-profile-podium-tile--bronze {
+  background: linear-gradient(135deg, rgba(220, 140, 80, 0.13), rgba(180, 100, 50, 0.06));
+  border: 1px solid rgba(220, 140, 80, 0.35);
+  color: #e3a371;
+}
+
+/* ── Streak ── */
+.nge-profile-streak-row {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.nge-profile-streak-current {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.nge-profile-streak-flame {
+  font-size: 1.25em; line-height: 1;
+  animation: nge-streak-flicker 2s ease-in-out infinite;
+}
+.nge-profile-streak-count {
+  font-size: 1.7em; font-weight: 800; color: #f5a623; line-height: 1;
+  text-shadow: 0 0 8px rgba(245, 166, 35, 0.3);
+  animation: nge-streak-glow 3s ease-in-out infinite;
+}
+@keyframes nge-streak-flicker {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.1) rotate(-3deg); }
+  75% { transform: scale(1.05) rotate(2deg); }
+}
+@keyframes nge-streak-glow {
+  0%, 100% { text-shadow: 0 0 8px rgba(245, 166, 35, 0.3); }
+  50% { text-shadow: 0 0 14px rgba(245, 166, 35, 0.5), 0 0 24px rgba(245, 166, 35, 0.2); }
+}
+.nge-profile-streak-unit  { font-size: 0.8em; color: #777; }
+
+.nge-profile-streak-best {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 0.82em;
+}
+.nge-profile-streak-best-label { color: #9bb; }
+.nge-profile-streak-best-val   { color: #cde; font-weight: 600; }
+
+/* ── Activity chart ────────────────────────────────────────── */
+.nge-profile-activity-chart {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.nge-profile-chart-label {
+  font-size: 0.78em;
+  color: #9bb;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.nge-profile-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 64px;
+  padding-bottom: 16px;
+}
+
+.nge-profile-chart-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.nge-profile-chart-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 48px;
+  width: 100%;
+  gap: 1px;
+}
+
+.nge-profile-chart-bar {
+  width: 100%;
+  max-width: 12px;
+  border-radius: 2px 2px 0 0;
+  min-height: 0;
+  transition: height 0.3s ease;
+}
+
+.nge-profile-chart-bar--edit {
+  background: linear-gradient(to top, rgba(74, 158, 255, 0.5), rgba(74, 158, 255, 0.8));
+}
+
+.nge-profile-chart-bar--completion {
+  background: linear-gradient(to top, rgba(255, 180, 50, 0.5), rgba(255, 180, 50, 0.85));
+  border-radius: 2px;
+}
+
+.nge-profile-chart-day {
+  font-size: 0.55em;
+  color: #445;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+.nge-profile-chart-legend {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.nge-profile-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62em;
+  color: #556;
+}
+
+.nge-profile-chart-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.nge-profile-chart-legend-dot--edit {
+  background: rgba(74, 158, 255, 0.7);
+}
+
+.nge-profile-chart-legend-dot--completion {
+  background: rgba(255, 180, 50, 0.7);
+}
+
+/* ── Badges ── */
+.nge-profile-badges-divider {
+  height: 1px;
+  margin: 14px 0 8px;
+  background: linear-gradient(90deg, transparent 0%, rgba(74, 158, 255, 0.2) 30%, rgba(74, 158, 255, 0.2) 70%, transparent 100%);
+}
+
+.nge-profile-badges-hint {
+  font-size: 0.7em;
+  color: rgba(74, 158, 255, 0.45);
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+/* Badges sit smaller, five to a row, on faint shelf lines (Amy: "laid out
+   as though they were set in 2 rows on a shelf"). The shelf is a repeating
+   gradient tuned to the fixed row height plus the row gap. */
+.nge-profile-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px 8px;
+  grid-auto-rows: 78px;
+  padding: 0 2px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px 74px,
+    rgba(130, 190, 255, 0.30) 74px 75px,
+    rgba(130, 190, 255, 0.08) 75px 77px,
+    transparent 77px 90px
+  );
+}
+
+.nge-profile-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: default;
+  transition: transform 0.15s;
+  border-radius: 6px;
+  padding: 3px 2px;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.nge-profile-badge:not(.nge-profile-badge--locked) { cursor: pointer; }
+.nge-profile-badge:not(.nge-profile-badge--locked):hover { transform: scale(1.1); }
+/* Exploration badges: blue highlight (default) */
+.nge-profile-badge--selected {
+  background: rgba(74, 158, 255, 0.1);
+  box-shadow: 0 0 0 1px rgba(74, 158, 255, 0.3) inset;
+}
+.nge-profile-badge--selected .nge-profile-badge-img {
+  filter: drop-shadow(0 0 6px rgba(100, 180, 255, 0.75));
+}
+.nge-profile-badge--latest .nge-profile-badge-img {
+  filter: drop-shadow(0 0 8px rgba(100, 180, 255, 0.6));
+}
+.nge-profile-badge--latest .nge-profile-badge-name {
+  color: #8ac8ff;
+}
+/* Building badges: subtle golden highlight */
+.nge-profile-badge--building.nge-profile-badge--selected {
+  background: rgba(245, 166, 35, 0.06);
+  box-shadow: 0 0 0 1px rgba(245, 166, 35, 0.2) inset;
+}
+.nge-profile-badge--building.nge-profile-badge--selected .nge-profile-badge-img {
+  filter: drop-shadow(0 0 3px rgba(255, 200, 80, 0.35));
+}
+.nge-profile-badge--building.nge-profile-badge--latest .nge-profile-badge-img {
+  filter: drop-shadow(0 0 4px rgba(255, 200, 80, 0.3));
+}
+.nge-profile-badge--building.nge-profile-badge--latest .nge-profile-badge-name {
+  color: #ffd08a;
+}
+/* Twine: rotate 90° to look like an infinity symbol */
+.nge-badge--twine { transform: rotate(90deg); }
+
+/* ── "View All" tile in badge grid ── */
+.nge-profile-badge--viewall {
+  cursor: pointer;
+  background: rgba(74, 158, 255, 0.04);
+  border: 1px dashed rgba(74, 158, 255, 0.2);
+  border-radius: 8px;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+.nge-profile-badge--viewall:hover {
+  background: rgba(74, 158, 255, 0.1);
+  border-color: rgba(74, 158, 255, 0.4);
+  transform: scale(1.08);
+}
+.nge-profile-badge-viewall-icon {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  opacity: 0.7;
+}
+
+.nge-profile-section--special {
+  border-top: none;
+}
+
+.nge-profile-badges-empty {
+  font-size: 0.75em;
+  color: #556;
+  padding: 8px 0;
+  font-style: italic;
+}
+
+.nge-profile-badges-toggle {
+  background: none;
+  border: 1px solid rgba(245, 166, 35, 0.25);
+  color: rgba(255, 208, 138, 0.6);
+  font-size: 0.72em;
+  padding: 4px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nge-profile-badges-toggle:hover {
+  color: rgba(255, 208, 138, 0.9);
+  border-color: rgba(245, 166, 35, 0.45);
+}
+
+/* Cells as highlighted tiles: each stat in its own softly lit card, even
+   spacing, definitions on hover (the old sub-label row is gone). */
+.nge-profile-stat-row--tiles {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.nge-profile-stat-tile {
+  flex: 1 1 0;
+  min-width: 86px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: rgba(74, 158, 255, 0.055);
+  border: 1px solid rgba(74, 158, 255, 0.16);
+  cursor: help;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+/* Compact (Ames 2026-10-01): label and number share a line, so the four
+   tiles take two short rows and the column fits without scrolling. */
+.nge-profile-stat-row--tiles { gap: 6px; }
+.nge-profile-stat-tile--build { background: rgba(170, 140, 255, 0.08); border-color: rgba(170, 140, 255, 0.3); }
+.nge-profile-stat-tile--build .nge-profile-stat-val { color: #c9b8ff; text-shadow: 0 0 14px rgba(170, 140, 255, 0.4); }
+.nge-profile-stat-row--tiles .nge-profile-stat-tile {
+  flex: 1 1 calc(50% - 3px);
+  box-sizing: border-box;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 12px;
+}
+.nge-profile-stat-row--tiles .nge-profile-stat-label { margin: 0; }
+.nge-profile-stat-row--tiles .nge-profile-stat-val { margin: 0; font-size: 1.15em; }
+.nge-profile-stat-row--tiles .nge-profile-stat-val--hero { font-size: 1.3em; }
+.nge-profile-stat-row--scout .nge-profile-stat-label { white-space: nowrap; font-size: 0.62em; }
+.nge-profile-stat-tile:hover {
+  background: rgba(74, 158, 255, 0.1);
+  border-color: rgba(74, 158, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.nge-profile-right-divider {
+  height: 1px;
+  margin: 18px 20px;
+  background: linear-gradient(90deg, transparent 0%, rgba(74, 158, 255, 0.15) 30%, rgba(74, 158, 255, 0.15) 70%, transparent 100%);
+}
+
+.nge-profile-badge-img {
+  display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px;
+  transition: filter 0.15s;
+}
+
+.nge-profile-badge-icon { width: 42px; height: 42px; object-fit: contain; }
+
+.nge-profile-badge-mystery {
+  width: 50px; height: 50px;
+  background: rgba(255,255,255,0.04);
+  border: 2px dashed rgba(255,255,255,0.12);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  display: flex; align-items: center; justify-content: center;
+}
+.nge-profile-badge-mystery-q {
+  font-size: 1.1em; font-weight: 700; color: rgba(255,255,255,0.18); font-style: italic; line-height: 1;
+}
+
+/* Never split a name mid-word ("Screwdri / ver" when the columns shrink on
+   a laptop, fit audit 2026-09-28); a narrow center column uses a smaller
+   size instead (container query below). */
+.nge-profile-badge-name {
+  font-size: 0.78em; color: #cde; margin-top: 3px; line-height: 1.2;
+  max-width: 80px; word-break: normal; overflow-wrap: normal; hyphens: none;
+}
+.nge-profile-col--center { container-type: inline-size; }
+@container (max-width: 420px) {
+  .nge-profile-badge-name { font-size: 0.64em; letter-spacing: -0.01em; }
+}
+.nge-profile-badge-name--locked { color: #333; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   VIZ COLUMN
+───────────────────────────────────────────────────────────────────────────── */
+.nge-profile-viz-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  animation: ngeSectionRollIn 0.2s ease-out 0.15s both;
+}
+
+.nge-profile-viz-title {
+  font-size: 0.78em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: rgba(74, 158, 255, 0.55);
+  align-self: flex-start;
+}
+
+/* Badge detail in viz column */
+.nge-profile-viz-badge { justify-content: flex-start; text-align: center; gap: 12px; padding-top: 16px; }
+
+/* max-width guards: the right column is 360px, and anything wider walked
+   off its right edge (Amy's clipped Favorite Badge report, 2026-08-17). */
+.nge-profile-viz-badge-icon { width: 220px; height: 220px; max-width: 100%; object-fit: contain; filter: drop-shadow(0 0 20px rgba(74,158,255,0.4)); }
+.nge-profile-viz-badge-icon--large { width: 240px; height: 240px; max-width: 100%; }
+/* Sized to the window, so the silver favorites and the streak chart fit under it. */
+.nge-profile-viz-badge-icon, .nge-profile-viz-badge-icon--large { width: min(220px, 25vh); height: min(220px, 25vh); }
+.nge-profile-viz-panel { max-width: 100%; box-sizing: border-box; }
+.nge-profile-viz-badge-name,
+.nge-profile-viz-badge-desc { max-width: 100%; overflow-wrap: break-word; padding: 0 10px; box-sizing: border-box; }
+
+.nge-profile-viz-badge-name {
+  font-family: 'Orbitron', 'Rajdhani', 'Audiowide', 'Share Tech Mono', ui-monospace, monospace;
+  font-size: 1.1em; font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #e0ecff 0%, #58a6ff 50%, #a0d0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nge-profile-viz-badge-desc { font-size: 0.8em; color: #888; line-height: 1.4; font-style: italic; }
+
+.nge-profile-viz-badge-threshold {
+  font-size: 0.75em; color: #555; line-height: 1.5; text-align: center;
+}
+.nge-profile-viz-badge-threshold strong { color: rgba(74,158,255,0.7); font-size: 1.15em; }
+
+.nge-profile-viz-badge-back {
+  margin-top: 4px;
+  background: none; border: none;
+  font-size: 0.75em; color: rgba(74,158,255,0.5);
+  cursor: pointer; padding: 4px 8px; border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.nge-profile-viz-badge-back:hover { color: rgba(74,158,255,0.9); background: rgba(74,158,255,0.1); }
+
+/* Viz swap transition */
+.nge-viz-swap-enter-active { transition: all 0.18s ease-out; }
+.nge-viz-swap-leave-active { transition: all 0.12s ease-in; }
+.nge-viz-swap-enter-from   { opacity: 0; transform: translateX(12px); }
+.nge-viz-swap-leave-to     { opacity: 0; transform: translateX(-12px); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CELL HISTORY LIST
+───────────────────────────────────────────────────────────────────────────── */
+.nge-cell-list {
+  margin-top: 16px;
+}
+
+.nge-cell-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.nge-cell-list-title {
+  font-size: 0.82em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: rgba(74, 158, 255, 0.65);
+  font-style: normal;
+}
+
+.nge-cell-list-columns {
+  display: flex;
+  align-items: center;
+  padding: 0 2px 4px 42px; /* align with cell rows (past fav + pip) */
+  border-bottom: 1px solid rgba(74, 158, 255, 0.08);
+  margin-bottom: 2px;
+}
+.nge-cell-col-label {
+  font-size: 0.78em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(180, 195, 220, 0.55);
+}
+.nge-cell-col-label--id { flex: 1; }
+.nge-cell-col-label--type { width: 110px; text-align: left; }
+.nge-cell-col-label--time { width: 64px; text-align: right; padding-right: 18px; }
+
+.nge-cell-list-all {
+  margin-left: auto;
+  background: none;
+  border: 1px solid rgba(120, 170, 255, 0.35);
+  border-radius: 8px;
+  color: #8cf;
+  font: inherit;
+  font-size: 0.72em;
+  padding: 1px 8px;
+  cursor: pointer;
+}
+.nge-cell-list-all:hover { background: rgba(120, 170, 255, 0.12); }
+.nge-profile-body--mycells { display: block; overflow-y: auto; padding: 18px 28px; }
+.nge-cell-list-dataset {
+  font-size: 0.62em !important;
+  font-style: normal !important;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(74, 158, 255, 0.08);
+  border: 1px solid rgba(74, 158, 255, 0.2);
+  color: rgba(74, 158, 255, 0.6) !important;
+  font-weight: 500;
+}
+
+.nge-profile-track-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.nge-profile-track-head .nge-profile-section-label { margin-bottom: 0; }
+.nge-profile-track-total { font-size: 0.82em; color: #9fb3cc; white-space: nowrap; }
+.nge-profile-track-total b {
+  font-family: 'Orbitron', 'Inter', sans-serif; font-size: 1.55em; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: var(--track); margin-right: 3px;
+}
+.nge-profile-track-head + .nge-profile-countdown-inline { margin-top: 8px; }
+.nge-profile-career-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0 0 10px;
+}
+
+.nge-cell-list-scroll {
+  /* As tall as the window allows, so the column never needs its own scroll. */
+  max-height: max(52px, min(200px, calc(90vh - 580px)));
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 158, 255, 0.2) rgba(255, 255, 255, 0.03);
+}
+
+.nge-cell-list-scroll::-webkit-scrollbar       { width: 3px; }
+.nge-cell-list-scroll::-webkit-scrollbar-track  { background: transparent; }
+.nge-cell-list-scroll::-webkit-scrollbar-thumb  { background: rgba(74, 158, 255, 0.2); border-radius: 2px; }
+
+.nge-cell-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: #cde;
+  font-size: 0.95em;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+  overflow: hidden;
+}
+
+.nge-cell-row:hover {
+  background: rgba(74, 158, 255, 0.1);
+  color: #fff;
+}
+
+.nge-cell-pip {
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.nge-cell-status--complete .nge-cell-pip,
+.nge-cell-pip.nge-cell-status--complete { color: #CE93D8; }
+.nge-cell-status--typed .nge-cell-pip,
+.nge-cell-pip.nge-cell-status--typed    { color: #4CAF50; }
+.nge-cell-status--pending .nge-cell-pip,
+.nge-cell-pip.nge-cell-status--pending  { color: #555; }
+
+.nge-cell-id {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.95em;
+  color: #9cf;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.nge-cell-type {
+  flex: 1;
+  font-size: 0.95em;
+  color: #bcc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.nge-cell-time {
+  flex-shrink: 0;
+  font-size: 0.92em;
+  color: #889;
+  white-space: nowrap;
+}
+
+.nge-cell-fav {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85em;
+  padding: 0 2px;
+  opacity: 0.3;
+  transition: opacity 0.12s;
+}
+.nge-cell-row:hover .nge-cell-fav { opacity: 0.6; }
+.nge-cell-fav--active { opacity: 1 !important; color: #f5a623; }
+
+.nge-cell-rename {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85em;
+  padding: 0 2px;
+  opacity: 0;
+  color: rgba(74, 158, 255, 0.6);
+  transition: opacity 0.12s;
+}
+.nge-cell-row:hover .nge-cell-rename { opacity: 0.6; }
+.nge-cell-rename:hover { opacity: 1 !important; }
+
+.nge-cell-empty {
+  margin-top: 12px;
+  font-size: 0.75em;
+  color: #444;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TAB BAR
+───────────────────────────────────────────────────────────────────────────── */
+.nge-profile-tabbar {
+  display: flex;
+  /* Wrap rather than crop: in the narrower Settings / Datasets shells the
+     tabs are wider than the box and "Admin Hub" was cut off (fit audit). */
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.nge-profile-tab {
+  background: none;
+  border: none;
+  color: rgba(160, 175, 200, 0.6);
+  font-size: 0.82em;
+  font-weight: 600;
+  padding: 8px 16px 7px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.02em;
+}
+.nge-profile-tab-svg { display: inline-block; font-size: 1.25em; line-height: 1; vertical-align: -0.16em; margin-right: 2px; }
+.nge-profile-tab-svg svg { color: currentColor !important; }
+.nge-profile-tab:hover {
+  color: rgba(200, 220, 255, 0.8);
+}
+.nge-profile-tab--active {
+  color: rgba(200, 220, 255, 0.95);
+  border-bottom-color: #4a9eff;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TROPHY CASE TAB
+───────────────────────────────────────────────────────────────────────────── */
+/* Flex column so the scroll area takes exactly the space left under the tab
+   bar. Its old max-height (90vh minus a guessed 100px) was ~15px taller than
+   that space, so the bottom of the grid was clipped (fit audit 2026-09-28). */
+.nge-profile-body--trophy {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+}
+.nge-profile-body--trophy > .nge-trophy-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+
+/* Week in Science tab — embedded recap, scrolls within the profile body. */
+.nge-profile-body--week {
+  display: block;
+  padding: 0;
+  max-height: calc(90vh - 100px);
+  overflow-y: auto;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ADMIN HUB TAB — fills the body, AdminHub.vue handles internal padding
+───────────────────────────────────────────────────────────────────────────── */
+.nge-profile-body--admin {
+  /* Flex column, not block: AdminHub's own height:100% resolved against an
+     auto-height parent, so it grew to its full content height and this
+     overflow:hidden clipped it with nothing left to scroll (Triage, the
+     longest sub-tab, was unreachable past the first cards). As a shrinking
+     flex item it is bounded by the body and its own overflow-y takes over. */
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  max-height: calc(90vh - 100px);
+  overflow: hidden;
+}
+.nge-profile-body--admin > .nge-admin-hub {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+}
+
+.nge-trophy-scroll {
+  overflow-y: auto;
+  padding: 16px 24px 24px;
+  max-height: calc(90vh - 100px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 158, 255, 0.2) rgba(255, 255, 255, 0.03);
+}
+.nge-trophy-scroll::-webkit-scrollbar        { width: 4px; }
+.nge-trophy-scroll::-webkit-scrollbar-track  { background: rgba(255, 255, 255, 0.02); }
+.nge-trophy-scroll::-webkit-scrollbar-thumb  { background: rgba(74, 158, 255, 0.2); border-radius: 2px; }
+.nge-trophy-scroll::-webkit-scrollbar-thumb:hover { background: rgba(74, 158, 255, 0.4); }
+
+.nge-trophy-track {
+  margin-bottom: 24px;
+}
+
+.nge-trophy-track-label {
+  font-size: 0.88em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nge-trophy-track-count {
+  font-size: 0.82em;
+  font-weight: 500;
+  color: #667;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+
+.nge-trophy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.nge-trophy-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s;
+}
+.nge-trophy-badge:hover {
+  transform: scale(1.05);
+  background: rgba(74, 158, 255, 0.06);
+  border-color: rgba(74, 158, 255, 0.15);
+}
+.nge-trophy-badge--selected {
+  background: rgba(74, 158, 255, 0.1) !important;
+  border-color: rgba(74, 158, 255, 0.3) !important;
+  box-shadow: 0 0 12px rgba(74, 158, 255, 0.15);
+}
+.nge-trophy-badge--building.nge-trophy-badge--selected {
+  background: rgba(245, 166, 35, 0.08) !important;
+  border-color: rgba(245, 166, 35, 0.25) !important;
+  box-shadow: 0 0 12px rgba(245, 166, 35, 0.1);
+}
+
+.nge-trophy-badge--locked {
+  opacity: 0.35;
+  cursor: default;
+}
+.nge-trophy-badge--locked:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.nge-trophy-badge-icon {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 4px rgba(100, 180, 255, 0.2));
+}
+
+.nge-trophy-badge-mystery {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8em;
+  color: #445;
+  border: 2px dashed rgba(100, 120, 160, 0.2);
+  border-radius: 50%;
+  margin-bottom: 6px;
+}
+
+.nge-trophy-badge-name {
+  font-size: 0.72em;
+  font-weight: 600;
+  color: rgba(200, 215, 240, 0.85);
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+.nge-trophy-badge-name--locked {
+  color: #445;
+}
+
+/* Two lines, then an ellipsis (the full text is the tooltip). It used to be
+   a plain height cap, which cut sentences mid-word with no sign they
+   continued (fit audit 2026-09-28). */
+.nge-trophy-badge-desc {
+  font-size: 0.62em;
+  color: #8f9ab0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nge-trophy-badge-threshold {
+  font-size: 0.6em;
+  color: #556;
+  margin-top: 3px;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+}
+
+/* ── Featured badge banner (top of Trophy Case) ── */
+.nge-trophy-featured {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 28px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(8, 14, 28, 0.95), rgba(12, 22, 48, 0.9));
+  border: 1px solid rgba(74, 158, 255, 0.15);
+  border-radius: 14px;
+  position: relative;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 0 40px rgba(74, 158, 255, 0.02);
+}
+.nge-trophy-featured-icon {
+  width: 350px;
+  height: 350px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 20px rgba(100, 180, 255, 0.4));
+}
+.nge-trophy-featured-info {
+  flex: 1;
+  min-width: 0;
+}
+.nge-trophy-featured-name {
+  font-size: 1.6em;
+  font-weight: 700;
+  color: #e0ecff;
+  margin-bottom: 6px;
+}
+.nge-trophy-featured-desc {
+  font-size: 1em;
+  color: #99aabb;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.nge-trophy-featured-threshold {
+  font-size: 0.88em;
+  color: #667;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+}
+.nge-trophy-featured-fav-label {
+  font-size: 0.78em;
+  color: rgba(74, 158, 255, 0.6);
+  margin-top: 8px;
+  letter-spacing: 0.03em;
+}
+.nge-trophy-featured-star {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 2em;
+  color: #556;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s, transform 0.2s;
+  line-height: 1;
+}
+.nge-trophy-featured-star:hover {
+  color: #58a6ff;
+  transform: scale(1.15);
+}
+.nge-trophy-featured-star--active {
+  color: #58a6ff;
+  text-shadow: 0 0 12px rgba(88, 166, 255, 0.5);
+}
+
+/* Favorited badge gets subtle gold outline in grid */
+.nge-trophy-badge--favorited {
+  box-shadow: 0 0 0 1.5px rgba(255, 215, 0, 0.35) inset;
+}
+.nge-trophy-badge--silver {
+  box-shadow: 0 0 0 1.5px rgba(200, 212, 228, 0.4) inset;
+}
+.nge-trophy-badge--bronze {
+  box-shadow: 0 0 0 1.5px rgba(214, 150, 96, 0.45) inset;
+}
+.nge-trophy-detail-close:hover { color: #f66; }
+
+/* ── Trophy Case, wide screens (Ames 2026-10-01): the badge on show sits on
+      the left with its name and description under it, the grids fill the
+      right, and the window takes the whole screen. ── */
+.nge-trophy-side, .nge-trophy-main { min-width: 0; }
+.nge-trophy-stars { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 4px 0 16px; position: relative; z-index: 2; }
+.nge-trophy-starbtn {
+  padding: 6px 12px; border-radius: 6px; font: inherit; font-size: 0.82em; font-weight: 600; letter-spacing: 0.04em;
+  background: rgba(10, 16, 30, 0.8); border: 1px solid rgba(140, 160, 190, 0.3); color: #8a97ab; cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.nge-trophy-starbtn:disabled { opacity: 0.4; cursor: default; }
+.nge-trophy-starbtn--gold:hover:not(:disabled), .nge-trophy-starbtn--gold.is-on { color: #ffd54a; border-color: rgba(255, 213, 74, 0.6); }
+.nge-trophy-starbtn--gold.is-on { background: rgba(255, 213, 74, 0.12); }
+.nge-trophy-starbtn--silver:hover:not(:disabled), .nge-trophy-starbtn--silver.is-on { color: #dfe7f2; border-color: rgba(223, 231, 242, 0.6); }
+.nge-trophy-starbtn--silver.is-on { background: rgba(223, 231, 242, 0.1); }
+.nge-trophy-favs { position: relative; z-index: 2; text-align: center; }
+.nge-trophy-favs-label { font-size: 0.7em; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(120, 180, 255, 0.7); font-weight: 600; margin-bottom: 8px; }
+.nge-trophy-favs-row, .nge-profile-silvers { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.nge-profile-silvers { margin: 10px 20px 0; }
+.nge-trophy-favs-empty { font-size: 0.82em; color: #7d8aa0; }
+.nge-trophy-fav {
+  position: relative; width: 54px; height: 54px; padding: 5px; box-sizing: border-box; border-radius: 9px; cursor: pointer;
+  background: rgba(10, 16, 30, 0.75); border: 1px solid rgba(200, 212, 228, 0.35);
+  transition: transform 0.15s, border-color 0.15s;
+}
+.nge-trophy-fav img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.nge-trophy-fav:hover { transform: translateY(-2px); border-color: rgba(223, 231, 242, 0.8); }
+.nge-trophy-fav.is-shown { box-shadow: 0 0 12px rgba(120, 190, 255, 0.45); }
+.nge-trophy-fav-star { position: absolute; top: -7px; right: -6px; font-size: 14px; line-height: 1; color: #dfe7f2; text-shadow: 0 0 4px #000, 0 0 6px rgba(223, 231, 242, 0.6); }
+.nge-trophy-fav--gold { border-color: rgba(255, 213, 74, 0.6); }
+.nge-trophy-fav--gold .nge-trophy-fav-star { color: #ffd54a; text-shadow: 0 0 4px #000, 0 0 6px rgba(255, 213, 74, 0.7); }
+.nge-profile-silvers .nge-trophy-fav { width: 42px; height: 42px; padding: 4px; }
+/* Bronze: the third strip, a size down, in a warm copper */
+.nge-trophy-starbtn--bronze:hover:not(:disabled), .nge-trophy-starbtn--bronze.is-on { color: #e8a878; border-color: rgba(232, 168, 120, 0.6); }
+.nge-trophy-starbtn--bronze.is-on { background: rgba(232, 168, 120, 0.1); }
+.nge-trophy-favs-row--bronze { margin-top: 10px; gap: 6px; }
+.nge-trophy-fav[draggable="true"] { cursor: grab; }
+.nge-trophy-fav.is-dragging { opacity: 0.4; }
+.nge-trophy-fav.is-drop { box-shadow: -3px 0 0 0 rgba(120, 190, 255, 0.9); }
+.nge-trophy-fav--bronze { width: 42px; height: 42px; padding: 4px; border-color: rgba(214, 150, 96, 0.45); }
+.nge-trophy-fav--bronze:hover { border-color: rgba(232, 168, 120, 0.9); }
+.nge-trophy-fav--bronze .nge-trophy-fav-star { font-size: 12px; color: #e8a878; text-shadow: 0 0 4px #000, 0 0 6px rgba(232, 168, 120, 0.6); }
+.nge-profile-bronzes { margin-top: 8px; gap: 6px; }
+.nge-profile-bronzes .nge-trophy-fav { width: 34px; height: 34px; padding: 3px; }
+/* Sections in the player's own order: dragged by the grip in the heading */
+.nge-trophy-main { display: flex; flex-direction: column; }
+.nge-trophy-track { transition: opacity 0.15s ease, box-shadow 0.15s ease; border-radius: 10px; }
+.nge-trophy-track.is-dragging { opacity: 0.45; }
+.nge-trophy-track.is-drop { box-shadow: 0 -3px 0 0 rgba(120, 190, 255, 0.85); }
+.nge-trophy-track-move { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; opacity: 0; transition: opacity 0.15s ease; }
+.nge-trophy-track:hover .nge-trophy-track-move, .nge-trophy-track-move:focus-within { opacity: 1; }
+.nge-trophy-track-grip, .nge-trophy-track-nudge {
+  padding: 2px 6px; border: 1px solid transparent; border-radius: 5px; background: none; color: rgba(160, 185, 220, 0.75);
+  font: inherit; font-size: 11px; line-height: 1.2; cursor: pointer;
+}
+.nge-trophy-track-grip { cursor: grab; font-size: 14px; }
+.nge-trophy-track-grip:active { cursor: grabbing; }
+.nge-trophy-track-grip:hover, .nge-trophy-track-nudge:hover, .nge-trophy-track-grip:focus-visible, .nge-trophy-track-nudge:focus-visible {
+  color: #dcebff; border-color: rgba(120, 190, 255, 0.45); background: rgba(120, 190, 255, 0.08); outline: none;
+}
+@media (hover: none) { .nge-trophy-track-move { opacity: 1; } }
+
+@media (min-width: 901px) {
+  body:not(.nge-mobile) .nge-profile-shell--trophy { width: 97vw; max-width: none; height: 94vh; max-height: 94vh; }
+  body:not(.nge-mobile) .nge-profile-body--trophy > .nge-trophy-scroll {
+    display: grid; grid-template-columns: minmax(300px, 34%) minmax(0, 1fr);
+    overflow: hidden; padding: 0;
+  }
+  body:not(.nge-mobile) .nge-trophy-side {
+    --trophy-icon: min(300px, 24vw, 38vh);
+    overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
+    padding: 28px 22px 22px; border-right: 1px solid rgba(74, 158, 255, 0.1);
+  }
+  body:not(.nge-mobile) .nge-trophy-main {
+    overflow-y: auto; padding: 22px 26px 26px;
+    scrollbar-width: thin; scrollbar-color: rgba(74, 158, 255, 0.2) rgba(255, 255, 255, 0.03);
+  }
+  body:not(.nge-mobile) .nge-trophy-side .nge-trophy-featured {
+    flex-direction: column; align-items: center; text-align: center; gap: 22px; padding: 12px 0 0; margin-bottom: 10px;
+  }
+  body:not(.nge-mobile) .nge-trophy-side .nge-trophy-featured-icon { width: var(--trophy-icon); height: var(--trophy-icon); }
+  body:not(.nge-mobile) .nge-trophy-side .nge-trophy-featured-effects { left: 50%; top: calc(12px + var(--trophy-icon) / 2); }
+  body:not(.nge-mobile) .nge-trophy-side .nge-trophy-featured-info { flex: none; position: relative; z-index: 1; }
+  /* The stars live in the row under the badge here. */
+  body:not(.nge-mobile) .nge-trophy-side .nge-trophy-featured-star,
+  body:not(.nge-mobile) .nge-trophy-side .nge-trophy-featured-fav-label { display: none; }
+  body:not(.nge-mobile) .nge-trophy-main .nge-trophy-grid { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); }
+}
+
+/* ── Hero-style effects around featured badge ── */
+.nge-trophy-featured {
+  overflow: visible;          /* let rings extend beyond banner */
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  gap: 72px;                  /* more space between icon and text */
+}
+.nge-trophy-featured-effects {
+  position: absolute;
+  top: 50%;
+  left: 200px;               /* center on the 350px icon area + padding */
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.nge-trophy-featured-icon {
+  z-index: 1;
+  position: relative;
+}
+.nge-trophy-featured-icon--animated {
+  animation: nge-trophy-float 5s ease-in-out infinite alternate;
+}
+.nge-trophy-featured-name--scifi {
+  font-family: 'Orbitron', 'Rajdhani', 'Audiowide', 'Share Tech Mono', ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 1.8em;
+  background: linear-gradient(135deg, #e0ecff 0%, #58a6ff 50%, #a0d0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+@keyframes nge-trophy-float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-8px); }
+}
+
+/* Rotating rings */
+.nge-trophy-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  will-change: transform;
+  transform: translateZ(0);
+  top: 50%;
+  left: 50%;
+}
+.nge-trophy-ring--1 {
+  width: 380px; height: 380px;
+  margin: -190px 0 0 -190px;
+  border-color: rgba(0, 200, 255, 0.12);
+  animation: nge-trophy-ring-spin 50s linear infinite;
+  box-shadow: 0 0 12px rgba(0, 200, 255, 0.06);
+}
+.nge-trophy-ring--2 {
+  width: 340px; height: 340px;
+  margin: -170px 0 0 -170px;
+  border-color: rgba(206, 147, 216, 0.08);
+  border-style: dashed;
+  animation: nge-trophy-ring-spin 70s linear infinite reverse;
+  box-shadow: 0 0 12px rgba(206, 147, 216, 0.04);
+}
+.nge-trophy-ring--3 {
+  width: 410px; height: 410px;
+  margin: -205px 0 0 -205px;
+  border-color: rgba(0, 255, 180, 0.05);
+  border-width: 0.5px;
+  animation: nge-trophy-ring-spin 90s linear infinite;
+}
+/* Trim-path style rings: dashed with animated dash offset */
+.nge-trophy-ring--4 {
+  width: 440px; height: 440px;
+  margin: -220px 0 0 -220px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  /* SVG-like trim path via background gradient on a ring */
+  box-shadow: none;
+  outline: 1.5px dashed rgba(0, 200, 255, 0.07);
+  outline-offset: -1px;
+  animation: nge-trophy-ring-spin 120s linear infinite;
+}
+.nge-trophy-ring--5 {
+  width: 360px; height: 360px;
+  margin: -180px 0 0 -180px;
+  border: 1.5px solid transparent;
+  border-top-color: rgba(0, 200, 255, 0.1);
+  border-right-color: rgba(206, 147, 216, 0.06);
+  animation: nge-trophy-ring-spin 40s linear infinite reverse;
+}
+@keyframes nge-trophy-ring-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Orbital dots */
+.nge-trophy-orbit-dot {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(0, 220, 255, 0.8);
+  box-shadow: 0 0 6px rgba(0, 220, 255, 0.4), 0 0 12px rgba(0, 220, 255, 0.15);
+  top: 50%; left: 50%;
+  will-change: transform;
+  animation: nge-trophy-orbit 40s linear infinite;
+  animation-delay: calc(var(--j) * -3.3s);
+}
+.nge-trophy-orbit-dot:nth-child(odd) {
+  width: 3px; height: 3px;
+  background: rgba(206, 180, 255, 0.7);
+  box-shadow: 0 0 5px rgba(206, 180, 255, 0.3);
+  animation-duration: 55s;
+  animation-direction: reverse;
+}
+.nge-trophy-orbit-dot:nth-child(3n) {
+  width: 3.5px; height: 3.5px;
+  background: rgba(0, 255, 180, 0.6);
+  box-shadow: 0 0 5px rgba(0, 255, 180, 0.3);
+  animation-duration: 48s;
+}
+/* Outer orbit particles */
+.nge-trophy-orbit-dot:nth-child(n+7) {
+  animation-name: nge-trophy-orbit-outer;
+  animation-duration: 65s;
+  width: 3px; height: 3px;
+  opacity: 0.8;
+}
+.nge-trophy-orbit-dot:nth-child(8) {
+  width: 3.5px; height: 3.5px;
+  background: rgba(255, 200, 100, 0.6);
+  box-shadow: 0 0 5px rgba(255, 200, 100, 0.3);
+  animation-duration: 58s;
+  animation-direction: reverse;
+}
+.nge-trophy-orbit-dot:nth-child(9) {
+  width: 3px; height: 3px;
+  background: rgba(100, 180, 255, 0.7);
+  box-shadow: 0 0 5px rgba(100, 180, 255, 0.3);
+  animation-duration: 72s;
+}
+.nge-trophy-orbit-dot:nth-child(10) {
+  width: 3px; height: 3px;
+  background: rgba(255, 150, 200, 0.6);
+  box-shadow: 0 0 6px rgba(255, 150, 200, 0.3);
+  animation-duration: 50s;
+  animation-direction: reverse;
+}
+.nge-trophy-orbit-dot:nth-child(11) {
+  width: 3.5px; height: 3.5px;
+  background: rgba(0, 220, 255, 0.5);
+  box-shadow: 0 0 5px rgba(0, 220, 255, 0.2);
+  animation-duration: 80s;
+}
+.nge-trophy-orbit-dot:nth-child(12) {
+  width: 2.5px; height: 2.5px;
+  background: rgba(206, 147, 216, 0.6);
+  box-shadow: 0 0 4px rgba(206, 147, 216, 0.3);
+  animation-duration: 62s;
+  animation-direction: reverse;
+}
+@keyframes nge-trophy-orbit {
+  from { transform: rotate(calc(var(--j) * 45deg))       translateX(175px) rotate(calc(var(--j) * -45deg)); }
+  to   { transform: rotate(calc(var(--j) * 45deg + 360deg)) translateX(175px) rotate(calc(var(--j) * -45deg - 360deg)); }
+}
+@keyframes nge-trophy-orbit-outer {
+  from { transform: rotate(calc(var(--j) * 45deg))       translateX(210px) rotate(calc(var(--j) * -45deg)); }
+  to   { transform: rotate(calc(var(--j) * 45deg + 360deg)) translateX(210px) rotate(calc(var(--j) * -45deg - 360deg)); }
+}
+
+/* Pulsing aura */
+.nge-trophy-aura {
+  position: absolute;
+  width: 340px; height: 340px;
+  top: 50%; left: 50%;
+  margin: -170px 0 0 -170px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 180, 255, 0.05) 0%, rgba(206, 147, 216, 0.025) 40%, transparent 70%);
+  animation: nge-trophy-aura-pulse 10s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes nge-trophy-aura-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.5; }
+  50%      { transform: scale(1.12); opacity: 0.85; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ALL SPECIAL AWARDS MODAL
+───────────────────────────────────────────────────────────────────────────── */
+.nge-special-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 4, 12, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: ngeSectionRollIn 0.18s ease-out;
+}
+.nge-special-modal {
+  width: min(720px, 92vw);
+  max-height: 80vh;
+  background: linear-gradient(135deg, rgba(8, 12, 24, 0.98), rgba(12, 18, 32, 0.97));
+  border: 1px solid rgba(74, 158, 255, 0.25);
+  border-radius: 12px;
+  padding: 18px 20px 24px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.55), 0 0 32px rgba(74, 158, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+.nge-special-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.nge-special-modal-title {
+  font-size: 0.92em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #cde;
+  text-transform: uppercase;
+}
+.nge-special-modal-close {
+  background: none; border: none;
+  color: #889; font-size: 1.4em; cursor: pointer; line-height: 1;
+}
+.nge-special-modal-close:hover { color: #fff; }
+.nge-special-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 14px;
+  overflow-y: auto;
+  /* Always reserve the scrollbar's space so revealing it on hover doesn't
+     reflow the grid and resize every badge. */
+  scrollbar-gutter: stable;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 158, 255, 0.2) transparent;
+}
+.nge-special-modal-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 10px 6px;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s, border-color 0.12s;
+}
+.nge-special-modal-tile:hover {
+  transform: scale(1.05);
+  background: rgba(74, 158, 255, 0.06);
+  border-color: rgba(74, 158, 255, 0.18);
+}
+.nge-special-modal-icon {
+  width: 56px; height: 56px; object-fit: contain;
+  margin-bottom: 6px;
+}
+.nge-special-modal-name {
+  font-size: 0.78em; color: #cde;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.nge-special-modal-reason {
+  font-size: 0.7em; color: #889;
+  margin-top: 4px; line-height: 1.3;
+  font-style: italic;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOBILE FULLSCREEN BADGE VIEWER
+   Tap the featured badge art on a phone: the badge takes the whole screen
+   with a simplified award moment (bloom halo, one sweeping ring, springy
+   scale in). Tap anywhere to close.
+───────────────────────────────────────────────────────────────────────────── */
+.nge-badge-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 10600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  box-sizing: border-box;
+  background: radial-gradient(ellipse at 50% 42%, rgba(20, 40, 80, 0.92), rgba(2, 5, 12, 0.97) 70%);
+  backdrop-filter: blur(8px);
+  text-align: center;
+}
+.nge-badge-zoom-halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(90vw, 420px);
+  height: min(90vw, 420px);
+  transform: translate(-50%, -62%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(53, 181, 255, 0.28) 0%, rgba(53, 181, 255, 0.08) 45%, transparent 70%);
+  animation: nge-bz-halo 2.4s ease-out both;
+  pointer-events: none;
+}
+.nge-badge-zoom-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(74vw, 340px);
+  height: min(74vw, 340px);
+  transform: translate(-50%, -62%);
+  border-radius: 50%;
+  border: 1px solid rgba(53, 181, 255, 0.55);
+  border-top-color: rgba(191, 233, 255, 0.9);
+  box-shadow: 0 0 24px rgba(53, 181, 255, 0.35), inset 0 0 24px rgba(53, 181, 255, 0.12);
+  animation: nge-bz-ring 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: none;
+}
+.nge-badge-zoom-img {
+  width: min(64vw, 300px);
+  height: min(64vw, 300px);
+  object-fit: contain;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 24px rgba(100, 180, 255, 0.55));
+  animation: nge-bz-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.nge-badge-zoom-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #f0f6ff;
+  text-shadow: 0 0 14px rgba(53, 181, 255, 0.6);
+  animation: nge-bz-rise 0.5s 0.15s ease-out both;
+}
+.nge-badge-zoom-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #aebfdd;
+  max-width: 320px;
+  animation: nge-bz-rise 0.5s 0.25s ease-out both;
+}
+.nge-badge-zoom-meta {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  color: rgba(53, 181, 255, 0.85);
+  text-transform: uppercase;
+  animation: nge-bz-rise 0.5s 0.35s ease-out both;
+}
+.nge-badge-zoom-hint {
+  position: absolute;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(143, 166, 204, 0.6);
+  text-transform: uppercase;
+  animation: nge-bz-rise 0.5s 0.6s ease-out both;
+}
+
+@keyframes nge-bz-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes nge-bz-rise {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes nge-bz-halo {
+  0%   { opacity: 0; transform: translate(-50%, -62%) scale(0.5); }
+  35%  { opacity: 1; }
+  100% { opacity: 0.75; transform: translate(-50%, -62%) scale(1); }
+}
+@keyframes nge-bz-ring {
+  0%   { opacity: 0; transform: translate(-50%, -62%) scale(0.45) rotate(0deg); }
+  30%  { opacity: 1; }
+  100% { opacity: 0.7; transform: translate(-50%, -62%) scale(1) rotate(200deg); }
+}
+
+.nge-bz-enter-active, .nge-bz-leave-active { transition: opacity 0.25s ease; }
+.nge-bz-enter-from, .nge-bz-leave-to { opacity: 0; }
+
+/* The featured art is a tap target on phones. */
+body.nge-mobile .nge-trophy-featured-icon { cursor: pointer; }
+

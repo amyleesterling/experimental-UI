@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>experimental-UI profile: the Pyr profile, full screen</title>
+
+<!-- The game's own profile stylesheet, carried across unchanged so the
+     proposal below is judged in the real material. See its header. -->
+<link rel="stylesheet" href="pyr-profile.css">
+
+<style>
+  /* ---- page chrome, shared with the other component pages ---------------- */
+  .topnav {
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 0 0;
+    font-size: .78rem;
+    letter-spacing: .06em;
+  }
+  .topnav-brand {
+    margin-right: auto;
+    color: rgb(var(--holo-beam, 178 216 248) / .95);
+    font-size: .8rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .topnav a { color: rgb(var(--holo-dim, 154 162 177) / .95); text-decoration: none; }
+  .topnav a:hover,
+  .topnav a.holo-on,
+  .topnav a:focus-visible { color: rgb(var(--holo-ink, 239 244 251) / .98); }
+  .topnav a[aria-current="page"] { color: rgb(var(--holo-ink, 239 244 251) / .98); border-bottom: 1px solid rgb(var(--holo-beam, 178 216 248) / .6); }
+  .topnav a:focus-visible { outline: 2px solid rgb(var(--holo-beam, 178 216 248)); outline-offset: 3px; }
+
+  :root {
+    --holo-line: 196 228 255;
+    --holo-beam: 178 216 248;
+    --holo-glow:  74 150 224;
+    --holo-warm: 232 169  58;
+    --holo-ink:  239 244 251;
+    --holo-dim:  154 162 177;
+    --holo-panel: 15 18 24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0 0 6rem;
+    background:
+      radial-gradient(ellipse 120% 70% at 50% 0%, rgb(16 30 54 / .8), transparent 70%),
+      #05070c;
+    color: rgb(var(--holo-ink) / .9);
+    font: 400 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
+  header { padding: 3rem 0 1.5rem; }
+  h1 {
+    margin: 0 0 .6rem;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 300;
+    letter-spacing: .01em;
+  }
+  .lede { margin: 0 0 1rem; max-width: 46rem; color: rgb(var(--holo-ink) / .58); }
+  section { padding: 2.6rem 0 0; }
+  h2 { margin: 0 0 .35rem; font-size: 1.15rem; font-weight: 500; letter-spacing: .02em; }
+  .eyebrow {
+    margin: 0 0 .5rem;
+    font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+    color: rgb(var(--holo-glow) / .9);
+  }
+  .note { margin: 0 0 1.2rem; max-width: 46rem; font-size: .9rem; color: rgb(var(--holo-dim) / .95); }
+  .note b { color: rgb(var(--holo-ink) / .9); font-weight: 600; }
+  .note code { font-size: .85em; color: rgb(var(--holo-beam) / .95); }
+  .panel {
+    padding: 1.15rem;
+    border-radius: 14px;
+    background: linear-gradient(158deg, rgb(var(--holo-panel) / .95), rgb(7 10 15 / .96));
+    box-shadow: 0 22px 50px rgb(0 0 0 / .4), inset 0 1px 0 rgb(var(--holo-line) / .1);
+    display: grid;
+    gap: .9rem;
+  }
+  .mrow {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    flex-wrap: wrap;
+    font-size: .68rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgb(var(--holo-dim) / .9);
+  }
+  .mbtn {
+    border: 1px solid rgb(var(--holo-line) / .25);
+    border-radius: 999px;
+    background: transparent;
+    color: rgb(var(--holo-beam) / .95);
+    font: inherit;
+    font-size: .68rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    padding: .45rem .9rem;
+    cursor: pointer;
+  }
+  .mbtn:hover,
+  .mbtn.holo-on { background: rgb(var(--holo-beam) / .12); }
+  .mbtn:focus-visible { outline: 2px solid rgb(var(--holo-beam)); outline-offset: 2px; }
+  .mbtn[aria-pressed="true"] {
+    background: rgb(var(--holo-beam) / .18);
+    border-color: rgb(var(--holo-beam) / .5);
+    color: rgb(var(--holo-ink) / .98);
+  }
+  .mbtn--big { font-size: .8rem; padding: .7rem 1.3rem; }
+  .changes { margin: 0; padding: 0 0 0 1.1rem; max-width: 46rem; font-size: .9rem; color: rgb(var(--holo-dim) / .95); }
+  .changes li { margin: 0 0 .5rem; }
+  .changes b { color: rgb(var(--holo-ink) / .9); font-weight: 600; }
+  footer { margin-top: 4rem; font-size: .8rem; color: rgb(var(--holo-dim) / .8); max-width: 46rem; }
+  footer a { color: rgb(var(--holo-beam) / .9); }
+  .credit { margin: 0 0 .6rem; color: rgb(var(--holo-ink) / .7); }
+
+  /* ---- the dialog that stands in for neuroglancer's overlay host ----------
+     In the game the profile sits in an .nge-overlay inside ModalOverlay's
+     fixed blocker, and neuroglancer's own overlay.css centres it with
+     position absolute, top and left 50%, translate(-50%, -50%). The game's
+     materialise keyframes assume exactly that transform, so it is supplied
+     here. The backdrop, border and shadow are ModalOverlay.vue's numbers. */
+  dialog.nge-profile-modal {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    max-width: none; max-height: none; margin: 0; padding: 0; border: none;
+    background: transparent; overflow: visible;
+    color: #dfe6f2;
+    font: 400 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  dialog.nge-profile-modal::backdrop {
+    background: radial-gradient(ellipse at center, rgba(0, 12, 30, 0.82) 0%, rgba(0, 0, 0, 0.92) 100%);
+    backdrop-filter: blur(6px) saturate(1.2);
+    -webkit-backdrop-filter: blur(6px) saturate(1.2);
+  }
+  .nge-profile-modal .nge-overlay {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 180, 255, 0.18);
+    box-shadow:
+      0 0 60px rgba(0, 150, 255, 0.07),
+      0 0 160px rgba(0, 150, 255, 0.03),
+      inset 0 0 60px rgba(0, 100, 200, 0.02),
+      0 16px 48px rgba(0, 0, 0, 0.45);
+    border-radius: 20px;
+  }
+  .nge-profile-modal .nge-overlay::-webkit-scrollbar { width: 0; }
+
+  /* ======================= THE PROPOSAL, part 1: full screen ===============
+     The frame fills the window. The three columns keep their proportions
+     (460 : 460 : 360 in the game) but grow with it, and each one still
+     scrolls on its own. The orbiting edge light now runs round the edge of
+     the screen. Phones already do this (mobile.css), so this is the desktop
+     change only. */
+  .nge-profile-modal .nge-overlay { width: 100vw; height: 100vh; border-radius: 0; }
+  .nge-profile-modal .nge-profile-shell { width: 100%; height: 100%; max-height: 100vh; }
+  .nge-profile-modal .nge-profile-col--left   { flex: 46 1 0px; }
+  .nge-profile-modal .nge-profile-col--center { flex: 46 1 0px; }
+  .nge-profile-modal .nge-profile-col--right  { flex: 36 1 0px; }
+  @media (prefers-reduced-motion: reduce) {
+    .nge-profile-modal .nge-overlay { animation: none; }
+  }
+  /* a phone: the game's mobile.css stacks the three columns and scrolls the
+     body as one page (body.nge-mobile rules); carried here as a width query,
+     since this page has no device gate */
+  @media (max-width: 760px) {
+    .nge-profile-modal .nge-profile-body { flex-direction: column; overflow-y: auto; }
+    .nge-profile-modal .nge-profile-col {
+      width: 100%; flex: none; overflow-y: visible;
+      border-left: none; border-right: none;
+      padding: 16px 16px 20px;
+    }
+  }
+  /* tabs other than Overview are not built on this page */
+  .nge-profile-tab[aria-disabled="true"] { cursor: default; }
+
+  /* ======================= THE PROPOSAL, part 2: the windows ===============
+     Edits and Cells each get the same three windows, today, past 7 days and
+     all time, and under them a curve of the running total since the first
+     day. The numbers and the curve are read from the same rows, so they can
+     not disagree. In a wide column the numbers sit beside the curve; in a
+     narrow one the curve drops below them. */
+  .nge-profile-section--windows { container-type: inline-size; }
+  .nge-profile-section--completions { animation: ngeSectionRollIn 0.2s ease-out 0.24s both; }
+  .nge-profile-windows { display: grid; gap: 10px 18px; min-width: 0; }
+  @container (min-width: 560px) {
+    .nge-profile-windows {
+      grid-template-columns: minmax(230px, 5fr) minmax(0, 6fr);
+      align-items: end;
+    }
+    .nge-profile-windows .nge-effort { margin-top: 0; }
+  }
+
+  /* the curve: a figure, one svg and one caption line */
+  .nge-effort { margin: 10px 0 0; position: relative; min-width: 0; }
+  .nge-effort-svg {
+    display: block; width: 100%; height: 76px; overflow: visible;
+    touch-action: pan-y;
+  }
+  .nge-effort-band { fill: rgb(var(--c) / .05); }
+  .nge-effort-band--today { fill: rgb(var(--c) / .16); }
+  .nge-effort-band-edge { stroke: rgb(var(--c) / .4); stroke-width: 1; stroke-dasharray: 2 3; }
+  .nge-effort-band-label { font-size: 9px; fill: rgb(var(--c) / .6); letter-spacing: .08em; }
+  .nge-effort-base { stroke: rgba(255, 255, 255, .07); stroke-width: 1; }
+  .nge-effort-line {
+    fill: none; stroke: rgb(var(--c) / .95); stroke-width: 1.6;
+    stroke-linejoin: round; stroke-linecap: round;
+  }
+  .nge-effort-head { fill: rgb(var(--c)); }
+  .nge-effort-halo {
+    fill: none; stroke: rgb(var(--c) / .85); stroke-width: 1.2; opacity: 0;
+    transform-box: fill-box; transform-origin: center;
+  }
+  /* the arrival: one ring, once, when the pen reaches today */
+  .nge-effort.is-done .nge-effort-halo { animation: ngeEffortArrive .7s ease-out both; }
+  @keyframes ngeEffortArrive {
+    0%   { opacity: .9; transform: scale(1); }
+    100% { opacity: 0;  transform: scale(4.5); }
+  }
+  .nge-effort-total {
+    font: 700 13px ui-monospace, 'Cascadia Code', monospace;
+    font-variant-numeric: tabular-nums;
+    fill: rgb(var(--c));
+  }
+  .nge-effort-cursor { pointer-events: none; }
+  .nge-effort-cursor line { stroke: rgba(255, 255, 255, .35); stroke-width: 1; }
+  .nge-effort-cursor text { font-size: 10.5px; fill: #cfd8e8; }
+  .nge-effort-cursor circle { fill: #fff; }
+  .nge-effort-cap {
+    display: flex; justify-content: space-between; gap: 8px;
+    margin: 3px 0 0; font-size: 0.62em; letter-spacing: .04em;
+    color: rgba(200, 215, 240, .45);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nge-effort.is-done .nge-effort-halo { animation: none; }
+  }
+
+  /* cells completed are teal everywhere on the profile already (the Cell
+     Completions track, the cells pill on a dataset card); the 14 day chart
+     was the one place they were amber. Same colour, one quantity. */
+  .nge-profile-modal .nge-profile-chart-bar--completion {
+    background: linear-gradient(to top, rgba(95, 227, 245, 0.45), rgba(95, 227, 245, 0.85));
+  }
+  .nge-profile-modal .nge-profile-chart-legend-dot--completion { background: rgba(95, 227, 245, 0.7); }
+
+  /* ---- the standalone block in section 2 ------------------------------- */
+  .pyr-inline {
+    min-width: 0;
+    color: #dfe6f2;
+    font: 400 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .pyr-inline .nge-profile-col {
+    width: min(640px, 100%);
+    padding: 6px 4px 0;
+    overflow: visible;
+    transition: width .25s ease;
+  }
+  .pyr-inline.is-narrow .nge-profile-col { width: min(460px, 100%); }
+  .pyr-inline .nge-profile-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <nav class="topnav" aria-label="Experiments">
+    <a class="topnav-brand" href="../index.html">experimental-UI</a>
+    <a href="all.html">All</a>
+    <a href="../index.html">Landing</a>
+    <a href="motion.html">Motion</a>
+    <a href="spatial.html">Spatial</a>
+    <a href="models.html">Models</a>
+    <a href="applied.html">Applied</a>
+    <a href="profile.html" aria-current="page">Profile</a>
+    <a href="playground.html">Playground</a>
+    <a href="https://github.com/amyleesterling/experimental-UI" rel="noopener">GitHub</a>
+  </nav>
+
+  <header>
+    <p class="eyebrow">Applied, a test page</p>
+    <h1>The Pyr profile, full screen</h1>
+    <p class="lede">
+      A proposal for the player profile in Pyr, put here to be looked at
+      before it goes into the game. Three changes: the profile fills the
+      window, the left column gives cells completed the same today, past
+      7 days and all time windows that edits already have, and each of the
+      two gets a small curve of the running total since the player's first
+      day, drawn once when the profile opens.
+    </p>
+    <p class="note">
+      What is real here: the stylesheet is the game's own, carried across
+      unchanged, so the columns, tabs, tiles and achievement grid are the
+      live ones. The totals are Ames's own from her profile on 11 October
+      2026. What is not: the day by day record behind the curves is
+      generated to add up to those totals and is not her history, and the
+      names on the achievements are the art files' names. Nothing here
+      signs in or sends anything. Visual component only.
+    </p>
+  </header>
+
+  <!-- ============================================================ 1 -->
+  <section id="open">
+    <p class="eyebrow">Full screen</p>
+    <h2>Open the profile</h2>
+    <p class="note">
+      The frame takes the whole window instead of a 1280 pixel box in the
+      middle of it. The three columns keep the game's proportions and grow
+      with the window, each scrolling on its own, and the orbiting edge
+      light runs round the edge of the screen. Escape or the cross closes
+      it. The numbers roll up and the curves draw once, on open, as they
+      would in the game.
+    </p>
+    <div class="panel">
+      <div class="mrow">
+        <button class="mbtn mbtn--big" id="open-profile" type="button" data-holo-tap>Open the profile</button>
+        <span>Best looked at in a full size window. Phones already open the profile full screen.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 2 -->
+  <section id="windows">
+    <p class="eyebrow">The left column</p>
+    <h2>Edits and cells, three windows each, and the curve under them</h2>
+    <p class="note">
+      Today, past 7 days and all time come from the same rows the curve is
+      drawn from, counted once: an edit log row per merge or cut, a
+      completion row per cell with the moment it was completed. The shaded
+      band at the right end of each curve is the past 7 days, the brighter
+      sliver is today, so the three numbers are also three places on the
+      line. The curve draws from the first day to today in 1.4 seconds,
+      the running total rides the pen, and one ring marks the arrival.
+      Hover or touch the curve to read any day. Under reduced motion the
+      curve lands finished.
+    </p>
+    <div class="panel">
+      <div class="pyr-inline nge-profile-modal" id="inline-host">
+        <div class="nge-profile-col nge-profile-col--left" id="inline-col"></div>
+      </div>
+      <div class="mrow">
+        <button class="mbtn" id="replay" type="button" data-holo-tap>Replay</button>
+        <button class="mbtn" id="narrow" type="button" aria-pressed="false" data-holo-tap>Narrow column</button>
+        <button class="mbtn" id="reduced" type="button" aria-pressed="false" data-holo-tap>Reduced motion</button>
+        <span id="windows-read"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 3 -->
+  <section id="changes">
+    <p class="eyebrow">For the game</p>
+    <h2>What would change in Pyr</h2>
+    <ul class="changes">
+      <li><b>The profile is full screen on desktop.</b> The shell fills the window on every tab; the Datasets, Settings and Admin Hub bodies keep their widths, centred.</li>
+      <li><b>Cells completed gets today, past 7 days and all time</b>, per dataset like edits, read from the completions list with each cell's completion time.</li>
+      <li><b>A curve of the running total under each</b>, from the player's first day on that dataset to today, drawn once on open, with the past 7 days and today marked on it.</li>
+      <li><b>The Completed tile in the Cells block goes</b>, since the all time window above it is the same number from a better source. Identified, Total and Annotations stay.</li>
+      <li><b>Completions are teal on the 14 day chart</b>, matching the Cell Completions track and the cells pill, instead of amber.</li>
+      <li><b>Two words fixed on the way</b>: "Edits in EyeWire II" becomes "Edits in Pyr", and "Favorite Badge" becomes "Favorite Achievement".</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p class="credit">Created by Amy Sterling
+      <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
+    This page is a test of a design for Pyr, the citizen science game built
+    on the eyewire-ii-community branch of
+    <a href="https://github.com/seung-lab/ng-extend">ng-extend</a>. Its
+    sibling <a href="https://github.com/amyleesterling/scifi-ui">scifi-ui</a>
+    holds components extracted from software that actually ships. See
+    <a href="../AGENTS.md">AGENTS.md</a> for the working rules, and the
+    <a href="../index.html">landing</a>,
+    <a href="motion.html">motion</a>,
+    <a href="spatial.html">spatial</a>,
+    <a href="models.html">models</a> and
+    <a href="applied.html">applied</a> pages for the rest.
+  </footer>
+
+</div>
+
+<!-- ---- the two window blocks, stamped into the dialog and into section 2 -->
+<template id="tpl-windows">
+  <div class="nge-profile-section nge-profile-section--edits nge-profile-section--windows">
+    <div class="nge-profile-section-label"
+         title="Splits and merges you made in Pyr on this dataset. Edits made in other tools, or before you joined, are not counted.">▌ Edits in Pyr</div>
+    <div class="nge-profile-windows">
+      <div class="nge-profile-stat-row">
+        <div class="nge-profile-stat-col">
+          <div class="nge-profile-stat-label">Today</div>
+          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="edits.today">0</span></div>
+          <div class="nge-profile-stat-breakdown">
+            <span class="nge-profile-stat-bp" title="Merges"><svg class="nge-profile-stat-icon nge-profile-stat-icon--merge" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 3v4a4 4 0 0 0 4 4h0a4 4 0 0 0 4-4V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="4" cy="2.5" r="1.5" fill="currentColor"/><circle cx="12" cy="2.5" r="1.5" fill="currentColor"/><circle cx="8" cy="13" r="1.5" fill="currentColor"/><path d="M8 11v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span data-win="merges.today">0</span></span>
+            <span class="nge-profile-stat-bp" title="Splits"><svg class="nge-profile-stat-icon nge-profile-stat-icon--split" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v2a4 4 0 0 1-4 4H4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 3v2a4 4 0 0 0 4 4h0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="2.5" r="1.5" fill="currentColor"/><circle cx="4" cy="13" r="1.5" fill="currentColor"/><circle cx="12" cy="13" r="1.5" fill="currentColor"/><path d="M4 9v4M12 9v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span data-win="splits.today">0</span></span>
+          </div>
+        </div>
+        <div class="nge-profile-stat-col">
+          <div class="nge-profile-stat-label">Past 7d</div>
+          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="edits.week">0</span></div>
+          <div class="nge-profile-stat-breakdown">
+            <span class="nge-profile-stat-bp" title="Merges"><svg class="nge-profile-stat-icon nge-profile-stat-icon--merge" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 3v4a4 4 0 0 0 4 4h0a4 4 0 0 0 4-4V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="4" cy="2.5" r="1.5" fill="currentColor"/><circle cx="12" cy="2.5" r="1.5" fill="currentColor"/><circle cx="8" cy="13" r="1.5" fill="currentColor"/><path d="M8 11v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span data-win="merges.week">0</span></span>
+            <span class="nge-profile-stat-bp" title="Splits"><svg class="nge-profile-stat-icon nge-profile-stat-icon--split" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v2a4 4 0 0 1-4 4H4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 3v2a4 4 0 0 0 4 4h0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="2.5" r="1.5" fill="currentColor"/><circle cx="4" cy="13" r="1.5" fill="currentColor"/><circle cx="12" cy="13" r="1.5" fill="currentColor"/><path d="M4 9v4M12 9v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span data-win="splits.week">0</span></span>
+          </div>
+        </div>
+        <div class="nge-profile-stat-col">
+          <div class="nge-profile-stat-label">All Time</div>
+          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="edits.all">0</span></div>
+          <div class="nge-profile-stat-breakdown">
+            <span class="nge-profile-stat-bp" title="Merges"><svg class="nge-profile-stat-icon nge-profile-stat-icon--merge" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 3v4a4 4 0 0 0 4 4h0a4 4 0 0 0 4-4V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="4" cy="2.5" r="1.5" fill="currentColor"/><circle cx="12" cy="2.5" r="1.5" fill="currentColor"/><circle cx="8" cy="13" r="1.5" fill="currentColor"/><path d="M8 11v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span data-win="merges.all">0</span></span>
+            <span class="nge-profile-stat-bp" title="Splits"><svg class="nge-profile-stat-icon nge-profile-stat-icon--split" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v2a4 4 0 0 1-4 4H4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 3v2a4 4 0 0 0 4 4h0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="2.5" r="1.5" fill="currentColor"/><circle cx="4" cy="13" r="1.5" fill="currentColor"/><circle cx="12" cy="13" r="1.5" fill="currentColor"/><path d="M4 9v4M12 9v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span data-win="splits.all">0</span></span>
+          </div>
+        </div>
+      </div>
+      <figure class="nge-effort" data-series="edits" style="--c: 74 158 255" aria-label="Edits over time">
+        <figcaption class="nge-effort-cap"><span data-cap="start"></span><span>Today</span></figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="nge-profile-section nge-profile-section--completions nge-profile-section--windows">
+    <div class="nge-profile-section-label"
+         title="Cells you proofread all the way to completion in Pyr on this dataset. A cell completed again after an edit counts once.">▌ Cells completed</div>
+    <div class="nge-profile-windows">
+      <div class="nge-profile-stat-row">
+        <div class="nge-profile-stat-col">
+          <div class="nge-profile-stat-label">Today</div>
+          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="cells.today">0</span></div>
+        </div>
+        <div class="nge-profile-stat-col">
+          <div class="nge-profile-stat-label">Past 7d</div>
+          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="cells.week">0</span></div>
+        </div>
+        <div class="nge-profile-stat-col">
+          <div class="nge-profile-stat-label">All Time</div>
+          <div class="nge-profile-stat-val"><span class="nge-roll" data-win="cells.all">0</span></div>
+        </div>
+      </div>
+      <figure class="nge-effort" data-series="cells" style="--c: 95 227 245" aria-label="Cells completed over time">
+        <figcaption class="nge-effort-cap"><span data-cap="start"></span><span>Today</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</template>
+
+<!-- ---- the profile itself ------------------------------------------------ -->
+<dialog class="nge-profile-modal" id="pyr-profile" aria-labelledby="pyr-profile-name">
+  <div class="nge-overlay modal overlay-content nge-overlay-content">
+    <div class="nge-profile-shell">
+
+      <div class="nge-profile-topbar">
+        <span class="nge-profile-topbar-label">◈ RESEARCHER PROFILE
+          <button class="nge-profile-topbar-scope" type="button"
+                  title="The numbers on this page are for this dataset only."><span class="nge-profile-topbar-sep">·</span> Stats for
+            <span class="nge-profile-topbar-scope-icon">🐭</span>
+            <span class="nge-profile-topbar-scope-name">Pinky Sandbox</span> ›</button>
+        </span>
+        <button class="nge-profile-exit" id="pyr-profile-close" type="button" aria-label="Close the profile">×</button>
+      </div>
+
+      <div class="nge-profile-tabbar" role="tablist" aria-label="Profile">
+        <button class="nge-profile-tab nge-profile-tab--active" type="button" role="tab" aria-selected="true">Overview</button>
+        <button class="nge-profile-tab" type="button" role="tab" aria-selected="false" aria-disabled="true" tabindex="-1" title="Only the Overview is built on this page">🏆 Trophy Case</button>
+        <button class="nge-profile-tab" type="button" role="tab" aria-selected="false" aria-disabled="true" tabindex="-1" title="Only the Overview is built on this page">🔬 My Cells</button>
+        <button class="nge-profile-tab" type="button" role="tab" aria-selected="false" aria-disabled="true" tabindex="-1" title="Only the Overview is built on this page">🧬 Datasets</button>
+        <button class="nge-profile-tab" type="button" role="tab" aria-selected="false" aria-disabled="true" tabindex="-1" title="Only the Overview is built on this page">📊 Dataset Stats</button>
+        <button class="nge-profile-tab" type="button" role="tab" aria-selected="false" aria-disabled="true" tabindex="-1" title="Only the Overview is built on this page">⚙️ Settings</button>
+        <button class="nge-profile-tab" type="button" role="tab" aria-selected="false" aria-disabled="true" tabindex="-1" title="Only the Overview is built on this page">🛠 Admin Hub</button>
+        <button class="nge-profile-tab" type="button" role="tab" aria-selected="false" aria-disabled="true" tabindex="-1" title="Only the Overview is built on this page">✍️ Blog</button>
+      </div>
+
+      <div class="nge-profile-body">
+
+        <!-- LEFT -->
+        <div class="nge-profile-col nge-profile-col--left">
+
+          <div class="nge-profile-header">
+            <div class="nge-profile-name-row">
+              <div class="nge-profile-flag-wrap">
+                <button class="nge-profile-flag" type="button" title="Flag"><img src="../media/pyr-icon.png" class="nge-flag-img nge-pyr-icon" alt=""></button>
+              </div>
+              <div class="nge-profile-name" id="pyr-profile-name">Amy R. Sterling</div>
+              <button class="nge-profile-edit-btn" type="button" title="Edit profile">⚙</button>
+            </div>
+            <div class="nge-profile-username">@amy</div>
+            <div class="nge-profile-bio">Tai chi and neuroscience. I built Pyr, the EyeWire II game!</div>
+          </div>
+
+          <!-- the two window blocks are stamped in here, before Building Pyr -->
+          <div class="nge-profile-section nge-profile-section--building" id="dialog-building">
+            <div class="nge-profile-section-label">▌ Building Pyr</div>
+            <div class="nge-profile-stat-row nge-profile-stat-row--tiles">
+              <div class="nge-profile-stat-col nge-profile-stat-tile nge-profile-stat-tile--build" title="Changes saved to Pyr's code">
+                <div class="nge-profile-stat-label">Commits</div>
+                <div class="nge-profile-stat-val nge-profile-stat-val--hero"><span class="nge-roll" data-roll="1504">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col nge-profile-stat-tile nge-profile-stat-tile--build" title="Times a new version of Pyr has gone live">
+                <div class="nge-profile-stat-label">Deploys</div>
+                <div class="nge-profile-stat-val nge-profile-stat-val--hero"><span class="nge-roll" data-roll="794">0</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--days">
+            <div class="nge-profile-section-label">▌ Days as a citizen scientist</div>
+            <div class="nge-profile-stat-row nge-profile-stat-row--tiles">
+              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Every day you have shown up, ever. This never resets.">
+                <div class="nge-profile-stat-label">Total days</div>
+                <div class="nge-profile-stat-val nge-profile-stat-val--hero"><span class="nge-roll" data-roll="44">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Days in a row right now, on your own calendar">
+                <div class="nge-profile-stat-label">Streak</div>
+                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="8">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col nge-profile-stat-tile" title="The longest run of days in a row">
+                <div class="nge-profile-stat-label">Best streak</div>
+                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="13">0</span></div>
+              </div>
+            </div>
+            <div class="nge-days-ladder" title="Next milestone: day 50">
+              <div class="nge-days-next">6 days to day 50</div>
+            </div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--cells">
+            <div class="nge-profile-section-label">▌ Cells</div>
+            <div class="nge-profile-stat-row nge-profile-stat-row--tiles">
+              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Cells you identified (typed) without proofreading edits">
+                <div class="nge-profile-stat-label">Identified</div>
+                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="2">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Every cell you have worked on in any way">
+                <div class="nge-profile-stat-label">Total</div>
+                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="18">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col nge-profile-stat-tile" title="Points, lines and boxes you placed in annotation layers, on every dataset">
+                <div class="nge-profile-stat-label">Annotations</div>
+                <div class="nge-profile-stat-val" style="color: #c9a0ff; text-shadow: 0 0 14px rgba(201, 160, 255, 0.35);"><span class="nge-roll" data-roll="2424">0</span></div>
+              </div>
+            </div>
+
+            <div class="nge-profile-section-label" style="margin-top: 12px;">▌ Scout Report</div>
+            <div class="nge-profile-stat-row nge-profile-stat-row--scout" style="margin-bottom: 12px;">
+              <div class="nge-profile-stat-col" title="Tags you placed for others to fix">
+                <div class="nge-profile-stat-label">Tags Placed</div>
+                <div class="nge-profile-stat-val" style="color: #f5d142;"><span class="nge-roll" data-roll="18">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col" title="Tags of yours that someone fixed">
+                <div class="nge-profile-stat-label">Confirmed</div>
+                <div class="nge-profile-stat-val"><span class="nge-roll" data-roll="14">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col" title="Tags you fixed for others">
+                <div class="nge-profile-stat-label">You Fixed</div>
+                <div class="nge-profile-stat-val" style="color: #9d9;"><span class="nge-roll" data-roll="14">0</span></div>
+              </div>
+              <div class="nge-profile-stat-col" title="Cells where you helped answer another player's request">
+                <div class="nge-profile-stat-label">Assists</div>
+                <div class="nge-profile-stat-val" style="color: #7f8;"><span class="nge-roll" data-roll="0">0</span></div>
+              </div>
+            </div>
+
+            <div class="nge-cell-list">
+              <div class="nge-cell-list-header">
+                <span class="nge-cell-list-title">Recent Cells</span>
+                <span class="nge-cell-list-dataset" title="Filtered to Pinky Sandbox">Sandbox</span>
+                <button class="nge-cell-list-all" type="button" title="Every cell, by dataset">My cells →</button>
+              </div>
+              <div class="nge-cell-list-columns">
+                <span class="nge-cell-col-label nge-cell-col-label--id">Segment</span>
+                <span class="nge-cell-col-label nge-cell-col-label--type">Type</span>
+                <span class="nge-cell-col-label nge-cell-col-label--time">When</span>
+              </div>
+              <div class="nge-cell-list-scroll" id="cell-rows"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CENTER, the game's current column, abbreviated -->
+        <div class="nge-profile-col nge-profile-col--center">
+          <div class="nge-profile-career-note">Totals and achievements here count every dataset</div>
+
+          <div class="nge-profile-section nge-profile-section--badges">
+            <div class="nge-profile-track-head">
+              <div class="nge-profile-section-label" style="color: #90fff2;">▌ Cell Completions</div>
+              <div class="nge-profile-track-total" style="--track: #90fff2;" title="Every cell completed, on every dataset">
+                <b><span class="nge-roll" data-roll="118">0</span></b> cells completed
+              </div>
+            </div>
+            <div class="nge-profile-countdown-inline">
+              <div class="nge-profile-countdown-row">
+                <div class="nge-profile-countdown-remaining">82 cells to go</div>
+              </div>
+              <div class="nge-profile-countdown-track">
+                <div class="nge-profile-countdown-fill nge-profile-countdown-fill--exploration" style="width: 59%"></div>
+              </div>
+            </div>
+            <div class="nge-profile-badges-grid">
+              <div class="nge-profile-badge nge-profile-badge--exploration" title="Sundial"><div class="nge-profile-badge-img"><img src="../media/badges/exploration/sundial.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Sundial</div></div>
+              <div class="nge-profile-badge nge-profile-badge--exploration" title="Astrolabe"><div class="nge-profile-badge-img"><img src="../media/badges/exploration/astrolabe.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Astrolabe</div></div>
+              <div class="nge-profile-badge nge-profile-badge--exploration" title="Sextant"><div class="nge-profile-badge-img"><img src="../media/badges/exploration/sextant.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Sextant</div></div>
+              <div class="nge-profile-badge nge-profile-badge--exploration nge-profile-badge--latest" title="Cairn"><div class="nge-profile-badge-img"><img src="../media/badges/exploration/cairn.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Cairn</div></div>
+              <div class="nge-profile-badge nge-profile-badge--viewall" title="View all in the Trophy Case"><div class="nge-profile-badge-img"><div class="nge-profile-badge-viewall-icon">→</div></div><div class="nge-profile-badge-name">View all</div></div>
+            </div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--badges">
+            <div class="nge-profile-track-head">
+              <div class="nge-profile-section-label" style="color: #ffd08a;">▌ Editor Achievements</div>
+              <div class="nge-profile-track-total" style="--track: #ffd08a;" title="Every merge and cut made in Pyr, on every dataset">
+                <b><span class="nge-roll" data-roll="710">0</span></b> edits
+              </div>
+            </div>
+            <div class="nge-profile-countdown-inline">
+              <div class="nge-profile-countdown-row">
+                <div class="nge-profile-countdown-remaining">40 edits to go</div>
+              </div>
+              <div class="nge-profile-countdown-track">
+                <div class="nge-profile-countdown-fill nge-profile-countdown-fill--building" style="width: 94.7%"></div>
+              </div>
+            </div>
+            <div class="nge-profile-badges-grid">
+              <div class="nge-profile-badge nge-profile-badge--building" title="Chisel"><div class="nge-profile-badge-img"><img src="../media/badges/building/chisel.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Chisel</div></div>
+              <div class="nge-profile-badge nge-profile-badge--building" title="Hammer"><div class="nge-profile-badge-img"><img src="../media/badges/building/hammer.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Hammer</div></div>
+              <div class="nge-profile-badge nge-profile-badge--building" title="Awl"><div class="nge-profile-badge-img"><img src="../media/badges/building/awl.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Awl</div></div>
+              <div class="nge-profile-badge nge-profile-badge--building" title="Mallet"><div class="nge-profile-badge-img"><img src="../media/badges/building/mallet.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Mallet</div></div>
+              <div class="nge-profile-badge nge-profile-badge--viewall" title="View all in the Trophy Case"><div class="nge-profile-badge-img"><div class="nge-profile-badge-viewall-icon">→</div></div><div class="nge-profile-badge-name">View all</div></div>
+            </div>
+          </div>
+
+          <div class="nge-profile-badges-divider"></div>
+          <div class="nge-profile-section nge-profile-section--badges nge-profile-section--special">
+            <div class="nge-profile-section-label">★ Special Awards</div>
+            <div class="nge-profile-badges-grid">
+              <div class="nge-profile-badge" title="Citizen Scientist"><div class="nge-profile-badge-img"><img src="../media/badges/special/citizen-scientist.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Citizen Scientist</div></div>
+              <div class="nge-profile-badge" title="Connectome Coin"><div class="nge-profile-badge-img"><img src="../media/badges/special/connectome-coin.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Connectome Coin</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT, the game's current column -->
+        <div class="nge-profile-col nge-profile-col--right">
+          <div class="nge-profile-viz-panel nge-profile-viz-badge">
+            <div class="nge-profile-viz-title">⭐ Favorite Achievement</div>
+            <img src="../media/badges/special/connectome-coin.png" alt="" class="nge-profile-viz-badge-icon nge-profile-viz-badge-icon--large">
+            <div class="nge-profile-viz-badge-name">Connectome Coin</div>
+            <div class="nge-profile-viz-badge-desc">A special award, given by the team.</div>
+            <div class="nge-profile-viz-badge-threshold">Won on <strong>Mar 20, 2026</strong></div>
+          </div>
+
+          <div class="nge-profile-right-divider"></div>
+
+          <div class="nge-profile-section nge-profile-section--podium">
+            <div class="nge-profile-section-label nge-profile-section-label--amber">▌ Top of the Week</div>
+            <div class="nge-profile-podium-metric">
+              <div class="nge-profile-podium-metric-label">Edits</div>
+              <div class="nge-profile-podium-row">
+                <div class="nge-profile-podium-tile nge-profile-podium-tile--gold" title="Finished 1st place in edits 11 weeks"><span class="nge-profile-podium-medal">🥇</span><span class="nge-profile-podium-count">× 11</span></div>
+              </div>
+            </div>
+            <div class="nge-profile-podium-metric">
+              <div class="nge-profile-podium-metric-label">Cells</div>
+              <div class="nge-profile-podium-row">
+                <div class="nge-profile-podium-tile nge-profile-podium-tile--gold" title="Finished 1st place in cells 3 weeks"><span class="nge-profile-podium-medal">🥇</span><span class="nge-profile-podium-count">× 3</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--streak">
+            <div class="nge-profile-section-label nge-profile-section-label--amber">▌ Streak</div>
+            <div class="nge-profile-streak-row">
+              <div class="nge-profile-streak-current">
+                <span class="nge-profile-streak-flame">🔥</span>
+                <span class="nge-profile-streak-count">8</span>
+                <span class="nge-profile-streak-unit">days current</span>
+              </div>
+              <div class="nge-profile-streak-best">
+                <span class="nge-profile-streak-best-label">Best</span>
+                <span class="nge-profile-streak-best-val">13d</span>
+              </div>
+            </div>
+            <div class="nge-profile-activity-chart">
+              <div class="nge-profile-chart-label">Last 14 Days</div>
+              <div class="nge-profile-chart-bars" id="chart-bars"></div>
+              <div class="nge-profile-chart-legend">
+                <span class="nge-profile-chart-legend-item"><span class="nge-profile-chart-legend-dot nge-profile-chart-legend-dot--edit"></span> Edits</span>
+                <span class="nge-profile-chart-legend-item"><span class="nge-profile-chart-legend-dot nge-profile-chart-legend-dot--completion"></span> Completions</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script src="../hologram-tap.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var prefersReduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var forceReduced = false;
+  function motionOff() { return prefersReduced || forceReduced; }
+
+  /* ---- the record ---------------------------------------------------------
+     One row per day, newest last, generated to add up to the totals on
+     Ames's profile on 11 October 2026 (edits 6 today, 46 in the past 7
+     days, 71 all time, with 21 merges and 50 splits; 12 cells completed on
+     this dataset) over 44 active days since a first day 205 days ago. It is
+     not her history. Everything on the page, the numbers and the curves,
+     is derived from these rows so the two can not disagree. */
+  function rng(seed) {
+    return function () {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+  }
+  function spread(total, idxs, days, key, rand) {
+    for (var k = 0; k < total; k++) {
+      var i = idxs[Math.floor(rand() * idxs.length)];
+      days[i][key]++;
+    }
+  }
+  function buildRecord() {
+    var rand = rng(20261011);
+    var N = 205;
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var days = [];
+    for (var i = 0; i < N; i++) {
+      var d = new Date(today); d.setDate(today.getDate() - (N - 1 - i));
+      days.push({ date: d, merges: 0, splits: 0, cells: 0 });
+    }
+    // 36 active days before the last 8, the first day always among them
+    var pool = []; for (var p = 1; p < N - 8; p++) pool.push(p);
+    var early = [0];
+    while (early.length < 36) { var j = Math.floor(rand() * pool.length); early.push(pool.splice(j, 1)[0]); }
+    early.sort(function (a, b) { return a - b; });
+    var week = []; for (var w = N - 7; w < N - 1; w++) week.push(w);   // the six days before today
+    // edits: earlier 14 merges and 11 splits, the six days 7 and 33, today 0 and 6
+    spread(14, early, days, "merges", rand); spread(11, early, days, "splits", rand);
+    spread(7, week, days, "merges", rand);   spread(33, week, days, "splits", rand);
+    days[N - 1].splits = 6;
+    // cells: 9 earlier, 2 in the six days, 1 today
+    spread(9, early, days, "cells", rand); spread(2, week, days, "cells", rand);
+    days[N - 1].cells = 1;
+    if (!days[0].merges && !days[0].splits && !days[0].cells) days[0].splits++;
+    for (var e = 0; e < N; e++) days[e].edits = days[e].merges + days[e].splits;
+    return days;
+  }
+  function windows(days, key) {
+    var N = days.length, today = 0, week = 0, all = 0;
+    for (var i = 0; i < N; i++) {
+      all += days[i][key];
+      if (i >= N - 7) week += days[i][key];
+      if (i === N - 1) today += days[i][key];
+    }
+    return { today: today, week: week, all: all };
+  }
+  var RECORD = buildRecord();
+  var WIN = { edits: windows(RECORD, "edits"), merges: windows(RECORD, "merges"),
+              splits: windows(RECORD, "splits"), cells: windows(RECORD, "cells") };
+
+  /* ---- a number that rolls up, as RollUp.vue does in the game -------------
+     900 ms, ease out cubic, from 0, skipped under reduced motion. */
+  function rollUp(el, to) {
+    if (el._raf) cancelAnimationFrame(el._raf);
+    if (motionOff() || !isFinite(to)) { el.textContent = (to || 0).toLocaleString(); return; }
+    var t0 = performance.now(), dur = 900;
+    el.textContent = "0";
+    function tick(now) {
+      var k = Math.min(1, (now - t0) / dur);
+      var ease = 1 - Math.pow(1 - k, 3);
+      el.textContent = Math.round(to * ease).toLocaleString();
+      if (k < 1) el._raf = requestAnimationFrame(tick);
+    }
+    el._raf = requestAnimationFrame(tick);
+  }
+
+  /* ---- the effort curve ---------------------------------------------------
+     A running total from the first day to today. The line draws itself
+     along its own length in 1.4 s (ease out cubic), the area under it is
+     revealed in step, the head carries the total read off the curve at the
+     pen, and one ring marks the arrival. Two shaded bands at the right end
+     are the past 7 days and today, the same windows as the numbers above.
+     Reduced motion lands the finished curve. A backstop timer lands it if
+     the first frame never comes. */
+  var seq = 0;
+  var SVG = "http://www.w3.org/2000/svg";
+  function el(name, attrs) {
+    var e = document.createElementNS(SVG, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function dayLabel(d) { return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); }
+  function monthLabel(d) { return d.toLocaleDateString("en-US", { month: "short", year: "numeric" }); }
+
+  function effortCurve(fig, days, key, unit) {
+    if (fig._curve) fig._curve.destroy();
+    var old = fig.querySelector("svg"); if (old) old.remove();
+    fig.classList.remove("is-done");
+
+    var N = days.length, cum = [], s = 0;
+    for (var i = 0; i < N; i++) { s += days[i][key]; cum.push(s); }
+    var total = s, max = Math.max(1, total);
+    var W = Math.max(120, Math.round(fig.getBoundingClientRect().width)) || 400, H = 76;
+    var P = { l: 1, r: 1, t: 18, b: 4 }, iw = W - P.l - P.r, ih = H - P.t - P.b, base = P.t + ih;
+    function X(i) { return P.l + (N > 1 ? i / (N - 1) : 1) * iw; }
+    function Y(v) { return P.t + (1 - v / max) * ih; }
+
+    var id = "ec" + (++seq);
+    var svg = el("svg", { "class": "nge-effort-svg", viewBox: "0 0 " + W + " " + H, width: W, height: H,
+                          role: "img", "aria-label": total.toLocaleString() + " " + unit + " since " + monthLabel(days[0].date) });
+    var defs = el("defs", {});
+    var grad = el("linearGradient", { id: id + "g", x1: 0, y1: 0, x2: 0, y2: 1 });
+    grad.appendChild(el("stop", { offset: "0", "stop-color": "rgb(" + fig.style.getPropertyValue("--c").trim().split(/\s+/).join(",") + ")", "stop-opacity": ".26" }));
+    grad.appendChild(el("stop", { offset: "1", "stop-color": "rgb(" + fig.style.getPropertyValue("--c").trim().split(/\s+/).join(",") + ")", "stop-opacity": "0" }));
+    defs.appendChild(grad);
+    var clip = el("clipPath", { id: id + "c" });
+    var clipRect = el("rect", { x: 0, y: 0, width: 0, height: H });
+    clip.appendChild(clipRect); defs.appendChild(clip);
+    svg.appendChild(defs);
+
+    // the windows, as bands: past 7 days, then today on top of it
+    var w0 = Math.max(0, N - 8), t0 = Math.max(0, N - 2);
+    svg.appendChild(el("rect", { "class": "nge-effort-band", x: X(w0), y: P.t - 8, width: Math.max(1, X(N - 1) - X(w0)), height: ih + 8 + P.b }));
+    svg.appendChild(el("rect", { "class": "nge-effort-band nge-effort-band--today", x: X(t0), y: P.t - 8, width: Math.max(1, X(N - 1) - X(t0)), height: ih + 8 + P.b }));
+    svg.appendChild(el("line", { "class": "nge-effort-band-edge", x1: X(w0), y1: P.t - 8, x2: X(w0), y2: base }));
+    var bandLabel = el("text", { "class": "nge-effort-band-label", x: X(w0) + 3, y: base - 3, "text-anchor": "start" });
+    bandLabel.textContent = "7D";
+    svg.appendChild(bandLabel);
+    svg.appendChild(el("line", { "class": "nge-effort-base", x1: P.l, y1: base, x2: W - P.r, y2: base }));
+
+    // the area and the line
+    var d = "";
+    for (var k = 0; k < N; k++) d += (k ? " L" : "M") + X(k).toFixed(2) + " " + Y(cum[k]).toFixed(2);
+    var area = el("path", { "class": "nge-effort-area", d: d + " L" + X(N - 1).toFixed(2) + " " + base + " L" + X(0).toFixed(2) + " " + base + " Z",
+                            fill: "url(#" + id + "g)", "clip-path": "url(#" + id + "c)" });
+    svg.appendChild(area);
+    var line = el("path", { "class": "nge-effort-line", d: d, pathLength: 1, "stroke-dasharray": 1, "stroke-dashoffset": 1 });
+    svg.appendChild(line);
+    var halo = el("circle", { "class": "nge-effort-halo", r: 4, cx: X(0), cy: Y(cum[0]) });
+    var head = el("circle", { "class": "nge-effort-head", r: 3, cx: X(0), cy: Y(cum[0]) });
+    svg.appendChild(halo); svg.appendChild(head);
+    var totalText = el("text", { "class": "nge-effort-total", x: W - P.r, y: P.t - 5, "text-anchor": "end" });
+    totalText.textContent = "0";
+    svg.appendChild(totalText);
+
+    // the cursor, hidden until a pointer asks
+    var cur = el("g", { "class": "nge-effort-cursor", visibility: "hidden" });
+    var curLine = el("line", { x1: 0, y1: P.t - 2, x2: 0, y2: base });
+    var curDot = el("circle", { r: 2.5, cx: 0, cy: 0 });
+    var curText = el("text", { x: 0, y: P.t - 5 });
+    cur.appendChild(curLine); cur.appendChild(curDot); cur.appendChild(curText);
+    svg.appendChild(cur);
+
+    fig.insertBefore(svg, fig.firstChild);
+    var cap = fig.querySelector("[data-cap=start]"); if (cap) cap.textContent = monthLabel(days[0].date);
+
+    var len = line.getTotalLength();
+    function land(p) {
+      line.setAttribute("stroke-dashoffset", String(1 - p));
+      var pt = line.getPointAtLength(p * len);
+      clipRect.setAttribute("width", String(Math.max(0, pt.x + 0.5)));
+      head.setAttribute("cx", pt.x); head.setAttribute("cy", pt.y);
+      halo.setAttribute("cx", pt.x); halo.setAttribute("cy", pt.y);
+      var idx = Math.max(0, Math.min(N - 1, Math.round(((pt.x - P.l) / iw) * (N - 1))));
+      totalText.textContent = cum[idx].toLocaleString();
+    }
+    var raf = 0, backstop = 0, done = false;
+    function arrive() {
+      if (done) return; done = true;
+      cancelAnimationFrame(raf); clearTimeout(backstop);
+      land(1);
+      fig.classList.add("is-done");
+    }
+    if (motionOff()) {
+      arrive();
+    } else {
+      var start = performance.now(), DUR = 1400;
+      function frame(now) {
+        var k = Math.min(1, (now - start) / DUR);
+        land(1 - Math.pow(1 - k, 3));
+        if (k < 1) raf = requestAnimationFrame(frame); else arrive();
+      }
+      raf = requestAnimationFrame(frame);
+      backstop = setTimeout(arrive, DUR + 600);
+    }
+
+    // read any day
+    function show(ev) {
+      var r = svg.getBoundingClientRect();
+      var fx = (ev.clientX - r.left) * (W / r.width);
+      var idx = Math.max(0, Math.min(N - 1, Math.round(((fx - P.l) / iw) * (N - 1))));
+      var x = X(idx), y = Y(cum[idx]);
+      curLine.setAttribute("x1", x); curLine.setAttribute("x2", x);
+      curDot.setAttribute("cx", x); curDot.setAttribute("cy", y);
+      var n = days[idx][key];
+      curText.textContent = dayLabel(days[idx].date) + " · " + cum[idx].toLocaleString() + " " + unit + (n ? " (+" + n + ")" : "");
+      var left = x < W * 0.55;
+      curText.setAttribute("x", left ? x + 6 : x - 6);
+      curText.setAttribute("text-anchor", left ? "start" : "end");
+      cur.setAttribute("visibility", "visible");
+      totalText.setAttribute("visibility", left ? "visible" : "hidden");
+    }
+    function hide() { cur.setAttribute("visibility", "hidden"); totalText.setAttribute("visibility", "visible"); }
+    svg.addEventListener("pointermove", show);
+    svg.addEventListener("pointerdown", show);
+    svg.addEventListener("pointerleave", hide);
+    svg.addEventListener("pointercancel", hide);
+
+    fig._curve = { destroy: function () {
+      cancelAnimationFrame(raf); clearTimeout(backstop);
+      svg.removeEventListener("pointermove", show); svg.removeEventListener("pointerdown", show);
+      svg.removeEventListener("pointerleave", hide); svg.removeEventListener("pointercancel", hide);
+    } };
+  }
+
+  /* ---- stamping the window blocks ----------------------------------------- */
+  /* stamped as direct children of the column: the game strips the border and
+     margin from a column's last section, so a wrapper div would make the
+     second block "last" and lose its footing */
+  function stampWindows(host, before) {
+    host.querySelectorAll(".nge-profile-section--windows").forEach(function (n) { n.remove(); });
+    var frag = document.getElementById("tpl-windows").content.cloneNode(true);
+    if (before) host.insertBefore(frag, before); else host.appendChild(frag);
+    host.querySelectorAll("[data-win]").forEach(function (span) {
+      var k = span.getAttribute("data-win").split(".");
+      span.textContent = WIN[k[0]][k[1]].toLocaleString();
+    });
+  }
+  function playWindows(host) {
+    host.querySelectorAll("[data-win]").forEach(function (span) {
+      var k = span.getAttribute("data-win").split(".");
+      var v = WIN[k[0]][k[1]];
+      if (span.classList.contains("nge-roll")) rollUp(span, v); else span.textContent = v.toLocaleString();
+    });
+    host.querySelectorAll(".nge-effort").forEach(function (fig) {
+      var key = fig.getAttribute("data-series");
+      effortCurve(fig, RECORD, key, key === "cells" ? "cells" : "edits");
+    });
+  }
+  function playRolls(root) {
+    root.querySelectorAll("[data-roll]").forEach(function (span) { rollUp(span, +span.getAttribute("data-roll")); });
+  }
+
+  /* ---- the dialog ---------------------------------------------------------- */
+  var dlg = document.getElementById("pyr-profile");
+  var dialogWindows = dlg.querySelector(".nge-profile-col--left");
+  stampWindows(dialogWindows, document.getElementById("dialog-building"));
+
+  // recent cells, as the game lists them
+  var CELLS = [
+    ["64851…39674", "pyramidal cell", "93d ago", "✓"],
+    ["64851…38687", "", "185d ago", "✓"],
+    ["64851…13584", "", "185d ago", "○"],
+    ["64851…30749", "", "200d ago", "✓"],
+    ["64851…26325", "pyramidal", "201d ago", "✓"],
+    ["64851…85183", "pyc", "201d ago", "✓"],
+    ["64851…84555", "", "202d ago", "✓"]
+  ];
+  var rows = document.getElementById("cell-rows");
+  CELLS.forEach(function (c) {
+    var row = document.createElement("div");
+    row.className = "nge-cell-row";
+    row.title = "Jump to " + c[0];
+    row.innerHTML =
+      '<button class="nge-cell-fav" type="button" title="Toggle favorite">☆</button>' +
+      '<span class="nge-cell-pip ' + (c[3] === "✓" ? "nge-cell-status--complete" : "nge-cell-status--pending") + '">' + c[3] + "</span>" +
+      '<span class="nge-cell-id"></span>' +
+      (c[1] ? '<span class="nge-cell-type"></span>' : "") +
+      '<span class="nge-cell-time"></span>' +
+      '<button class="nge-cell-rename" type="button" title="Rename this cell">✎</button>';
+    row.querySelector(".nge-cell-id").textContent = c[0];
+    if (c[1]) row.querySelector(".nge-cell-type").textContent = c[1];
+    row.querySelector(".nge-cell-time").textContent = c[2];
+    rows.appendChild(row);
+  });
+
+  // the 14 day chart, from the same rows
+  function buildChart() {
+    var host = document.getElementById("chart-bars");
+    host.innerHTML = "";
+    var last = RECORD.slice(-14), maxT = 1;
+    last.forEach(function (d) { maxT = Math.max(maxT, d.edits + d.cells); });
+    last.forEach(function (d, i) {
+      var col = document.createElement("div");
+      col.className = "nge-profile-chart-col";
+      col.title = d.date.toISOString().slice(0, 10) + ": " + d.edits + " edits, " + d.cells + " completions";
+      var wrap = document.createElement("div"); wrap.className = "nge-profile-chart-bar-wrap";
+      if (d.cells) { var b1 = document.createElement("div"); b1.className = "nge-profile-chart-bar nge-profile-chart-bar--completion"; b1.style.height = Math.max(2, d.cells / maxT * 48) + "px"; wrap.appendChild(b1); }
+      if (d.edits) { var b2 = document.createElement("div"); b2.className = "nge-profile-chart-bar nge-profile-chart-bar--edit"; b2.style.height = Math.max(2, d.edits / maxT * 48) + "px"; wrap.appendChild(b2); }
+      col.appendChild(wrap);
+      var lab = document.createElement("div"); lab.className = "nge-profile-chart-day";
+      lab.textContent = i === 13 ? "Today" : d.date.toLocaleDateString("en-US", { weekday: "narrow" });
+      col.appendChild(lab);
+      host.appendChild(col);
+    });
+  }
+  buildChart();
+
+  var opener = null;
+  function openProfile(btn) {
+    opener = btn || document.activeElement;
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    playRolls(dlg);
+    playWindows(dialogWindows);
+    var close = document.getElementById("pyr-profile-close"); if (close) close.focus();
+  }
+  function closeProfile() {
+    if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+  }
+  dlg.addEventListener("close", function () {
+    dialogWindows.querySelectorAll(".nge-effort").forEach(function (f) { if (f._curve) f._curve.destroy(); });
+    if (opener && opener.focus) opener.focus();
+  });
+  document.getElementById("open-profile").addEventListener("click", function (e) { openProfile(e.currentTarget); });
+  document.getElementById("pyr-profile-close").addEventListener("click", closeProfile);
+
+  /* ---- section 2, the block on its own ------------------------------------- */
+  var inlineHost = document.getElementById("inline-host");
+  var inlineCol = document.getElementById("inline-col");
+  var read = document.getElementById("windows-read");
+  stampWindows(inlineCol);
+  function playInline() {
+    playWindows(inlineCol);
+    read.textContent = (motionOff() ? "Landed finished, no motion." : "Drawing once, 1.4 s.") +
+      " Column " + Math.round(inlineCol.getBoundingClientRect().width) + " px, " +
+      (inlineCol.getBoundingClientRect().width >= 560 ? "curve beside the numbers." : "curve under the numbers.");
+  }
+  // play when it scrolls into view the first time, then on demand
+  var played = false;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting && !played) { played = true; playInline(); io.disconnect(); }
+    });
+  }, { threshold: 0.4 });
+  io.observe(inlineHost);
+  setTimeout(function () { if (!played) { played = true; playInline(); io.disconnect(); } }, 4000);
+
+  document.getElementById("replay").addEventListener("click", playInline);
+  document.getElementById("narrow").addEventListener("click", function (e) {
+    var on = e.currentTarget.getAttribute("aria-pressed") !== "true";
+    e.currentTarget.setAttribute("aria-pressed", on ? "true" : "false");
+    inlineHost.classList.toggle("is-narrow", on);
+    setTimeout(playInline, 260);
+  });
+  document.getElementById("reduced").addEventListener("click", function (e) {
+    forceReduced = e.currentTarget.getAttribute("aria-pressed") !== "true";
+    e.currentTarget.setAttribute("aria-pressed", forceReduced ? "true" : "false");
+    playInline();
+  });
+
+  // a resized window redraws the curves finished, without a replay
+  var resizeT = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(function () {
+      var was = forceReduced; forceReduced = true;
+      [inlineCol, dialogWindows].forEach(function (host) {
+        host.querySelectorAll(".nge-effort").forEach(function (fig) {
+          if (!fig.querySelector("svg")) return;
+          var key = fig.getAttribute("data-series");
+          effortCurve(fig, RECORD, key, key === "cells" ? "cells" : "edits");
+        });
+      });
+      forceReduced = was;
+    }, 150);
+  });
+})();
+</script>
+</body>
+</html>
