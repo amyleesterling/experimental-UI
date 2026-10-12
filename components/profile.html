@@ -213,6 +213,9 @@
   /* names are tooltips, not labels (Ames 2026-10-11); the rows shrink to the art */
   .nge-profile-modal .nge-profile-badge .nge-profile-badge-name { display: none; }
   .nge-track-achievements--rest { justify-content: flex-start; }
+  /* the Scout report's five numbers wrap in the last row's narrow right half */
+  .nge-track-achievements--rest .nge-profile-stat-row--scout { flex-wrap: wrap; gap: 8px 18px; }
+  .nge-track-achievements--rest .nge-profile-stat-row--scout .nge-profile-stat-col { flex: 0 1 auto; min-width: 64px; }
   .nge-profile-modal .nge-profile-badges-grid { grid-auto-rows: 56px; background-image: none; }
   /* View all: a round button with a drawn arrow */
   .nge-profile-modal .nge-profile-badge--viewall,
@@ -319,14 +322,23 @@
   /* in the compact tiers the three numbers sit beside the curve, so a row is
      about 110 px instead of 165 and the list keeps its room without a scroll */
   @media (max-height: 960px) {
-    .nge-profile-windows { grid-template-columns: minmax(190px, 2fr) minmax(0, 3fr); align-items: end; gap: 4px 16px; }
+    .nge-profile-windows { gap: 3px; }
     .nge-profile-windows .nge-effort { margin-top: 0; }
-    .nge-profile-header-main { flex: 0 1 auto; max-width: 46%; }
-    .nge-profile-header-side { flex: 1 1 auto; justify-content: flex-end; }
+    .nge-track-row { padding: 4px 0 6px; }
+    .nge-track-head { margin-bottom: 3px; }
+    /* the awards side stacks its two sections at the right, so the header
+       stays as tall as the name and bio, never wrapping under them */
+    .nge-profile-header-main { flex: 0 1 auto; max-width: 40%; }
+    .nge-profile-header-side { flex: 1 1 auto; flex-direction: column; align-items: flex-end; gap: 4px; padding-top: 0; }
+    .nge-profile-header-side .nge-profile-stat-tile { min-width: 96px; }
+    .nge-track-row--days .nge-profile-stat-val--hero { font-size: 1.25em; }
+    .nge-track-row--days .nge-days-next { margin-top: 1px; }
+    .nge-cell-list-title { white-space: normal; }
   }
   /* under 760 px (a small laptop): smaller still, and the bio goes */
   @media (max-height: 760px) {
-    .nge-track-row { padding: 4px 0 6px; }
+    .nge-track-row { padding: 3px 0 5px; }
+    .nge-profile-modal .nge-profile-stat-breakdown { display: none; }
     .nge-track-head { margin-bottom: 3px; }
     .nge-track-feature-icon { width: 52px; height: 52px; }
     .nge-track-row:nth-child(3) .nge-track-feature-icon { width: 40px; height: 40px; }
@@ -364,10 +376,15 @@
   .nge-profile-header-side .nge-profile-stat-tile { padding: 3px 10px; min-width: 120px; }
   /* short screens (laptops): smaller rows so the list under them is in reach */
   @media (max-height: 960px) {
-    .nge-track-row { padding: 6px 0 8px; }
-    .nge-track-head { margin-bottom: 4px; }
-    .nge-profile-header-side .nge-profile-stat-tile { padding: 1px 8px; min-width: 104px; }
-    .nge-profile-modal .nge-profile-stat-label { margin-bottom: 2px; }
+    .nge-track-row { padding: 4px 0 6px; }
+    .nge-track-head { margin-bottom: 3px; }
+    .nge-profile-header-side .nge-profile-stat-tile { padding: 1px 8px; min-width: 96px; }
+    .nge-profile-modal .nge-profile-header-side .nge-profile-badge-img { width: 36px; height: 36px; }
+    .nge-profile-modal .nge-profile-header-side .nge-profile-badge-icon { width: 32px; height: 32px; }
+    .nge-profile-modal .nge-profile-stat-label { margin-bottom: 1px; }
+    .nge-profile-modal .nge-profile-stat-breakdown { margin-top: 2px; }
+    /* the curve's caption goes on laptops; hovering the curve still reads any day */
+    .nge-profile-modal .nge-effort-cap { display: none; }
     .nge-profile-modal .nge-profile-header { padding-bottom: 4px; margin-bottom: 0; }
     .nge-profile-modal .nge-profile-name { font-size: 1.25em; }
     .nge-profile-modal .nge-profile-bio { margin-top: 0; }
@@ -377,7 +394,7 @@
     .nge-track-feature-icon { width: 72px; height: 72px; }
     .nge-track-row:nth-child(3) .nge-track-feature-icon { width: 56px; height: 56px; }
     .nge-profile-modal .nge-profile-stat-val { font-size: 1.08em; }
-    .nge-profile-modal .nge-profile-stat-val--hero { font-size: 1.35em; }
+    .nge-profile-modal .nge-profile-stat-val--hero { font-size: 1.25em; }
     .nge-profile-modal .nge-profile-badges-grid { grid-auto-rows: 48px; }
     .nge-profile-modal .nge-profile-header { padding-bottom: 12px; }
     .nge-profile-windows { gap: 6px; }
@@ -1028,7 +1045,7 @@
     for (var i = 0; i < N; i++) { s += days[i][key]; cum.push(s); }
     var total = s, max = Math.max(1, total);
     var W = Math.max(120, Math.round(fig.getBoundingClientRect().width)) || 400;
-    var H = matchMedia("(max-height: 760px)").matches ? 36 : matchMedia("(max-height: 960px)").matches ? 48 : 76;
+    var H = matchMedia("(max-height: 760px)").matches ? 26 : matchMedia("(max-height: 960px)").matches ? 36 : 76;
     var P = { l: 1, r: 1, t: 18, b: 4 }, iw = W - P.l - P.r, ih = H - P.t - P.b, base = P.t + ih;
     function X(i) { return P.l + (N > 1 ? i / (N - 1) : 1) * iw; }
     function Y(v) { return P.t + (1 - v / max) * ih; }
