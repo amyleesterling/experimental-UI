@@ -196,7 +196,9 @@
   .nge-profile-modal .nge-profile-col--right { flex: 0 1 420px; min-width: 300px; }
   .nge-track-row {
     display: grid;
-    grid-template-columns: 128px minmax(0, 1fr) minmax(0, 1fr);
+    /* the stats take the larger share: three windows with merge/split
+       breakdowns need the room, the tile grid is capped at 440 px */
+    grid-template-columns: 128px minmax(0, 1.25fr) minmax(0, 1fr);
     gap: 0 22px;
     padding: 16px 0 18px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -315,8 +317,34 @@
   .nge-profile-stat-col--all .nge-profile-stat-val,
   .nge-track-row--days .nge-profile-stat-val--hero {
     font-family: 'Orbitron', 'Rajdhani', ui-monospace, 'Cascadia Code', monospace;
-    font-size: 1.6em; font-weight: 700; letter-spacing: 0.02em; color: var(--track);
+    font-size: 1.6em; font-weight: 700; letter-spacing: 0.02em; line-height: 1.15; color: var(--track);
     text-shadow: 0 0 16px color-mix(in srgb, var(--track) 35%, transparent);
+  }
+  /* The three windows share their lines (Ames 2026-10-12: "all time is out
+     of alignment with the other stats"): one grid for the nine cells, so
+     the labels sit on one line, the three numbers on ONE BASELINE whatever
+     their face and size, and the merge/split breakdowns on one line under
+     them. The columns are sized to their content, so the row never runs
+     past its box into the Achievements ("edit badges are very close to the
+     edge of the graph"); a breakdown short of room for one line wraps. */
+  .nge-profile-windows .nge-profile-stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(min-content, 1fr));
+    gap: 0 16px;
+    align-items: baseline;
+  }
+  .nge-profile-windows .nge-profile-stat-col { display: contents; }
+  .nge-profile-windows .nge-profile-stat-col:nth-child(1) > * { grid-column: 1; }
+  .nge-profile-windows .nge-profile-stat-col:nth-child(2) > * { grid-column: 2; }
+  .nge-profile-windows .nge-profile-stat-col:nth-child(3) > * { grid-column: 3; }
+  .nge-profile-windows .nge-profile-stat-label { grid-row: 1; }
+  .nge-profile-windows .nge-profile-stat-val { grid-row: 2; }
+  .nge-profile-windows .nge-profile-stat-breakdown { grid-row: 3; flex-wrap: wrap; row-gap: 2px; min-width: 0; }
+  /* where the windows are too narrow for one line (a 1366 px laptop) all
+     three breakdowns stack as two lines together */
+  .nge-profile-windows { container-type: inline-size; }
+  @container (max-width: 360px) {
+    .nge-profile-stat-breakdown { flex-direction: column; align-items: flex-start; row-gap: 1px; }
   }
   @media (max-height: 960px) {
     .nge-profile-stat-col--all .nge-profile-stat-val, .nge-track-row--days .nge-profile-stat-val--hero { font-size: 1.4em; }
@@ -326,6 +354,9 @@
   @media (max-height: 960px) {
     .nge-profile-windows { gap: 3px; }
     .nge-profile-windows .nge-effort { margin-top: 0; }
+    .nge-profile-windows .nge-profile-stat-bp { font-size: 0.84em; gap: 3px; }
+    .nge-profile-windows .nge-profile-stat-icon { width: 16px; height: 16px; }
+    .nge-profile-windows .nge-profile-stat-breakdown { column-gap: 8px; }
     .nge-track-row { padding: 4px 0 6px; }
     .nge-track-head { margin-bottom: 3px; }
     /* the awards side stacks its two sections at the right, so the header
