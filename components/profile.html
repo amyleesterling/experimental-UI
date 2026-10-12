@@ -397,7 +397,8 @@
   .nge-track-row--rest .nge-profile-section--cells { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
   .nge-track-row--rest .nge-cell-list { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; margin-top: 0; }
   .nge-track-row--rest .nge-cell-list-scroll { flex: 1 1 0; min-height: 0; max-height: none; overflow-y: auto; }
-  /* the header: name and bio at the left; Special Awards and Building Pyr at the right */
+  /* the header: name and bio at the left; Special Awards and Cells identified at the right
+     (Building Pyr sits under the Scout report since 2026-10-12) */
   .nge-profile-modal .nge-profile-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 14px 28px; }
   .nge-profile-header-main { flex: 1 1 260px; min-width: 0; }
   .nge-profile-header-side { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 26px; padding-top: 4px; }
@@ -491,6 +492,18 @@
     color: rgba(200, 215, 240, .45);
   }
   /* the range: four small words in the curve's colour, the chosen one lit */
+  .nge-profile-stat-tile--identified .nge-profile-stat-val { color: #d8dde8; text-shadow: none; }
+  .nge-track-achievements--rest .nge-profile-section--building { margin-top: 16px; }
+  /* on laptops Building Pyr is one line, the label and the two numbers side by side */
+  @media (max-height: 960px) {
+    .nge-track-achievements--rest .nge-profile-section--building { margin-top: 4px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 10px; }
+    .nge-track-achievements--rest .nge-profile-section--building .nge-profile-section-label { margin: 0; }
+    .nge-track-achievements--rest .nge-profile-section--building .nge-profile-stat-row--tiles { display: flex; gap: 12px; flex-wrap: nowrap; }
+    .nge-track-achievements--rest .nge-profile-section--building .nge-profile-stat-tile { flex: none; min-width: 0; padding: 0; gap: 6px; background: none; border: none; box-shadow: none; }
+    .nge-track-achievements--rest .nge-profile-section--building .nge-profile-stat-val--hero { font-size: 1em; }
+    .nge-track-achievements--rest .nge-profile-section--building .nge-profile-section-label { font-size: 0.7em; }
+    .nge-track-achievements--rest .nge-profile-section--building .nge-profile-stat-label { font-size: 0.62em; }
+  }
   .nge-effort-spans { display: inline-flex; gap: 1px; margin: 0 auto; }
   .nge-effort-span {
     appearance: none; background: none; border: 0; margin: 0; padding: 1px 6px;
@@ -575,8 +588,8 @@
       generated to add up to those totals and is not her history, and the
       names on the achievements are the art files' names. The range under
       each curve (all time, 90, 30 or 7 days) is one shared choice kept in
-      this browser, and the cells identified count in the Scout report is a
-      demo number. Nothing here signs in or sends anything. Visual component
+      this browser, and the cells identified count beside the name is a demo
+      number. Nothing here signs in or sends anything. Visual component
       only.
     </p>
   </header>
@@ -643,7 +656,7 @@
       <li><b>One row per track</b> across the old left and middle columns: the latest Achievement at the left, the stats and curve beside it, the other Achievements won on the same line. Cells, then edits, then days. The username is the title. Each row has one head: its label, a circuit trace that draws out to a pad, a second pad the same small distance on in every row, and from it the bar toward the next Achievement, lit as far as the count has come, with a quiet note of how many to go at its end. All time stands out in the display face the career totals use, in the track's colour. The profile counts work in Pyr on all of its datasets. On a laptop screen the rows draw smaller so the list under them is in reach.</li>
       <li><b>Cells completed gets today, past 7 days and all time</b>, per dataset like edits, read from the completions list with each cell's completion time.</li>
       <li><b>A curve of the running total above each</b>, from the player's first day on that dataset to today, drawn once on open, with the past 7 days and today marked on it.</li>
-      <li><b>No scroll.</b> The three rows take their natural height and the last row takes what is left, with the recently completed cells scrolling in their own box. Special Awards and, for the builder, Building Pyr sit beside the name; the Scout report has the last row's right half.</li>
+      <li><b>No scroll.</b> The three rows take their natural height and the last row takes what is left, with the recently completed cells scrolling in their own box. Special Awards and the count of cells identified sit beside the name; the Scout report, and for the builder Building Pyr under it, have the last row's right half.</li>
       <li><b>Days helping science in Pyr</b> shows the latest Days Achievement beside the total; streak and best streak stay on the right under Streak. Annotations are a column of the Scout report, not a row of their own. Achievement names are tooltips, not labels, and the featured one is left out of its row.</li>
       <li><b>The recent cells list</b> keeps the browser's own history; when that is empty (a new device, a test build on another address) it lists the cells completed on this dataset from the server, the same rows as the numbers.</li>
       <li><b>One colour key.</b> Cells are sky blue, edits gold and days purple, the colours of their Achievement sections, on the labels, the curves and the Last 14 Days chart. The View all tile is a round button with a drawn arrow, and the shelf line under the tiles is gone.</li>
@@ -801,16 +814,15 @@
                     <div class="nge-profile-badge" title="Connectome Coin"><div class="nge-profile-badge-img"><img src="../media/badges/special/connectome-coin.png" alt="" class="nge-profile-badge-icon"></div><div class="nge-profile-badge-name">Connectome Coin</div></div>
                   </div>
                 </div>
-                <div class="nge-profile-section nge-profile-section--building">
-                  <div class="nge-profile-section-label">▌ Building Pyr</div>
+                <!-- Cells identified beside the name, where Building Pyr was,
+                     until the Identification track has a row of its own
+                     (Ames 2026-10-12) -->
+                <div class="nge-profile-section nge-profile-section--identified">
+                  <div class="nge-profile-section-label">▌ Cells identified</div>
                   <div class="nge-profile-stat-row nge-profile-stat-row--tiles">
-                    <div class="nge-profile-stat-col nge-profile-stat-tile nge-profile-stat-tile--build" title="Changes saved to Pyr's code">
-                      <div class="nge-profile-stat-label">Commits</div>
-                      <div class="nge-profile-stat-val nge-profile-stat-val--hero"><span class="nge-roll" data-roll="1528">0</span></div>
-                    </div>
-                    <div class="nge-profile-stat-col nge-profile-stat-tile nge-profile-stat-tile--build" title="Times a new version of Pyr has gone live">
-                      <div class="nge-profile-stat-label">Deploys</div>
-                      <div class="nge-profile-stat-val nge-profile-stat-val--hero"><span class="nge-roll" data-roll="804">0</span></div>
+                    <div class="nge-profile-stat-col nge-profile-stat-tile nge-profile-stat-tile--identified" title="Cells whose type you set in Pyr, on its real datasets (the Sandbox does not count). A cell counts once, by its latest type; Unknown or Unsure does not count. Not annotation points.">
+                      <div class="nge-profile-stat-label">All time</div>
+                      <div class="nge-profile-stat-val nge-profile-stat-val--hero"><span class="nge-roll" data-roll="41">0</span></div>
                     </div>
                   </div>
                 </div>
@@ -932,7 +944,19 @@
                     <div class="nge-profile-stat-col" title="Tags you fixed for others"><div class="nge-profile-stat-label">You Fixed</div><div class="nge-profile-stat-val" style="color: #9d9;"><span class="nge-roll" data-roll="14">0</span></div></div>
                     <div class="nge-profile-stat-col" title="Cells where you helped answer another player's request"><div class="nge-profile-stat-label">Assists</div><div class="nge-profile-stat-val" style="color: #7f8;"><span class="nge-roll" data-roll="0">0</span></div></div>
                     <div class="nge-profile-stat-col" title="Points, lines and boxes you placed in annotation layers, on every dataset"><div class="nge-profile-stat-label">Annotations</div><div class="nge-profile-stat-val" style="color: #c9a0ff; text-shadow: 0 0 14px rgba(201, 160, 255, 0.35);"><span class="nge-roll" data-roll="2467">0</span></div></div>
-                    <div class="nge-profile-stat-col" title="Cells whose type you set in Pyr, on its real datasets (the Sandbox does not count). A cell counts once, by the type you gave it last; Unknown or Unsure does not count."><div class="nge-profile-stat-label">Cells identified</div><div class="nge-profile-stat-val"><span class="nge-roll" data-roll="41">0</span></div></div>
+                  </div>
+                </div>
+                <div class="nge-profile-section nge-profile-section--building">
+                  <div class="nge-profile-section-label">▌ Building Pyr</div>
+                  <div class="nge-profile-stat-row nge-profile-stat-row--tiles">
+                    <div class="nge-profile-stat-col nge-profile-stat-tile nge-profile-stat-tile--build" title="Changes saved to Pyr's code">
+                      <div class="nge-profile-stat-label">Commits</div>
+                      <div class="nge-profile-stat-val nge-profile-stat-val--hero"><span class="nge-roll" data-roll="1528">0</span></div>
+                    </div>
+                    <div class="nge-profile-stat-col nge-profile-stat-tile nge-profile-stat-tile--build" title="Times a new version of Pyr has gone live">
+                      <div class="nge-profile-stat-label">Deploys</div>
+                      <div class="nge-profile-stat-val nge-profile-stat-val--hero"><span class="nge-roll" data-roll="804">0</span></div>
+                    </div>
                   </div>
                 </div>
               </div>
