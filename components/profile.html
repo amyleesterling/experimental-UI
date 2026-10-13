@@ -327,9 +327,12 @@
      them. The columns are sized to their content, so the row never runs
      past its box into the Achievements ("edit badges are very close to the
      edge of the graph"); a breakdown short of room for one line wraps. */
+  /* on a very wide screen the Overview keeps its 1920 px proportions, capped
+     and centred in the frame (Ames 2026-10-13) */
+  .nge-profile-modal .nge-profile-body { width: 100%; max-width: 1880px; align-self: center; margin: 0 auto; }
   .nge-profile-windows .nge-profile-stat-row {
     display: grid;
-    grid-template-columns: repeat(3, minmax(min-content, 1fr));
+    grid-template-columns: repeat(3, minmax(min-content, 210px));
     gap: 0 16px;
     align-items: baseline;
   }
