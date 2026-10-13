@@ -272,7 +272,10 @@
   .nge-track-row--cells { --track: #90fff2; }
   .nge-track-row--edits { --track: #ffd08a; }
   .nge-track-row--days  { --track: #c9a8ff; }
-  .nge-track-head { grid-column: 1 / -1; display: flex; align-items: center; margin-bottom: 12px; min-width: 0; }
+  .nge-track-head { grid-column: 1 / -1; display: flex; align-items: center; margin-bottom: 12px; min-width: 0;
+    /* ends above the Achievements' last tile (set by layoutTrackHeads), not
+       at the frame's edge (Ames 2026-10-13) */
+    width: var(--head-end, auto); max-width: 100%; justify-self: start; box-sizing: border-box; }
   .nge-track-head .nge-profile-section-label { margin: 0 10px 0 0; white-space: nowrap; color: var(--track); }
   /* the head's lines sit at about half strength so the curve below, in the
    same colour, stays the figure (Ames 2026-10-11: "they need distinction") */
@@ -1129,6 +1132,22 @@
   function dayLabel(d) { return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); }
   function monthLabel(d) { return d.toLocaleDateString("en-US", { month: "short", year: "numeric" }); }
 
+  // the row heads end above the Achievements' last tile, the arrow to the
+  // Trophy Case: the count's centre on the arrow's centre (Ames 2026-10-13)
+  function layoutTrackHeads() {
+    document.querySelectorAll(".nge-track-row").forEach(function (row) {
+      var head = row.querySelector(".nge-track-head"); if (!head) return;
+      var tiles = row.querySelectorAll(".nge-track-achievements .nge-profile-badge");
+      var last = tiles[tiles.length - 1];
+      if (!last || matchMedia("(max-width: 760px)").matches) { head.style.removeProperty("--head-end"); return; }
+      var art = last.querySelector(".nge-profile-badge-img") || last;
+      var r = row.getBoundingClientRect(), a = art.getBoundingClientRect();
+      var count = head.querySelector(".nge-track-count");
+      var end = a.left + a.width / 2 - r.left + (count ? count.offsetWidth / 2 : 0);
+      head.style.setProperty("--head-end", Math.round(end) + "px");
+    });
+  }
+  window.addEventListener("resize", layoutTrackHeads);
   // the range: one choice for both curves (Ames 2026-10-12), kept in this browser
   var CURVE_SPAN_KEY = "nge-profile-curve-span";
   function curveSpan() { try { var v = Number(localStorage.getItem(CURVE_SPAN_KEY)); return [0, 90, 30, 7].indexOf(v) >= 0 ? v : 0; } catch (e) { return 0; } }
@@ -1380,6 +1399,7 @@
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
     playRolls(dlg);
     playWindows(dialogWindows);
+    layoutTrackHeads(); setTimeout(layoutTrackHeads, 1800);
     var close = document.getElementById("pyr-profile-close"); if (close) close.focus();
   }
   function closeProfile() {
