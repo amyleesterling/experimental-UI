@@ -1257,7 +1257,8 @@
       land(1);
       fig.classList.add("is-done");
     }
-    if (motionOff()) {
+    // the compact layout of a small or zoomed in screen lands at once, no draw (Ames 2026-10-16)
+    if (motionOff() || matchMedia("(max-height: 960px)").matches) {
       arrive();
     } else {
       var start = performance.now(), DUR = 1400;
