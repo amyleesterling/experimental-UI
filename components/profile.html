@@ -423,9 +423,9 @@
     .nge-profile-modal .nge-profile-header-side .nge-profile-badge-icon { width: 32px; height: 32px; }
     .nge-profile-modal .nge-profile-stat-label { margin-bottom: 1px; }
     .nge-profile-modal .nge-profile-stat-breakdown { margin-top: 2px; }
-    /* the curve's caption keeps only the range on laptops; hovering the curve still reads any day */
-    .nge-profile-modal .nge-effort-cap-start, .nge-profile-modal .nge-effort-cap-end { display: none; }
-    .nge-profile-modal .nge-effort-cap { margin-top: 1px; }
+    /* no curve at all on the compact layout, a laptop or a small screen zoomed in
+       (Ames 2026-10-16, Annkri's profile): the numbers stay */
+    .nge-profile-modal .nge-effort { display: none; }
     .nge-profile-modal .nge-profile-header { padding-bottom: 4px; margin-bottom: 0; }
     .nge-profile-modal .nge-profile-name { font-size: 1.25em; }
     .nge-profile-modal .nge-profile-bio { margin-top: 0; }
