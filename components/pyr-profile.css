@@ -44,28 +44,9 @@
    2026-09-29, screen recording). Stop alphas are the old ones x 0.7, the
    ring's former opacity. */
 .nge-profile-modal .nge-overlay {
-  animation: ngeProfileMaterialize 0.28s cubic-bezier(0.16, 1, 0.3, 1) both, ngeHoloEdgeSpin 8s linear infinite;
-  background:
-    linear-gradient(135deg, rgba(4, 6, 14, 0.97) 0%, rgba(8, 12, 24, 0.95) 50%, rgba(4, 8, 18, 0.97) 100%) padding-box,
-    conic-gradient(
-      from var(--nge-holo-angle, 0deg),
-      transparent 0%,
-      rgba(74, 158, 255, 0.0) 10%,
-      rgba(74, 158, 255, 0.245) 14%,
-      rgba(0, 210, 255, 0.105) 18%,
-      transparent 22%,
-      transparent 35%,
-      rgba(160, 120, 255, 0.175) 39%,
-      rgba(120, 80, 220, 0.07) 43%,
-      transparent 47%,
-      transparent 60%,
-      rgba(0, 255, 200, 0.14) 64%,
-      rgba(74, 158, 255, 0.056) 68%,
-      transparent 72%,
-      transparent 85%,
-      rgba(74, 158, 255, 0.105) 89%,
-      transparent 93%
-    ) border-box !important;
+  animation: ngeProfileMaterialize 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* the orbiting conic light under the border is gone: the frame fills the window now (Ames 2026-10-17) */
+  background: linear-gradient(135deg, rgba(4, 6, 14, 0.97) 0%, rgba(8, 12, 24, 0.95) 50%, rgba(4, 8, 18, 0.97) 100%) padding-box !important;
 }
 
 @property --nge-holo-angle {
