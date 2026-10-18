@@ -283,32 +283,32 @@
   .nge-track-wire {
     flex: 0 1 120px; min-width: 16px; --nge-track-run: 1;
     background: linear-gradient(var(--trace), var(--trace)) left 50% / calc(100% * var(--nge-track-run)) 1.4px no-repeat;
-    animation: ngeTrackRun 420ms cubic-bezier(0.3, 0, 0.2, 1) 1 both;
   }
   .nge-track-pads {
     flex: none; width: 22px;
     background:
       radial-gradient(circle at 4.5px 50%, #0a1223 0 0.9px, var(--pad) 1.3px 2.1px, transparent 2.5px),
       radial-gradient(circle at 13.5px 50%, #0a1223 0 0.9px, var(--pad) 1.3px 2.1px, transparent 2.5px);
-    animation: ngeTrackPads 180ms linear 420ms 1 both;
   }
   .nge-track-bar {
     flex: 1 1 0; min-width: 24px; --nge-track-fill: 1; cursor: help;
     background:
       linear-gradient(var(--trace), var(--trace)) left 50% / calc(100% * var(--frac, 1) * var(--nge-track-fill)) 1.4px no-repeat,
       linear-gradient(rgba(201, 228, 255, 0.14), rgba(201, 228, 255, 0.14)) left 50% / 100% 1.4px no-repeat;
-    animation: ngeTrackFill 560ms cubic-bezier(0.3, 0, 0.2, 1) 560ms 1 both;
   }
-  .nge-track-row--edits .nge-track-wire { animation-delay: 120ms; }
-  .nge-track-row--edits .nge-track-pads { animation-delay: 540ms; }
-  .nge-track-row--edits .nge-track-bar  { animation-delay: 680ms; }
-  .nge-track-row--days  .nge-track-wire { animation-delay: 240ms; }
-  .nge-track-row--days  .nge-track-pads { animation-delay: 660ms; }
-  .nge-track-row--days  .nge-track-bar  { animation-delay: 800ms; }
   @keyframes ngeTrackRun  { 0% { --nge-track-run: 0; }  100% { --nge-track-run: 1; } }
   @keyframes ngeTrackPads { 0% { opacity: 0; } 100% { opacity: 1; } }
   @keyframes ngeTrackFill { 0% { --nge-track-fill: 0; } 100% { --nge-track-fill: 1; } }
-  @media (prefers-reduced-motion: reduce) { .nge-track-wire, .nge-track-pads, .nge-track-bar { animation: none; } }
+  /* the Overview builds top to bottom (Ames 2026-10-17): a row that has not
+     had its turn keeps its label and its space, the rest fades in when the
+     row goes live and its trace draws then */
+  .nge-track-row.is-live .nge-track-wire { animation: ngeTrackRun 420ms cubic-bezier(0.3, 0, 0.2, 1) 1 both; }
+  .nge-track-row.is-live .nge-track-pads { animation: ngeTrackPads 180ms linear 420ms 1 both; }
+  .nge-track-row.is-live .nge-track-bar  { animation: ngeTrackFill 560ms cubic-bezier(0.3, 0, 0.2, 1) 560ms 1 both; }
+  .nge-track-row > *, .nge-track-head > * { transition: opacity 0.3s ease-out; }
+  .nge-track-row:not(.is-live) > :not(.nge-track-head),
+  .nge-track-row:not(.is-live) .nge-track-head > :not(.nge-profile-section-label) { opacity: 0; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) { .nge-track-row.is-live :is(.nge-track-wire, .nge-track-pads, .nge-track-bar) { animation: none; } .nge-track-row > *, .nge-track-head > * { transition: none; } }
   .nge-track-count {
     margin-left: 10px; font-size: 0.7em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
     white-space: nowrap; cursor: help; color: color-mix(in srgb, var(--track) 72%, transparent);
@@ -1402,6 +1402,10 @@
   function openProfile(btn) {
     opener = btn || document.activeElement;
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    var rows = dlg.querySelectorAll(".nge-track-row");
+    rows.forEach(function (r) { r.classList.remove("is-live"); });
+    var gap = motionOff() ? 0 : 420;
+    rows.forEach(function (r, i) { setTimeout(function () { r.classList.add("is-live"); layoutTrackHeads(); }, gap ? 380 + i * gap : 0); });
     playRolls(dlg);
     playWindows(dialogWindows);
     layoutTrackHeads(); setTimeout(layoutTrackHeads, 1800);
