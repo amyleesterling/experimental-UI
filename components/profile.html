@@ -305,10 +305,22 @@
   .nge-track-row.is-live .nge-track-wire { animation: ngeTrackRun 420ms cubic-bezier(0.3, 0, 0.2, 1) 1 both; }
   .nge-track-row.is-live .nge-track-pads { animation: ngeTrackPads 180ms linear 420ms 1 both; }
   .nge-track-row.is-live .nge-track-bar  { animation: ngeTrackFill 560ms cubic-bezier(0.3, 0, 0.2, 1) 560ms 1 both; }
-  .nge-track-row > *, .nge-track-head > * { transition: opacity 0.3s ease-out; }
   .nge-track-row:not(.is-live) > :not(.nge-track-head),
   .nge-track-row:not(.is-live) .nge-track-head > :not(.nge-profile-section-label) { opacity: 0; pointer-events: none; }
-  @media (prefers-reduced-motion: reduce) { .nge-track-row.is-live :is(.nge-track-wire, .nge-track-pads, .nge-track-bar) { animation: none; } .nge-track-row > *, .nge-track-head > * { transition: none; } }
+  /* when a row goes live everything comes in from the top down (Ames 2026-10-17): the
+     stats settle down from above, the tiles follow left to right, the count after its bar */
+  @keyframes ngeRowIn { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: none; } }
+  .nge-track-row .nge-profile-section { animation: none; }
+  .nge-track-row.is-live > .nge-track-stats,
+  .nge-track-row.is-live > .nge-track-achievements--rest { animation: ngeRowIn 0.3s ease-out both; }
+  .nge-track-row.is-live .nge-track-count { animation: ngeRowIn 0.3s ease-out 0.55s both; }
+  .nge-track-row.is-live .nge-track-achievements .nge-profile-badge { animation: ngeRowIn 0.26s ease-out both; }
+  .nge-track-row.is-live .nge-track-achievements .nge-profile-badge:nth-child(2) { animation-delay: 70ms; }
+  .nge-track-row.is-live .nge-track-achievements .nge-profile-badge:nth-child(3) { animation-delay: 140ms; }
+  .nge-track-row.is-live .nge-track-achievements .nge-profile-badge:nth-child(4) { animation-delay: 210ms; }
+  .nge-track-row.is-live .nge-track-achievements .nge-profile-badge:nth-child(5) { animation-delay: 280ms; }
+  .nge-track-row.is-live .nge-track-achievements .nge-profile-badge:nth-child(n+6) { animation-delay: 350ms; }
+  @media (prefers-reduced-motion: reduce) { .nge-track-row.is-live :is(.nge-track-wire, .nge-track-pads, .nge-track-bar, .nge-track-count, .nge-track-stats, .nge-track-achievements--rest, .nge-profile-badge) { animation: none; } }
   .nge-track-count {
     margin-left: 10px; font-size: 0.7em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
     white-space: nowrap; cursor: help; color: color-mix(in srgb, var(--track) 72%, transparent);
