@@ -1273,7 +1273,7 @@
     if (motionOff() || matchMedia("(max-height: 960px)").matches) {
       arrive();
     } else {
-      var start = performance.now(), DUR = 1400;
+      var start = performance.now(), DUR = 1000;
       function frame(now) {
         var k = Math.min(1, (now - start) / DUR);
         land(1 - Math.pow(1 - k, 3));
@@ -1416,8 +1416,8 @@
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
     var rows = dlg.querySelectorAll(".nge-track-row");
     rows.forEach(function (r) { r.classList.remove("is-live"); });
-    var gap = motionOff() ? 0 : 420;
-    rows.forEach(function (r, i) { setTimeout(function () { r.classList.add("is-live"); layoutTrackHeads(); }, gap ? 380 + i * gap : 0); });
+    var gap = motionOff() ? 0 : 260;  // the first row 0.25 s in, then 0.26 s apart (Ames 2026-10-17)
+    rows.forEach(function (r, i) { setTimeout(function () { r.classList.add("is-live"); layoutTrackHeads(); }, gap ? 250 + i * gap : 0); });
     playRolls(dlg);
     playWindows(dialogWindows);
     layoutTrackHeads(); setTimeout(layoutTrackHeads, 1800);
@@ -1440,7 +1440,7 @@
   stampWindows(inlineCol);
   function playInline() {
     playWindows(inlineCol);
-    read.textContent = (motionOff() ? "Landed finished, no motion." : "Drawing once, 1.4 s.") +
+    read.textContent = (motionOff() ? "Landed finished, no motion." : "Drawing once, 1 s.") +
       " Column " + Math.round(inlineCol.getBoundingClientRect().width) + " px, " +
       (inlineCol.getBoundingClientRect().width >= 560 ? "curve beside the numbers." : "curve under the numbers.");
   }
